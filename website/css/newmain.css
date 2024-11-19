@@ -1,0 +1,371 @@
+/*Main-Containers start */
+.main-container{
+	margin-left: auto;
+	margin-right: auto;
+	width:1200px;
+	box-sizing: content-box;
+}
+
+
+/*Head-Containers start */
+.head-container{
+	height:200px;
+	padding-top:10px;
+	padding-bottom:5px;
+	background:#080620;
+	border-bottom-right-radius:20px;
+	border-bottom-left-radius:20px;
+	box-shadow: 0 0 4px 4px rgb(44 51 53 / 80%);
+}
+
+
+.head-logo_private{
+    margin-top:25px;
+	margin-left:5px;
+	margin-right:5px;
+	margin-bottom:10px;
+	width:350px;
+	float:left;
+}
+
+.head-container-additionalname-container{
+	height:180px;
+	padding-top:10px;
+	padding-bottom:5px;
+    float:left;
+}
+
+.head-container-full-name-container{
+	margin-left: 20px;
+	margin-right: auto;
+	box-sizing: content-box;
+	display:table;
+}
+
+.head-navtar-container{
+	margin-top:0px;
+	margin-bottom:auto;
+	padding-left:0;
+	box-sizing: content-box;
+	display:table;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+/*Head-Containers stop */
+
+/*Body-Containers start */
+
+.body-container-standard{
+	margin-top:25px;
+	margin-bottom:25px;
+	background:#080620;
+	box-sizing: content-box;
+    padding: 15px;
+	float:left;
+	break-inside: avoid-column;
+	margin-left: 10px;
+    margin-right: 10px;
+	overflow: hidden;
+}
+
+.body-container-dns-container{
+	height:37px;
+	width:100%;
+	box-sizing: content-box;
+	margin-bottom:20px;
+	float:left;
+	break-inside: avoid-column;
+}
+/* debug
+.body-container-dns-container{
+	height:37px;
+	width:100%;
+	background:#388338;
+	box-sizing: content-box;
+	margin-bottom:20px;
+	float:left;
+}
+*/
+
+.body-container-usermanagement-container{
+	width:180px;
+	background: #372929;
+	margin-right:10px;
+	margin-left:10px;
+	margin-top: 10px;
+	margin-bottom:10px;
+	float:left
+}
+
+.body-container-usermanagement-container-substructur{
+	height: 25px;
+    width: auto;
+	margin-top:  10px;
+	margin-bottom: 10px;
+    box-sizing: content-box;
+}
+
+.body-container-usermanagement-container-substructur-text{
+
+    width: 50%;
+    box-sizing: content-box;
+	float:left;
+}
+
+.body-container-usermanagement-container-single-user-subsctructur{
+	height: 25px;
+    width: auto;
+    box-sizing: content-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.body-container-dns-elements-small{
+	height:37px;
+	width:160px;
+	background:#262c61;
+	box-sizing: content-box;
+	margin-left:10px;
+	float:left;
+}
+
+.body-container-dns-elements{
+	height:37px;
+	width:198px;
+	background:#262c61;
+	box-sizing: content-box;
+	margin-left:10px;
+	float:left;
+}
+
+.body-container-dns-elements-big{
+	height:37px;
+	width:416px;
+	background:#262c61;
+	box-sizing: content-box;
+	margin-left:10px;
+	float:left;
+}
+
+.body-container-error-container{
+	width:100%;
+	float:left;
+}
+
+/*Main-Containers stop */
+
+
+/*Dropdown start */
+.dropbtn {
+	background-color: #080620;
+	color: white;
+	padding: 12px;
+	font-size: 16px;
+	border: none;
+  }
+  
+  .dropdown {
+	position: relative;
+	display: inline-block;
+	margin-left:2.5px;
+	margin-right:2.5px;
+  }
+  
+  .dropdown-content {
+	display: none;
+	position: absolute;
+	background-color: #202029;
+	min-width: 25px;
+	width:300px;
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	z-index: 1;
+  }
+  
+  .dropdown-content a {
+	color: rgb(255, 255, 255);
+	padding: 0px 16px;
+	text-decoration: none;
+	font-size: 16px;
+	height:24px;
+	display: block;
+  }
+
+.dropdown-content a:hover {background-color: #ddd;}
+.dropdown:hover .dropdown-content {display: block;}
+.dropdown:hover .dropbtn {background-color: #2e2e3a;}
+
+.dropdown-image{
+	margin-left:5px;
+	float:right;
+	height:100%;
+	height:16px;
+}
+
+.dropdown-content-image{
+	float:left;
+	margin-top:1px;
+	max-height: 20px;
+	max-width: 100%;
+}
+
+/*Dropdown stop */
+
+
+/*Writings start */
+.head1{
+	text-align: center;
+	font-size:23px;
+	margin-top:10px;
+	color: rgb(255, 255, 255);
+}
+
+.head2{
+	text-align: center;
+	font-size:21px;
+	margin-top:5px;
+	color: rgb(255, 255, 255);
+	display: block;
+}
+
+.head2_1{
+	text-align: center;
+	font-size:17px;
+	margin-top:7px;
+	color: rgb(255, 255, 255);
+}
+
+.head3{
+	text-align: center;
+	font-size:15px;
+	margin-top:2px;
+	margin-bottom:2px;
+	color: rgb(255, 255, 255);
+}
+
+.head4{
+	text-align: center;
+	font-size:12px;
+	margin-top:2px;
+	margin-bottom:2px;
+	color: rgb(255, 255, 255);
+}
+
+.heads_left{
+	text-align: left;
+}
+
+.text_no_margin{
+	margin:0px
+}
+
+
+/*Writings stop */
+
+/*Fittings start */
+
+.boxcenter{
+	margin-left:auto;
+	margin-right:auto;
+	display:flow-root;
+    float:unset;
+}
+
+.border-radius{
+    border-radius:20px;
+	box-shadow: 0 0 4px 4px rgb(44 51 53 / 80%);
+	
+}
+
+.border-radius-top-only{
+    border-top-right-radius: 20px;
+	border-top-left-radius: 20px;
+	box-shadow: 0 0 4px 4px rgb(44 51 53 / 80%);
+	
+}
+
+.border-radius-bottom-only{
+    border-bottom-right-radius: 20px;
+	border-bottom-left-radius: 20px;
+	box-shadow: 0 0 4px 4px rgb(44 51 53 / 80%);
+	
+}
+
+
+/*Fittings stop */
+
+
+/*NiceForm start */
+.form-niceform-input[type=text] {
+	padding: 5px;
+	font-size: 14px;
+	border: 1px solid grey;
+	height:100%;
+	float: left;
+	width: 60%;
+	background: #f1f1f1;
+  }
+  
+.form-niceform-button {
+	float: left;
+	width: 35px;
+	height:31px;
+	padding:2px;
+	background: #c47534;
+	color: white;
+	font-size: 14px;
+	border: 1px solid grey;
+	border-left: none;
+	cursor: pointer;
+  }
+  
+.form-niceform-button:hover {
+	background: #0b7dda;
+  }
+  
+.form-niceform::after {
+	content: "";
+	clear: both;
+	display: table;
+  }
+
+/*NiceForm stop */
+
+
+/* Draggable Container start */
+
+
+.draggablecontainer-main {
+	position: absolute;
+	z-index: 9;
+	text-align: center;
+}
+
+.moveable-navbar {
+    width:100%;
+    height:30px;
+    background: #30bf9f;
+}
+
+.moveable-navbar-parts{
+	height:100%;
+	float:left;
+}
+
+/* Moveable Container stop */
+
+
+/* List with bullet Points start */
+
+ul {
+    list-style-type: square; 
+    margin-left: 20px; /* Adjust the margin to control the space between the bullet points and the text */
+
+  }
+
+  li {
+    color: white; /* Set the color of the text (and bullet points) to white */
+  }
+
+  /* List with bullet Points stop 

@@ -1,0 +1,26 @@
+<div class="body-container-standard boxcenter border-radius" style="width:400px;height:350px">
+    <p class="head1">Password Reset</p>      
+    <p class="head3 heads_left">Password</p>
+    <input type="Password" name="password" id="password1" placeholder="Password" value="">
+    <p class="head3 heads_left">Password again</p>
+    <input type="Password" name="password" id="password2" placeholder="Password" value="">
+
+    <p id="reseterror" class="head3 heads_left"></p>
+    <input type="button" onclick='
+            let password1 = document.getElementById("password1").value; 
+            let password2 = document.getElementById("password2").value; 
+            resetpasswd(password1,password2,async function(err,res) {
+                console.log("halooooo")
+                if(err){
+                    console.log(err)
+                    document.getElementById("reseterror").innerHTML = err.msg
+                }
+                else
+                {
+                    console.log("Password Reset Successfull")
+                    window.location.href = "/login";
+                }
+            });'  value="Reset Password">  
+    
+    <br><br>
+</div>

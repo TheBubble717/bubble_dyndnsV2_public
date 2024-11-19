@@ -1,0 +1,30 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:             bubbledns
+# Required-Start:       $local_fs $network
+# Required-Stop:        $local_fs $network
+# Default-Start:        2 3 4 5
+# Default-Stop:         0 1 6
+# Description:          bubbledns
+### END INIT INFO
+
+
+
+USER="bubbledns"
+DIR="/home/bubbledns"
+
+###### BubbleDNS server start/stop script ######
+
+case "$1" in
+start)
+su $USER -c "pm2 start ${DIR}/server.js"
+;;
+stop)
+su $USER -c "pm2 stop ${DIR}/server.js"
+;;
+*)
+echo "Usage: {start}" >&2
+exit 1
+;;
+esac
+exit 0

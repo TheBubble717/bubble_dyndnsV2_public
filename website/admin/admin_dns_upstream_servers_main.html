@@ -1,0 +1,29 @@
+<div class="body-container-standard  border-radius" style="width:850px;min-height:600px">
+    <p class="head1">DNS-Upstream Servers</p>
+  
+    <div class="body-container-dns-container">
+        <div class="body-container-dns-elements-small" style="width:70px;"  ><p class="head2">ID</p></div>
+        <div class="body-container-dns-elements-small" style="width:90px;"  ><p class="head2">Enabled</p></div>
+        <div class="body-container-dns-elements-small" style="width:140px;"  ><p class="head2">IP-Address</p></div>
+        <div class="body-container-dns-elements-small"><p class="head2">Unban at</p></div>
+        <div class="body-container-dns-elements-small" style="width:150px;"  ><p class="head2">Amountbanned</p></div>
+    </div>
+    
+
+
+    <div id="subbody"></div>
+
+    <div class="body-container-dns-container">
+        <div class="body-container-dns-elements-big boxcenter">
+            <div class="body-container-dns-elements"><p class="head2">Add Server</p></div>
+
+            <div class="body-container-dns-elements"  >
+                <input class="form-niceform-input" type="text" value="" id=serverinput>
+                <button class="form-niceform-button"type="submit" id=adddomainbtn onclick="admin_dns_upstream_changer(null,`dns_upstream_servers_create`)" ></button>
+        </div>
+        </div>
+        
+    </div>
+    <br>
+    <p id="dnserror" class="head3 heads_left"></p>
+</div>

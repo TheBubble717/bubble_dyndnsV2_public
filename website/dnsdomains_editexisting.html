@@ -1,0 +1,94 @@
+<div class="body-container-standard  border-radius"
+  style="width:850px;min-height:600px;padding-left:0px;padding-right:0px">
+  <p class="head1" style="margin-bottom:0px" id="domainname1">DB-LOAD</p><br>
+
+  <div class="body-container-standard  border-radius" style="padding:0%;padding-bottom:1%;margin:0px;width:50%">
+    <p class="head1">Domain Data:</p>
+    <div class="body-container-usermanagement-container-single-user-subsctructur" style="height:unset">
+      <div class="body-container-usermanagement-container-single-user-subsctructur-text" style="width:40%">
+        <p class="head2_1 text_no_margin" style="text-align: left;">Domainname</p>
+      </div>
+      <div class="body-container-usermanagement-container-single-user-subsctructur-text" style="width:40%">
+        <p class="head2_1 text_no_margin" id="domainname2" style="text-align: left;">DB-LOAD</p>
+      </div>
+    </div>
+
+    <div class="body-container-usermanagement-container-single-user-subsctructur" style="height:unset">
+      <div class="body-container-usermanagement-container-single-user-subsctructur-text" style="width:40%">
+        <p class="head2_1 text_no_margin" style="text-align: left;">ID</p>
+      </div>
+      <div class="body-container-usermanagement-container-single-user-subsctructur-text" style="width:40%">
+        <p class="head2_1 text_no_margin" id= "domainid" style="text-align: left;">DB-LOAD</p>
+      </div>
+    </div>
+
+    <div class="body-container-usermanagement-container-single-user-subsctructur" style="height:unset">
+      <div class="body-container-usermanagement-container-single-user-subsctructur-text" style="width:40%">
+        <p class="head2_1 text_no_margin" style="text-align: left;">Verificationstatus</p>
+      </div>
+      <div class="body-container-usermanagement-container-single-user-subsctructur-text" style="width:40%">
+        <p class="head2_1 text_no_margin" id= "verificationstatus" style="text-align: left;">DB-LOAD</p>
+        <a class="head2_1 text_no_margin" id= "verificationbtn"style="text-align: left;">Verifiy again?</a>
+      </div>
+    </div>
+
+    <div class="body-container-usermanagement-container-single-user-subsctructur" style="height:unset">
+      <div class="body-container-usermanagement-container-single-user-subsctructur-text" style="width:40%">
+        <p class="head2_1 text_no_margin" style="text-align: left;">Verificationresult</p>
+      </div>
+      <div class="body-container-usermanagement-container-single-user-subsctructur-text" style="width:40%">
+        <p class="head2_1 text_no_margin" id= "verificationresult1" style="text-align: left;"></p>
+        <p class="head2_1 text_no_margin" id= "verificationresult2" style="text-align: left;"></p>
+      </div>
+    </div>
+
+    <div class="body-container-usermanagement-container-single-user-subsctructur" style="height:unset">
+      <div class="body-container-usermanagement-container-single-user-subsctructur-text" style="width:40%">
+        <p class="head2_1 text_no_margin" style="text-align: left;">Last Verification</p>
+      </div>
+      <div class="body-container-usermanagement-container-single-user-subsctructur-text" style="width:40%">
+        <p class="head2_1 text_no_margin" id= "verificationdate" style="text-align: left;">DB-LOAD</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="body-container-standard  border-radius" style="padding:0px;margin:0px;width:50%">
+    <p class="head1" id="domainname">Shared to Users:</p>
+    <div id="sharedtousersbody"></div>
+  </div>
+
+
+
+
+  <div class="body-container-standard  border-radius" style="padding:1%;margin:0px;width:100%">
+    <p class="head1" style="margin-bottom:0px" id="domainname">Control Panel</p>
+    <div class="body-container-dns-container">
+      <div class="body-container-dns-elements-small" style="width:90px;">
+        <p class="head2">Delete</p>
+      </div>
+      <div class="body-container-dns-elements-small" style="width:160px;">
+        <p class="head2">Share with User</p>
+      </div>
+    </div>
+    <div class="body-container-dns-container">
+
+      <div class="body-container-dns-elements-small" style="width:90px;">
+        <div class="boxcenter" style="display: flex; justify-content: center; align-items: center;">
+          <button class="form-niceform-button" type="submit" id="deletedomainbtn" style="background-color: green;"></button>
+        </div>
+      </div>
+      <div class="body-container-dns-elements-small" style="width:160px;">
+        <input class="form-niceform-input" type="text" id="addusershareinput">
+        <button class="form-niceform-button" type="submit" id="addusersharebtn"></button>
+      </div>
+
+
+    </div>
+
+  </div>
+
+
+
+  <div style="float: left;"><p id="dnsdomain_error" class="head3 heads_left"></p></div>
+</div>

@@ -1,0 +1,258 @@
+﻿<head>
+	<link rel="stylesheet" type="text/css" href="/website/css/main.css">
+	<link rel="stylesheet" type="text/css" href="/website/css/newmain.css">
+	<link rel="stylesheet" href="/website/css/foundation.css">
+	<link rel="stylesheet" href="/website/css/app.css">
+	<link rel="icon" href="/website/favicon.ico" type="image/x-icon" />
+	<script src="/website/js/chart/dist/Chart.bundle.min.js"></script>
+
+	<script src="/website/js/myjs/functions.js"></script>
+	<script src="/website/admin/myjs/admin_functions.js"></script>
+	<script src="/website/js/myjs/draggable_div.js"></script>
+	<title>BubbleDNS</title>
+</head>
+
+<body style="background-color:#020714">
+	<div class="main-container">
+		<div class="head-container">
+			<div class="head-container-full-name-container">
+				<div class="head-logo_private">
+					<img class="img-fit" src="/website/images/logo_private.png" alt="Logo1">
+				</div>
+			</div>
+			<div class="head-navtar-container">
+				<div class="dropdown">
+					<button class="dropbtn">Account
+						<div class="dropdown-image">
+							<img class="img-fit" src="/website/images/account.png" alt="Logo1">
+						</div>
+					</button>
+					<div class="dropdown-content">
+						<div id="head-account">
+						</div>
+					</div>
+				</div>
+				<div class="dropdown">
+					<button onclick="dnsmenu()" class="dropbtn">DNS-Entries
+						<div class="dropdown-image">
+							<img class="img-fit" src="/website/images/account.png" alt="Logo1">
+						</div>
+					</button>
+					<div class="dropdown-content">
+						<div id="head-dns">
+						</div>
+					</div>
+				</div>
+				<div class="dropdown">
+					<button onclick="howtomenu()" class="dropbtn">How to
+						<div class="dropdown-image">
+							<img class="img-fit" src="/website/images/account.png" alt="Logo1">
+						</div>
+					</button>
+				</div>
+				<div class="dropdown">
+					<button onclick="aboutusmenu()" class="dropbtn">About us
+						<div class="dropdown-image">
+							<img class="img-fit" src="/website/images/account.png" alt="Logo1">
+						</div>
+					</button>
+				</div>
+				
+			</div>
+		</div>
+		<div id="mainbody" >
+		</div>
+
+	</div>
+</body>
+
+
+<script>
+
+	var account = null;
+	start()
+
+	async function head() {
+		return new Promise(async (resolve, reject) => {
+
+			await loginwithcookie(function (err, res) {
+				if (err) {
+					console.log(err)
+					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="loginmenu()"><div class="dropdown-content-image"></div>Login</a>`
+					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="registermenu()"><div class="dropdown-content-image"></div>Register</a>`
+				}
+				else {
+					account = res
+					if(account.isadmin)
+					{
+						document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="adminmenu()"><div class="dropdown-content-image"></div>Admin-Menu</a>`
+					}
+					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a ><div class="dropdown-content-image"></div>Logged in as ${account.mailaddress}</a>`
+					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="logout()"><div class="dropdown-content-image"></div>Logout</a>`
+					document.getElementById("head-dns").innerHTML = document.getElementById("head-dns").innerHTML + `<a onclick="dnsdomainsmenu()"><div class="dropdown-content-image"></div>Domains</a>`
+
+				}
+			});
+			resolve()
+		});
+	}
+
+	function queryhandler(data, url, routing, isjson) //Fertig
+	{
+		return new Promise((resolve, reject) => {
+			var xhr = new XMLHttpRequest();
+			if (routing == "POST") {
+				xhr.onload = function () {
+					if (isjson) {
+						var answer = JSON.parse(xhr.responseText);
+						if(answer.success === undefined )
+						{
+							resolve(answer)
+							return;
+						}
+						else
+						{
+							if (answer.success === true) {
+							resolve(answer);
+						}
+						else {
+							reject(answer);
+						}
+						return;
+						}
+
+					}
+					else
+					{
+						resolve(xhr.responseText)
+					}
+				}
+				xhr.onerror = function () {
+					alert(xhr.responseText);
+					reject(xhr.responseText);
+				}
+				xhr.open(routing, url, true);
+				xhr.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+				xhr.send(JSON.stringify(data));
+			}
+			else if (routing == "GET") {
+				xhr.onload = function () {
+					if (isjson) {
+						var answer = JSON.parse(xhr.responseText);
+						if(answer.success === undefined )
+						{
+							resolve(answer)
+							return;
+						}
+						else
+						{
+							if (answer.success === true) {
+							resolve(answer);
+						}
+						else {
+							reject(answer);
+						}
+						return;
+						}
+
+					}
+					else
+					{
+						resolve(xhr.responseText)
+					}
+				}
+				xhr.onerror = function () {
+					alert(xhr.responseText);
+					reject(xhr.responseText);
+				}
+
+
+				//GET Realurl = URL + parameters
+				var realurl = url + '?';
+				var notFirst = false;
+				for (var key in data) {
+				if (data.hasOwnProperty(key)) {
+					realurl += (notFirst ? '&' : '') + key + "=" + data[key];
+				}
+				notFirst = true;
+				}
+				console.log(realurl)
+				xhr.open(routing, realurl, true);
+				xhr.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+				xhr.send();
+			}
+		}
+
+		)
+	}
+
+	function websiteloader(url) //Fertig
+	{
+		return new Promise((resolve, reject) => {
+			var xhr = new XMLHttpRequest();
+			xhr.onload = function () {
+				resolve(xhr.responseText);
+
+			}
+			xhr.onerror = function () {
+				alert(xhr.responseText);
+				reject(xhr.responseText);
+			}
+			xhr.open("GET", url, true);
+			xhr.setRequestHeader('Content-type', 'text/html; charset=utf-8');
+			xhr.send();
+		}
+		)
+	}
+
+
+	async function start() //Fertig
+	{	
+		await head()
+		load_site()
+	}
+
+	function load_site()
+	{
+		let site = window.location.pathname.trim().split(/ +/g)[0];
+		if (site == "/") {
+			homemenu();
+		}
+		else if (site == "/home") {
+			homemenu();
+		}
+		else if (site == "/account") {
+			accountmenu();
+		}
+		else if (site == "/dns") {
+			dnsmenu();
+		}
+		else if (site == "/dnsdomains") {
+			dnsdomainsmenu();
+		}
+		else if (site == "/howto") {
+			howtomenu();
+		}
+		else if (site == "/aboutus") {
+			aboutusmenu();
+		}
+		else if (site == "/register") {
+			registermenu();
+		}
+		else if (site == "/login") {
+			loginmenu();
+		}
+		else if (site == "/resetpasswd") {
+			resetpasswdmenu()
+		}
+		else if (site == "/admin") {
+			adminmenu();
+		}
+		
+		else {
+			notfoundmenu();
+		}
+	}
+
+
+</script>

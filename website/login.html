@@ -1,0 +1,36 @@
+<div class="body-container-standard boxcenter border-radius" style="width:400px;height:350px">
+    <p class="head1">Login</p>      
+    <p class="head3 heads_left">mailaddress</p>
+    <input type="text" name="mailaddress" id="mailaddress" placeholder="mailaddress" value="">    
+    <p class="head3 heads_left">Password</p>
+    <input type="Password" name="password" id="password" placeholder="Password" value="">
+
+    <p id="loginerror" class="head3 heads_left"></p>
+    <input type="button" onclick='
+            let mailaddress = document.getElementById("mailaddress").value; 
+            let password = document.getElementById("password").value; 
+            login(mailaddress,password,async function(err,res) {
+                if(err){
+                    document.getElementById("loginerror").innerHTML = err.msg
+                }
+                else
+                {
+                    console.log("Login successfull")
+                    document.cookie = `cookie=${res.data.cookie}; max-age=${30*24*60*60}; path=/;";`;
+                    window.location.href = "/dns";
+                }
+            });'  value="Login">  
+    
+    <br><br>
+    <a href="#" onclick='
+            let mailaddresspswdreset = document.getElementById("mailaddress").value; 
+            req_passwordreset(mailaddresspswdreset,async function(err,res) {
+                if(err){
+                    document.getElementById("loginerror").innerHTML = err.msg
+                }
+                else
+                {
+                    document.getElementById("loginerror").innerHTML = res.data
+                }
+            })'>Forgot Password</a>  
+</div>

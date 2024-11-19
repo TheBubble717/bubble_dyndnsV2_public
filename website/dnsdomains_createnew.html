@@ -1,0 +1,29 @@
+<div class="body-container-standard  border-radius" style="width:850px;min-height:600px">
+  <p class="head1">Create a new Domain</p>
+  <p class="head2_1" style="text-align:unset">In order to use BubbleDNS for your own Domain, you need to set the glue record and nameservers to the following values:</p>
+  <ul>
+    <li><p id="nameserver1" style="margin-bottom:0px">DB-Load</p></li>
+    <li><p id="nameserver2" style="margin-bottom:0px">DB-Load</p></li>
+  </ul>
+  <p class="head2_1" style="text-align:unset">It could take up to 24 hours until the changes get in action!</p>
+  <p class="head2_1" style="text-align:unset">You can test it yourself with the windows command line:</p>
+  <ul>
+    <li><p style="margin-bottom:0px">Enter "nslookup"</p></li>
+    <li><p style="margin-bottom:0px">Enter "set q=ns"</p></li>
+    <li><p style="margin-bottom:0px">Enter "*domain*"</p></li>
+    <p class="head2_1" style="text-align:unset">If both of the servers of BubbleDNS come up, you can now enter the domain on this site</p>
+    <p class="head2_1" style="text-align:unset">After our automated verification system confirms everything, the domain is ready to go</p>
+  </ul>
+  <div class="body-container-dns-elements-big boxcenter">
+    <div class="body-container-dns-elements"><p class="head2">Add Domain</p></div>
+
+    <div class="body-container-dns-elements">
+        <input class="form-niceform-input" type="text" value="" id="adddomaininput">
+        <button class="form-niceform-button" type="submit" id="adddomainbtn"></button>
+    </div>
+</div>
+
+<div style="float: left;"><p id="dnsdomain_error" class="head3 heads_left"></p></div>
+  </div>
+  
+</div>
