@@ -60,9 +60,9 @@ async function bubbledns() {
     var apilog = new logclass({debug:config.api.debug})
     await apilog.activatestream("log/", addfunctions.unixtime_to_local() + " - APIlog.log")
     classdata.api = {
-        "dns": new apiclass_dns(config.dnsapi, apilog),
-        "account": new apiclass_acc(config.accapi, apilog),
-        "admin": new apiclass_admin(config.adminapi, apilog),
+        "dns": new apiclass_dns(config.api, apilog),
+        "account": new apiclass_acc(config.api, apilog),
+        "admin": new apiclass_admin(config.api, apilog),
     }
     classdata.tasks = {
         "dns": web_tasks_dns,

@@ -730,6 +730,8 @@ class apiclass_dns {
                 return;
             }
 
+
+            //Check if specific domain exists, user is the owner and the domain is currently registered -> Get the data of it.
             classdata.db.databasequerryhandler_secure(`select * from domains where id = ? and ownerid = ? AND isregistered =?`, [domaintoverify.id, user.get_user_public().id,true], function (err, sharelist) {
                 if (err) {
                     if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
@@ -737,6 +739,13 @@ class apiclass_dns {
                     return;
                 }
                 if (sharelist.length) {
+
+                    //If you want to verify the maindomain, drop the test to prevent that the domain fails
+                    if(classdata.db.routinedata.bubbledns_settings.maindomain == sharelist[0].domainname)
+                    {
+                        resolve({ "success": false, "msg": "Can't verify the maindomain!" })
+                        return;
+                    }
 
                     const promise1 = classdata.dnsserver.askrealdns(`${sharelist[0].domainname}`, "NS");
                     const promise2 = that.dns_get_bubblednsservers()
