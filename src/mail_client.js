@@ -1,9 +1,6 @@
 "use strict";
-
-import { createRequire } from "module"
-const require = createRequire(import.meta.url)
-const EventEmitter = require('events');
-const nodemailer = require('nodemailer');
+import {EventEmitter} from "node:events"
+import * as nodemailer from "nodemailer"
 import { addfunctions } from "./addfunctions.js"
 import { classdata } from './main.js';
 

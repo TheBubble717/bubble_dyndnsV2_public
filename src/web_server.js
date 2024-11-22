@@ -11,37 +11,33 @@ var cookieParser = require('cookie-parser')
 var path = require('path');
 import { escape as expressescape } from "./bubble_expressescape_library.js"
 const rateLimit = require('express-rate-limit')
-const EventEmitter = require('events');
+import {EventEmitter} from "node:events"
 
 class webclass extends EventEmitter {
-    constructor(config,log) {
+    constructor(config, log) {
         super();
         this.em = null;
         this.config = config;
         this.expressserver = null;
-        this.httpsserver = null;
+        this.http_s_server = null;
         this.log = log
     }
 
     createserver(callback) {
         var that = this;
         return new Promise(async (resolve, reject) => {
-            
-            var urlencodedParser = bodyParser.urlencoded({ extended: false })
-            var urljsonParser = bodyParser.json();
 
             that.expressserver = express();
 
-            if(that.config.enable_ssl)
-            {
+            if (that.config.enable_ssl) {
                 let ssloptions = {
-                    cert: fs.readFileSync(path.resolve()+that.config.ssl.cert),
-                    key: fs.readFileSync(path.resolve()+that.config.ssl.key),
+                    cert: fs.readFileSync(path.resolve() + that.config.ssl.cert),
+                    key: fs.readFileSync(path.resolve() + that.config.ssl.key),
                 }
 
-                that.httpsserver = https.createServer(ssloptions, that.expressserver);
+                that.http_s_server = https.createServer(ssloptions, that.expressserver);
 
-                that.httpsserver.listen(that.config.port, that.config.hostname, async function () {
+                that.http_s_server.listen(that.config.port, that.config.hostname, async function () {
                     var answer = "WEB-SSL-Server was started successfully and is listening on Port: " + that.config.port
                     if (callback && typeof callback == 'function') {
                         await callback("", answer);
@@ -54,9 +50,9 @@ class webclass extends EventEmitter {
                 });
 
             }
-            else
-            {
-                that.expressserver.listen(that.config.port, that.config.hostname, async function () {
+            else {
+
+                that.http_s_server = that.expressserver.listen(that.config.port, that.config.hostname, async function () {
                     var answer = "WEB-Server was started successfully and is listening on Port: " + that.config.port
                     if (callback && typeof callback == 'function') {
                         await callback("", answer);
@@ -66,9 +62,23 @@ class webclass extends EventEmitter {
                         resolve(answer);
                     }
                     return;
+
+
                 });
+
             }
-            
+
+            that.http_s_server.on('error', async function (e) {
+                if (callback && typeof callback == 'function') {
+                    await callback(e.message, "");
+                    resolve();
+                }
+                else {
+                    reject(e.message);
+                }
+                return;
+            });
+
 
             const apilimiter = rateLimit({
                 windowMs: 15 * 60 * 1000, // 15 minutes
@@ -77,8 +87,8 @@ class webclass extends EventEmitter {
                 legacyHeaders: false, // Disable the `X-RateLimit-*` headers
             })
 
-            that.expressserver.use(urlencodedParser)
-            that.expressserver.use(urljsonParser)
+            that.expressserver.use(bodyParser.urlencoded({ extended: false }))
+            that.expressserver.use(bodyParser.json())
             that.expressserver.use(cookieParser())
             that.expressserver.use(expressescape)
 

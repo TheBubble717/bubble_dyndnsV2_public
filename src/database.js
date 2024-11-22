@@ -1,10 +1,8 @@
 "use strict";
 import { addfunctions } from "./addfunctions.js"
-import { createRequire } from "module"
 import { objectsanitizer } from "./bubble_expressescape_library.js"
 import { classdata } from './main.js';
-const require = createRequire(import.meta.url)
-var mysql = require("mysql");
+import * as mysql from "mysql"
 
 class mysqlclass {
     constructor(config,log) {
@@ -175,7 +173,7 @@ class mysqlclass {
                         routine_synctest_bubbledns_servers()
                         that.log.addlog("Routine: Synctest from Masternode to Slaves activated", { color: "green", warn: "Startup-Info" })
 
-                        await that.databasequerryhandler_unsecure("delete from bubbledns_servers_testvalues;", async function (err, res) {
+                        await that.databasequerryhandler_secure("delete from bubbledns_servers_testvalues",[], async function (err, res) {
                             if (err) {
                                 that.log.addlog("Error deleting old testvalues", { color: "red", warn: "Startup-Error" })
                                 process.exit("Error deleting old testvalues")
@@ -216,7 +214,7 @@ class mysqlclass {
             var routine_fetchbubbledns_settings = async function () {
                 return new Promise(async (resolve, reject) => {
                     do {
-                        await that.databasequerryhandler_unsecure("select * from bubbledns_settings", async function (err, res) {
+                        await that.databasequerryhandler_secure("select * from bubbledns_settings",[], async function (err, res) {
                             if (err) {
                                 that.log.addlog("Error fetching Bubbledns_settings", { color: "red", warn: "Startup-Error" })
                                 process.exit("Error fetching Bubbledns_settings")
@@ -248,7 +246,7 @@ class mysqlclass {
                 return new Promise(async (resolve, reject) => {
                     do {
 
-                        await that.databasequerryhandler_unsecure("select * from bubbledns_servers", async function (err, res) {
+                        await that.databasequerryhandler_secure("select * from bubbledns_servers",[], async function (err, res) {
                             if (err) {
                                 that.log.addlog("Error fetching Bubbledns_servers", { color: "red", warn: "Startup-Error" })
                                 process.exit("Error fetching Bubbledns_servers")
@@ -302,7 +300,7 @@ class mysqlclass {
                 return new Promise(async (resolve, reject) => {
                     do {
 
-                        await that.databasequerryhandler_unsecure("select * from mailserver_settings", async function (err, res) {
+                        await that.databasequerryhandler_secure("select * from mailserver_settings",[], async function (err, res) {
                             if (err) {
                                 that.log.addlog("Error fetching mailserver_settings", { color: "red", warn: "Startup-Error" })
                                 process.exit("Error fetching mailserver_settings")

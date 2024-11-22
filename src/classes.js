@@ -1,5 +1,5 @@
+"use strict";
 import { classdata } from './main.js';
-
 
 class userclass {
     // Private fields

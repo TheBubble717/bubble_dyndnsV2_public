@@ -1,12 +1,9 @@
 "use strict";
 import { addfunctions } from "./addfunctions.js"
 import { classdata } from './main.js';
-import { createRequire } from "module"
 import {dnsserverclass,dnsPacket} from 'bubble_ezdns_server_library'
-const require = createRequire(import.meta.url)
-const { Resolver } = require('dns').promises;
-const EventEmitter = require('events');
-var emitter = require('events').EventEmitter;
+import {Resolver} from "node:dns/promises"
+import {EventEmitter} from "node:events"
 
 
 class dnsclass extends EventEmitter {
@@ -261,8 +258,8 @@ class dnsclass extends EventEmitter {
             var randomserver = []
             var zw = []
 
-            let get_random_dns_server = async function (that) {
-                let realdnsserver = await classdata.db.databasequerryhandler_unsecure(`select * from dns_upstreamservers where enabled = true AND (lasttimebanned <= ${new Date().getTime() + classdata.db.routinedata.bubbledns_settings.realdns_bantime} OR lasttimebanned IS NULL);`);
+            let get_random_dns_server = async function () {
+                let realdnsserver = await classdata.db.databasequerryhandler_secure(`select * from dns_upstreamservers where enabled = true AND (lasttimebanned <= ? OR lasttimebanned IS NULL);`,[new Date().getTime() + classdata.db.routinedata.bubbledns_settings.realdns_bantime]);
                 if (realdnsserver.length == 0) {
                     return []
                 }
@@ -272,7 +269,7 @@ class dnsclass extends EventEmitter {
                 }
             }
 
-            randomserver.push(await get_random_dns_server(that))
+            randomserver.push(await get_random_dns_server())
             if (randomserver[0].length == 0) {
                 let err = { "code": "NO Server available", "hostname": domain }
                 if (callback && typeof callback == 'function') {
