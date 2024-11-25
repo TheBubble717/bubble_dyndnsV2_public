@@ -1,4 +1,4 @@
 'use strict';
 
-import {bubbledns} from "./src/main.js"
+import {bubbledns,classdata} from "./src/main.js"
 bubbledns();

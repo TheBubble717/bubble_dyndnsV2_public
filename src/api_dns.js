@@ -36,7 +36,7 @@ class apiclass_dns {
                 }
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -50,7 +50,7 @@ class apiclass_dns {
                 }
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -75,7 +75,7 @@ class apiclass_dns {
 
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -121,7 +121,7 @@ class apiclass_dns {
                 }
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -131,7 +131,7 @@ class apiclass_dns {
             let currenttime = `${time.year}-${time.month}-${time.day} ${time.hour}:${time.min}:${time.sec}`
             classdata.db.databasequerryhandler_secure(`UPDATE dns_entries SET entryname = ?,entryvalue = ? ,entrytype = ? , lastchangedtime = ? where id = ? and ownerid = ?`, [dnsentry.entryname, dnsentry.entryvalue, dnsentry.entrytype, currenttime, dnsentry.id, user.get_user_public().id], function (err, results) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -165,7 +165,7 @@ class apiclass_dns {
 
             classdata.db.databasequerryhandler_secure(`DELETE FROM dns_entries where ownerid = ? and id = ?`, [user.get_user_public().id, dnsentry.id], function (err, answer) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -189,7 +189,7 @@ class apiclass_dns {
             if (dnsentry == null) {
                 classdata.db.databasequerryhandler_secure(`SELECT * FROM dns_entries where ownerid = ?`, [user.get_user_public().id], function (err, answer) {
                     if (err) {
-                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                         resolve({ "success": false, "msg": "Unknown Error" })
                         return;
                     }
@@ -212,7 +212,7 @@ class apiclass_dns {
 
                 classdata.db.databasequerryhandler_secure(`SELECT * FROM dns_entries where ownerid = ? and id = ?`, [user.get_user_public().id, dnsentry.id], function (err, answer) {
                     if (err) {
-                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                         resolve({ "success": false, "msg": "Unknown Error" })
                         return;
                     }
@@ -255,7 +255,7 @@ class apiclass_dns {
                 }
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -270,7 +270,7 @@ class apiclass_dns {
                 }
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -285,7 +285,7 @@ class apiclass_dns {
                 }
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -309,7 +309,7 @@ class apiclass_dns {
 
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -357,7 +357,7 @@ class apiclass_dns {
                 }
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -373,7 +373,7 @@ class apiclass_dns {
 
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -385,7 +385,7 @@ class apiclass_dns {
 
             classdata.db.databasequerryhandler_secure(`INSERT INTO dns_entries VALUES (?,?,?,?,?,?,?)`, [randomid, user.get_user_public().id, dnsentry.domainid, currenttime, dnsentry.entryname, dnsentry.entryvalue, dnsentry.entrytype], function (err, res) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -442,7 +442,7 @@ class apiclass_dns {
                     return;
                 })
                     .catch(function (err) {
-                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                         resolve({ "success": false, "msg": "Unknown Error" })
                         return;
                     })
@@ -470,7 +470,7 @@ class apiclass_dns {
                     return;
                 })
                     .catch(function (err) {
-                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                         resolve({ "success": false, "msg": "Unknown Error" })
                         return;
                     })
@@ -517,7 +517,7 @@ class apiclass_dns {
                     return;
                 })
                     .catch(function (err) {
-                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                         resolve({ "success": false, "msg": "Unknown Error" })
                         return;
                     })
@@ -544,7 +544,7 @@ class apiclass_dns {
                     return;
                 })
                     .catch(function (err) {
-                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                         resolve({ "success": false, "msg": "Unknown Error" })
                         return;
                     })
@@ -596,7 +596,7 @@ class apiclass_dns {
                 }
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -612,7 +612,7 @@ class apiclass_dns {
                     }
                 }
                 catch (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -627,7 +627,7 @@ class apiclass_dns {
 
                 }
                 catch (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -636,7 +636,7 @@ class apiclass_dns {
                 let domaindata = { "id": randomid, "ownerid": user.get_user_public().id, "name": domain.domainname, "verified": 0, verificationdate: null }
                 classdata.db.databasequerryhandler_secure(`INSERT INTO domains VALUES (?,?,?,?,?,?,?,?,?)`, [domaindata.id, false, domaindata.ownerid, domaindata.name, domaindata.verified, domaindata.verificationdate, null, null, true], function (err, res) {
                     if (err) {
-                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                         resolve({ "success": false, "msg": "Unknown Error" })
                         return;
                     }
@@ -652,7 +652,7 @@ class apiclass_dns {
                         var olddomaindata = await classdata.db.databasequerryhandler_secure(`select * from domains where domainname = ?`, [domain.domainname]);
                     }
                 catch (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -663,7 +663,7 @@ class apiclass_dns {
                 let domaindata = { "id": olddomaindata[0].id, "ownerid": olddomaindata[0].ownerid, "name": olddomaindata[0].domainname, "verified": olddomaindata[0].verified, verificationdate: olddomaindata[0].verified }
                 classdata.db.databasequerryhandler_secure(`update domains set isregistered =? where id= ?`, [true,olddomaindata[0].id], function (err, res) {
                     if (err) {
-                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                         resolve({ "success": false, "msg": "Unknown Error" })
                         return;
                     }
@@ -694,7 +694,7 @@ class apiclass_dns {
 
             classdata.db.databasequerryhandler_secure(`select * from domains where ownerid = ? and id = ?`, [user.get_user_public().id, domaintodelete.id], function (err, domaincheck) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -734,7 +734,7 @@ class apiclass_dns {
             //Check if specific domain exists, user is the owner and the domain is currently registered -> Get the data of it.
             classdata.db.databasequerryhandler_secure(`select * from domains where id = ? and ownerid = ? AND isregistered =?`, [domaintoverify.id, user.get_user_public().id,true], function (err, sharelist) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" ,level:2}) }
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -758,7 +758,7 @@ class apiclass_dns {
                                     dnsresponse[0].data[i] = answer.data[0]
                                 }
                                 catch (err) {
-                                    if (that.config.debug) { that.log.addlog("Error Verifying Domain:" + err.err.code, { color: "yellow", warn: "API-DNS-Warning" }) }
+                                    if (that.config.debug) { that.log.addlog("Error Verifying Domain:" + err.err.code, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                                     resolve({ "success": false, "msg": "Error Verifying Domain" })
                                     return;
                                 }
@@ -846,7 +846,7 @@ class apiclass_dns {
                 }
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" ,level:2}) }
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -867,7 +867,7 @@ class apiclass_dns {
                     }
                 }
                 catch (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -881,7 +881,7 @@ class apiclass_dns {
 
                 classdata.db.databasequerryhandler_secure(`INSERT INTO domains_share VALUES (?,?)`, [domainid, toadduser[0].id], async function (err, res) {
                     if (err) {
-                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                        if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning",level:2 }) }
                         resolve({ "success": false, "msg": "Unknown Error" })
                         return;
                     }
@@ -909,7 +909,7 @@ class apiclass_dns {
 
             classdata.db.databasequerryhandler_secure(`select domains_share.* from domains_share INNER JOIN domains ON domains_share.domainid = domains.id where domains_share.domainid = ? AND domains_share.userid = ? AND domains.ownerid = ? AND domains.isregistered = ?`, [domainid, useridtodelete, user.get_user_public().id,true], function (err, sharelist) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" }) }
+                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-DNS-Warning" ,level:2}) }
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }

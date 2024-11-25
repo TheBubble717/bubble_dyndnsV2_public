@@ -4,11 +4,11 @@
 	<link rel="stylesheet" href="/website/css/foundation.css">
 	<link rel="stylesheet" href="/website/css/app.css">
 	<link rel="icon" href="/website/favicon.ico" type="image/x-icon" />
-	<script src="/website/js/chart/dist/Chart.bundle.min.js"></script>
 
 	<script src="/website/js/myjs/functions.js"></script>
 	<script src="/website/admin/myjs/admin_functions.js"></script>
 	<script src="/website/js/myjs/draggable_div.js"></script>
+	<meta name="description" content="BubbleDNS - Open Source DynDNS Service for selfhosting or using bubbledns.com as a completly free alternative!">
 	<title>BubbleDNS</title>
 </head>
 
@@ -60,7 +60,9 @@
 				
 			</div>
 		</div>
+
 		<div id="mainbody" >
+			
 		</div>
 
 	</div>
@@ -78,18 +80,18 @@
 			await loginwithcookie(function (err, res) {
 				if (err) {
 					console.log(err)
-					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="loginmenu()"><div class="dropdown-content-image"></div>Login</a>`
-					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="registermenu()"><div class="dropdown-content-image"></div>Register</a>`
+					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="loginmenu()"><img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Login</a>`
+					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="registermenu()"><img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Register</a>`
 				}
 				else {
 					account = res
 					if(account.isadmin)
 					{
-						document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="adminmenu()"><div class="dropdown-content-image"></div>Admin-Menu</a>`
+						document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="adminmenu()"><img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Admin-Menu</a>`
 					}
-					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a style='height:unset'><div class="dropdown-content-image"></div>Logged in as ${account.mailaddress}</a>`
-					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="logout()"><div class="dropdown-content-image"></div>Logout</a>`
-					document.getElementById("head-dns").innerHTML = document.getElementById("head-dns").innerHTML + `<a onclick="dnsdomainsmenu()"><div class="dropdown-content-image"></div>Domains</a>`
+					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a style='height:unset'>Logged in as ${account.mailaddress}</a>`
+					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="logout()"><img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Logout</a>`
+					document.getElementById("head-dns").innerHTML = document.getElementById("head-dns").innerHTML + `<a onclick="dnsdomainsmenu()"><img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Domains</a>`
 
 				}
 			});

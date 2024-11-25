@@ -200,7 +200,7 @@ class dnsclass extends EventEmitter {
 
                         await that.askrealdns(question.name, question.type, function (err, answer) {
                             if (err) {
-                                that.log.addlog(`Error requesting DNS-Entry for ${err.err.hostname} on server ${err.server} with code: ${err.err.code}`, { color: "yellow", warn: "DNS-Warning" })
+                                that.log.addlog(`Error requesting DNS-Entry for ${err.err.hostname} on server ${err.server} with code: ${err.err.code}`, { color: "yellow", warn: "DNS-Warning" ,level:2})
 
                                 response = { "type": question.type, "data": [], "server": err.server, "dnsflags": 3 } //DNSentry not found
                             }
@@ -233,7 +233,7 @@ class dnsclass extends EventEmitter {
                 }
             }
 
-            await responseclass.send(replyvariable, response.dnsflags).catch(function (err) { that.log.addlog(err, { color: "red", warn: "DNS-Error" }) });
+            await responseclass.send(replyvariable, response.dnsflags).catch(function (err) { that.log.addlog(err, { color: "red", warn: "DNS-Error" ,level:3}) });
             if ((question.type == "SOA") || (question.type == "CAA") || (question.type == "MX")) {
                 var formattingofresponse = JSON.stringify(response.data)
             } else {
@@ -244,7 +244,7 @@ class dnsclass extends EventEmitter {
 
         }
         catch (err) {
-            that.log.addlog("Fatal Error inside dnshandler:" + err, { color: "red", warn: "DNS-Error" })
+            that.log.addlog("Fatal Error inside dnshandler:" + err, { color: "red", warn: "DNS-Error" ,level:3 })
             return;
         }
 
@@ -316,6 +316,7 @@ class dnsclass extends EventEmitter {
 
                 })
                 .catch(async function (err) {
+                    that.log.addlog(`Error in DNS-Request:  Message: "${err.message}" - Errorcode: "${err.code}" - Server: "${randomserver[0].address}"  `, { color: "yellow", warn: "DNS-Warning",level:2 });
                     if (err.code == "ETIMEOUT") // If Timeout, ban the server to prevent further timeouts
                     {
                         let banned_until = new Date().getTime() + classdata.db.routinedata.bubbledns_settings.realdns_bantime * 1000
@@ -331,7 +332,7 @@ class dnsclass extends EventEmitter {
                             localerrormessage = `Unable to Ban ${randomserver[0].address} for ${classdata.db.routinedata.bubbledns_settings.realdns_bantime} Reason: DNS-Server not Mainserver`
                         }
 
-                        that.log.addlog(localerrormessage, { color: "red", warn: "DNS-BAN" });
+                        that.log.addlog(localerrormessage, { color: "red", warn: "DNS-BAN" ,level:3});
                         let errorresponse = { "code": err.code, "hostname": domain }
 
 
@@ -346,7 +347,7 @@ class dnsclass extends EventEmitter {
 
                     }
                     else {
-                        that.log.addlog(`Error in DNS-Request:  ${err.message}`, { color: "yellow", warn: "DNS-Warning" });
+                        
                         let errorresponse = { "code": err.message, "hostname": domain }
                         if (callback && typeof callback == 'function') {
                             await callback({ "err": errorresponse, "server": randomserver[0].address }, "");
