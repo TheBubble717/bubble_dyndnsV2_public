@@ -5,7 +5,7 @@ import { classdata } from './main.js';
 import * as mysql from "mysql"
 
 class mysqlclass {
-    constructor(config,log) {
+    constructor(config, log) {
         this.config = config;
         this.connection = null;
         this.log = log;
@@ -86,7 +86,7 @@ class mysqlclass {
 
             if (JSON.stringify(values) !== JSON.stringify(sanitizedinputs)) {
                 let error = `Tried to use special characters inside the databasequerryhandler`
-                that.log.addlog(`Someone tried to use special characters inside the databasequerryhandler, was blocked successfully`, { color: "red", warn: "ExpressEscape-Error" })
+                that.log.addlog(`Someone tried to use special characters inside the databasequerryhandler, was blocked successfully`, { color: "red", warn: "ExpressEscape-Error", level: 3 })
                 if (callback && typeof callback == 'function') {
                     await callback(error, "");
                     resolve();
@@ -171,11 +171,11 @@ class mysqlclass {
                     if (ismain.length) {
 
                         routine_synctest_bubbledns_servers()
-                        that.log.addlog("Routine: Synctest from Masternode to Slaves activated", { color: "green", warn: "Startup-Info" })
+                        that.log.addlog("Routine: Synctest from Masternode to Slaves activated", { color: "green", warn: "Startup-Info", level: 3 })
 
-                        await that.databasequerryhandler_secure("delete from bubbledns_servers_testvalues",[], async function (err, res) {
+                        await that.databasequerryhandler_secure("delete from bubbledns_servers_testvalues", [], async function (err, res) {
                             if (err) {
-                                that.log.addlog("Error deleting old testvalues", { color: "red", warn: "Startup-Error" })
+                                that.log.addlog("Error deleting old testvalues", { color: "red", warn: "Startup-Error", level: 3 })
                                 process.exit("Error deleting old testvalues")
                             }
                             else {
@@ -194,9 +194,9 @@ class mysqlclass {
             var routine_fetchdomains = async function () {
                 return new Promise(async (resolve, reject) => {
                     do {
-                        await that.databasequerryhandler_secure("select * from domains where isregistered=?",[true], async function (err, res) {
+                        await that.databasequerryhandler_secure("select * from domains where isregistered=?", [true], async function (err, res) {
                             if (err) {
-                                that.log.addlog("Error fetching Domains", { color: "red", warn: "Startup-Error" })
+                                that.log.addlog("Error fetching Domains", { color: "red", warn: "Startup-Error", level: 3 })
                                 process.exit("Error fetching Domains")
                             }
                             else {
@@ -214,9 +214,9 @@ class mysqlclass {
             var routine_fetchbubbledns_settings = async function () {
                 return new Promise(async (resolve, reject) => {
                     do {
-                        await that.databasequerryhandler_secure("select * from bubbledns_settings",[], async function (err, res) {
+                        await that.databasequerryhandler_secure("select * from bubbledns_settings", [], async function (err, res) {
                             if (err) {
-                                that.log.addlog("Error fetching Bubbledns_settings", { color: "red", warn: "Startup-Error" })
+                                that.log.addlog("Error fetching Bubbledns_settings", { color: "red", warn: "Startup-Error", level: 3 })
                                 process.exit("Error fetching Bubbledns_settings")
                             }
                             else {
@@ -246,9 +246,9 @@ class mysqlclass {
                 return new Promise(async (resolve, reject) => {
                     do {
 
-                        await that.databasequerryhandler_secure("select * from bubbledns_servers",[], async function (err, res) {
+                        await that.databasequerryhandler_secure("select * from bubbledns_servers", [], async function (err, res) {
                             if (err) {
-                                that.log.addlog("Error fetching Bubbledns_servers", { color: "red", warn: "Startup-Error" })
+                                that.log.addlog("Error fetching Bubbledns_servers", { color: "red", warn: "Startup-Error", level: 3 })
                                 process.exit("Error fetching Bubbledns_servers")
                             }
                             else {
@@ -258,7 +258,7 @@ class mysqlclass {
                                     let thisserver_old = that.routinedata.bubbledns_servers.filter(function (r) { if ((r.ipv4address == that.config.public_ip) || (r.ipv6address == that.config.public_ip)) { return true } })
                                     let thisserver_new = res.filter(function (r) { if ((r.ipv4address == that.config.public_ip) || (r.ipv6address == that.config.public_ip)) { return true } })
                                     if (JSON.stringify(thisserver_old) != JSON.stringify(thisserver_new)) {
-                                        that.log.addlog("SERVER UPDATE DETECTED, KILLING PROGRAM", { color: "red", warn: "Startup-Error" })
+                                        that.log.addlog("SERVER UPDATE DETECTED, KILLING PROGRAM", { color: "red", warn: "Startup-Error", level: 3 })
                                         process.abort("SERVER UPDATE DETECTED, KILLING PROGRAM")
                                     }
                                 }
@@ -284,7 +284,7 @@ class mysqlclass {
                             if (!(that.routinedata.bubbledns_servers[i].ipv4address === classdata.db.config.public_ip || that.routinedata.bubbledns_servers[i].ipv6address === classdata.db.config.public_ip)) {
                                 var synctestresult = await classdata.api.admin.bubbledns_servers_synctest({ "id": that.routinedata.bubbledns_servers[i].id })
                                 if (that.config.debug && synctestresult.success === false) {
-                                    that.log.addlog(`Synctest ${that.routinedata.bubbledns_servers[i].subdomainname}.${that.routinedata.bubbledns_settings.maindomain} failed with error: ${synctestresult.msg}`, { color: "red", warn: "Routine-Error" })
+                                    that.log.addlog(`Synctest ${that.routinedata.bubbledns_servers[i].subdomainname}.${that.routinedata.bubbledns_settings.maindomain} failed with error: ${synctestresult.msg}`, { color: "red", warn: "Routine-Error", level: 3 })
                                 }
                             }
                         }
@@ -300,9 +300,9 @@ class mysqlclass {
                 return new Promise(async (resolve, reject) => {
                     do {
 
-                        await that.databasequerryhandler_secure("select * from mailserver_settings",[], async function (err, res) {
+                        await that.databasequerryhandler_secure("select * from mailserver_settings", [], async function (err, res) {
                             if (err) {
-                                that.log.addlog("Error fetching mailserver_settings", { color: "red", warn: "Startup-Error" })
+                                that.log.addlog("Error fetching mailserver_settings", { color: "red", warn: "Startup-Error", level: 3 })
                                 process.exit("Error fetching mailserver_settings")
                             }
                             else {
@@ -322,15 +322,15 @@ class mysqlclass {
             }
 
             await routine_fetchdomains()
-            that.log.addlog("Routine: FetchDomains activated", { color: "green", warn: "Startup-Info" })
+            that.log.addlog("Routine: FetchDomains activated", { color: "green", warn: "Startup-Info", level: 3 })
             await routine_fetchbubbledns_settings()
-            that.log.addlog("Routine: FetchBubbledns_settings activated", { color: "green", warn: "Startup-Info" })
+            that.log.addlog("Routine: FetchBubbledns_settings activated", { color: "green", warn: "Startup-Info", level: 3 })
             await routine_fetch_bubbledns_servers()
-            that.log.addlog("Routine: FetchBubbledns_servers activated", { color: "green", warn: "Startup-Info" })
+            that.log.addlog("Routine: FetchBubbledns_servers activated", { color: "green", warn: "Startup-Info", level: 3 })
             await routine_fetch_mailserver_settings()
-            that.log.addlog("Routine: Fetchmailserver_settings activated", { color: "green", warn: "Startup-Info" })
+            that.log.addlog("Routine: Fetchmailserver_settings activated", { color: "green", warn: "Startup-Info", level: 3 })
             await once_startup_commands_masternode()
-            that.log.addlog("ONCE: Startup-Commands activated", { color: "green", warn: "Startup-Info" })
+            that.log.addlog("ONCE: Startup-Commands activated", { color: "green", warn: "Startup-Info", level: 3 })
 
 
 

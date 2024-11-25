@@ -492,7 +492,7 @@ var tasks =
             });
         }
     },
-   
+
     "bubbledns_servers_delete":
     {
         description: "Register an Account on the site",

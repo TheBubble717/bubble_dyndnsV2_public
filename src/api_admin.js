@@ -14,7 +14,7 @@ class apiclass_admin {
         return new Promise(async (resolve) => {
             classdata.db.databasequerryhandler_secure(`select * from dns_upstreamservers`, [], function (err, results) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -40,7 +40,7 @@ class apiclass_admin {
 
             classdata.db.databasequerryhandler_secure(`UPDATE dns_upstreamservers SET enabled = NOT enabled where id=?`, [dnsupstreamserver.id], function (err, results) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -76,7 +76,7 @@ class apiclass_admin {
 
             classdata.db.databasequerryhandler_secure(`DELETE FROM dns_upstreamservers where id=?`, [dnsupstreamserver.id], function (err, results) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -124,7 +124,7 @@ class apiclass_admin {
 
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -138,14 +138,14 @@ class apiclass_admin {
                 }
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
 
             classdata.db.databasequerryhandler_secure(`INSERT into dns_upstreamservers values (?,true,?,NULL,0)`, [randomid, dnsupstreamserver.address], function (err, results) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -170,7 +170,7 @@ class apiclass_admin {
         return new Promise(async (resolve) => {
             classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers`, [], function (err, results) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -208,7 +208,7 @@ class apiclass_admin {
                 //Should be looked in the future with multiple Masternodes
                 await classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers set synctest =? where id = ? `, [true, bubblednsservertotest.id], function (err, res) {
                     if (err) {
-                        if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                        that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                         resolve({ "success": false, "msg": "Unknown Error" })
                         return;
                     }
@@ -237,7 +237,7 @@ class apiclass_admin {
 
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                 resolve({ "success": false, "msg": "Unknown Error" })
                 //NO RETURN!!!!
             }
@@ -264,7 +264,7 @@ class apiclass_admin {
 
                 })
                 .catch(function (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 })
@@ -287,8 +287,7 @@ class apiclass_admin {
             }
 
             //IPV4 & IPV6 check
-            if (!addfunctions.isIPv4(bubblednsserver.ipv4address) && !((bubblednsserver.ipv4address === null) || (bubblednsserver.ipv4address === "null"))) 
-                {
+            if (!addfunctions.isIPv4(bubblednsserver.ipv4address) && !((bubblednsserver.ipv4address === null) || (bubblednsserver.ipv4address === "null"))) {
                 resolve({ "success": false, "msg": "IPV4-Address is neither a IPV4-Address nor 'null'" })
                 return;
             }
@@ -317,7 +316,7 @@ class apiclass_admin {
 
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -331,14 +330,14 @@ class apiclass_admin {
                 }
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
 
             classdata.db.databasequerryhandler_secure(`INSERT into bubbledns_servers values (?,?,?,?,?,?,0,?)`, [randomid, bubblednsserver.subdomainname, bubblednsserver.enabled_dns, bubblednsserver.enabled_web, bubblednsserver.ipv4address, bubblednsserver.ipv6address, bubblednsserver.masternode], function (err, results) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -405,7 +404,7 @@ class apiclass_admin {
                 }
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -413,7 +412,7 @@ class apiclass_admin {
 
             classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers set subdomainname=?,enabled_dns=?,enabled_web=?,ipv4address=?,ipv6address=?,masternode=? where id =? `, [bubblednsserver.subdomainname, bubblednsserver.enabled_dns, bubblednsserver.enabled_web, bubblednsserver.ipv4address, bubblednsserver.ipv6address, bubblednsserver.masternode, bubblednsserver.id], function (err, results) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -446,7 +445,7 @@ class apiclass_admin {
 
             classdata.db.databasequerryhandler_secure(`DELETE FROM bubbledns_servers where id =?`, [bubblednsserver.id], function (err, results) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ADMIN-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }

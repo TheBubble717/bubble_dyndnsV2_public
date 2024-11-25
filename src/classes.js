@@ -94,7 +94,7 @@ class userclass {
         return new Promise(async (resolve) => {
             classdata.db.databasequerryhandler_secure(`select * from users where id=? `, [that.#id], function (err, res) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -115,7 +115,7 @@ class userclass {
         return new Promise(async (resolve) => {
             classdata.db.databasequerryhandler_secure(`select * from users where mailaddress=? `, [that.#mailaddress], function (err, res) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }

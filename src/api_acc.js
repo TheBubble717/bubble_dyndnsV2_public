@@ -16,7 +16,7 @@ class apiclass_acc {
         return new Promise(async (resolve) => {
             classdata.db.databasequerryhandler_secure(`select users.*,users_sessions.cookie from users INNER JOIN users_sessions ON users.id = users_sessions.userid where users_sessions.cookie = ? AND users.isactive = ? AND users.confirmedmail = ? AND users_sessions.active_until >= ?`, [cookie, true, true, addfunctions.unixtime_to_local(new Date().valueOf())], function (err, result) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -39,7 +39,7 @@ class apiclass_acc {
         return new Promise(async (resolve) => {
             classdata.db.databasequerryhandler_secure(`select users.*,users_sessions.cookie from users INNER JOIN users_sessions ON users.id = users_sessions.userid where users.api = ? AND users.isactive = ? AND users.confirmedmail = ?`, [apikey, true, true], function (err, result) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -117,7 +117,7 @@ class apiclass_acc {
             var passwordhash = auth_getpwhash(logindata.password, logindata.mailaddress)
             classdata.db.databasequerryhandler_secure(`select * from users where mailaddress = ? AND passwordhash = ? AND isactive = ?`, [logindata.mailaddress, passwordhash, true], async function (err, user) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ACC-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -136,7 +136,7 @@ class apiclass_acc {
 
                 }
                 catch (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ACC-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -151,7 +151,7 @@ class apiclass_acc {
 
                 }
                 catch (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -173,7 +173,7 @@ class apiclass_acc {
 
                 classdata.db.databasequerryhandler_secure(`insert into users_sessions values (?,?,?,?,?,?,?);`, [user[0].sessionid, user[0].id, user[0].cookie, user[0].ipv4, user[0].ipv6, user[0].active_until, user[0].logintime], function (err, answer) {
                     if (err) {
-                        if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ACC-Warning" }) }
+                        that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                         resolve({ "success": false, "msg": "Unknown Error" })
                         return;
                     }
@@ -226,7 +226,7 @@ class apiclass_acc {
 
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err) }
+                that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -242,7 +242,7 @@ class apiclass_acc {
 
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning" }) }
+                that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -258,7 +258,7 @@ class apiclass_acc {
 
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning" }) }
+                that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -274,7 +274,7 @@ class apiclass_acc {
 
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning" }) }
+                that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -305,7 +305,7 @@ class apiclass_acc {
                 return;
             })
                 .catch(function (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 })
@@ -374,7 +374,7 @@ class apiclass_acc {
         return new Promise(async (resolve) => {
             classdata.db.databasequerryhandler_secure(`select * from users`, [], function (err, results) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ACC-Warning" }) }
+                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -421,7 +421,7 @@ class apiclass_acc {
 
                 classdata.db.databasequerryhandler_secure(`UPDATE users SET mailaddress = ?, passwordhash =?,isadmin = ?,confirmedmail = ?, isactive=?, maxentries =?, maxdomains =? where id= ?`, [data.mailaddress, auth_getpwhash(data.password, data.mailaddress), data.isadmin, data.confirmedmail, data.isactive, data.maxentries, data.maxdomains, data.id], function (err, results) {
                     if (err) {
-                        if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ACC-Warning" }) }
+                        that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                         resolve({ "success": false, "msg": "Unknown Error" })
                         return;
                     }
@@ -439,7 +439,7 @@ class apiclass_acc {
             else {
                 classdata.db.databasequerryhandler_secure(`UPDATE users SET mailaddress = ?,isadmin = ?,confirmedmail = ?, isactive=?, maxentries =?, maxdomains =? where id= ?`, [data.mailaddress, data.isadmin, data.confirmedmail, data.isactive, data.maxentries, data.maxdomains, data.id], function (err, results) {
                     if (err) {
-                        if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-ACC-Warning" }) }
+                        that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
                         resolve({ "success": false, "msg": "Unknown Error" })
                         return;
                     }

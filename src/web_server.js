@@ -11,7 +11,7 @@ var cookieParser = require('cookie-parser')
 var path = require('path');
 import { escape as expressescape } from "./bubble_expressescape_library.js"
 const rateLimit = require('express-rate-limit')
-import {EventEmitter} from "node:events"
+import { EventEmitter } from "node:events"
 
 class webclass extends EventEmitter {
     constructor(config, log) {
@@ -253,7 +253,7 @@ class webclass extends EventEmitter {
                     }
                 }
                 catch (err) {
-                    that.log.addlog("Unknown ERROR:" + err, { colour: "red", warn: "Allg. API-Error" })
+                    that.log.addlog("Unknown ERROR:" + err, { colour: "red", warn: "Allg. API-Error", level: 3 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }

@@ -1,5 +1,5 @@
 "use strict";
-import {EventEmitter} from "node:events"
+import { EventEmitter } from "node:events"
 import * as nodemailer from "nodemailer"
 import { addfunctions } from "./addfunctions.js"
 import { classdata } from './main.js';
@@ -29,9 +29,9 @@ class mailclass extends EventEmitter {
             var mailserver = classdata.db.routinedata.mailserver_settings[0];
 
             //Check mailserver configuration
-            let requiredFields2 = { "host": "string","port": ["string","number"],"secure": ["boolean","number"], "auth_user": "string","auth_passwd": "string" };
+            let requiredFields2 = { "host": "string", "port": ["string", "number"], "secure": ["boolean", "number"], "auth_user": "string", "auth_passwd": "string" };
             mailserver = addfunctions.objectconverter(mailserver)
-            let check_for_correct_datatype2 = addfunctions.check_for_correct_datatype(requiredFields2,mailserver)
+            let check_for_correct_datatype2 = addfunctions.check_for_correct_datatype(requiredFields2, mailserver)
             if (!check_for_correct_datatype2.success) {
                 resolve({ "success": false, "msg": check_for_correct_datatype2.msg })
                 return;
@@ -69,11 +69,11 @@ class mailclass extends EventEmitter {
 
             nodemailerTransport.sendMail(mailOptions, (err, info) => {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog(`Error sending Mail to ${mailOptions.to}:  ${err.message}`, { color: "yellow", warn: "API-MAIL-Warning" }) }
+                    that.log.addlog(`Error sending Mail to ${mailOptions.to}:  ${err.message}`, { color: "yellow", warn: "API-MAIL-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
-                if (that.config.debug) { that.log.addlog(`Mail sent to ${mailOptions.to} with the subject: "${message.subject}" with the code: ${JSON.stringify(info.response)}`, { color: "green", warn: "MAIL-Log" }) }
+                that.log.addlog(`Mail sent to ${mailOptions.to} with the subject: "${message.subject}" with the code: ${JSON.stringify(info.response)}`, { color: "green", warn: "MAIL-Log", level: 1 })
                 resolve({ "success": true, "data": info.response })
                 return;
             });
@@ -150,16 +150,15 @@ class mailclass extends EventEmitter {
 
             //Max of 2 active confirmation of the same type allowed
             try {
-                let active_confirmations = await classdata.db.databasequerryhandler_secure(`select * from users_confirmationkeys where keytype = ? AND userid = ? AND completed = ? AND expirationtime >= ?`, [keyinformation.keytype,keyinformation.userid, false,addfunctions.unixtime_to_local(new Date().valueOf())]);
-                if(active_confirmations.length > 1)
-                {
+                let active_confirmations = await classdata.db.databasequerryhandler_secure(`select * from users_confirmationkeys where keytype = ? AND userid = ? AND completed = ? AND expirationtime >= ?`, [keyinformation.keytype, keyinformation.userid, false, addfunctions.unixtime_to_local(new Date().valueOf())]);
+                if (active_confirmations.length > 1) {
                     resolve({ "success": false, "msg": "You have still a open confirmation!" })
                     return;
                 }
-                
+
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err) }
+                that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-MAIL-Warning", level: 2 })
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -173,7 +172,7 @@ class mailclass extends EventEmitter {
                 while (answer && answer.length)
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err) }
+                that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-MAIL-Warning", level: 2 })
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -188,7 +187,7 @@ class mailclass extends EventEmitter {
 
             }
             catch (err) {
-                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-MAIL-Warning" }) }
+                that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-MAIL-Warning", level: 2 })
                 resolve({ "success": false, "msg": "Unknown Error" })
                 return;
             }
@@ -197,7 +196,7 @@ class mailclass extends EventEmitter {
 
             classdata.db.databasequerryhandler_secure(`insert into users_confirmationkeys values (?,?,?,?,?,?);`, [users_confirmationkeys[0].id, users_confirmationkeys[0].userid, users_confirmationkeys[0].keytext, users_confirmationkeys[0].keytype, users_confirmationkeys[0].expirationtime, users_confirmationkeys[0].completed], async function (err, answer) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-MAIL-Warning" }) }
+                    that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-MAIL-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -237,7 +236,7 @@ class mailclass extends EventEmitter {
 
             classdata.db.databasequerryhandler_secure(`select users_confirmationkeys.* from users INNER JOIN users_confirmationkeys ON users.id = users_confirmationkeys.userid where users_confirmationkeys.keytext = ? AND users_confirmationkeys.completed = ? AND users_confirmationkeys.expirationtime >= ?`, [keyinformation.keytext, false, addfunctions.unixtime_to_local(new Date().valueOf())], async function (err, result) {
                 if (err) {
-                    if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-MAIL-Warning" }) }
+                    that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-MAIL-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
                     return;
                 }
@@ -246,7 +245,7 @@ class mailclass extends EventEmitter {
                         result[0].completed = true
                         await classdata.db.databasequerryhandler_secure(`UPDATE users_confirmationkeys set completed = ? where id = ?`, [true, result[0].id], function (err, deleteresult) {
                             if (err) {
-                                if (that.config.debug) { that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-MAIL-Warning" }) }
+                                that.log.addlog("Unknown ERROR: " + err, { color: "yellow", warn: "API-MAIL-Warning", level: 2 })
                                 resolve({ "success": false, "msg": "Unknown Error" })
                                 return;
                             }
@@ -299,9 +298,8 @@ class mailclass extends EventEmitter {
 
 
                         //Password check
-                        let checkeduserdata =  await addfunctions.check_for_valid_user_entries({"password1":data.password1,"password2":data.password2})
-                        if(!checkeduserdata.success)
-                        {
+                        let checkeduserdata = await addfunctions.check_for_valid_user_entries({ "password1": data.password1, "password2": data.password2 })
+                        if (!checkeduserdata.success) {
                             resolve(checkeduserdata)
                             return
                         }

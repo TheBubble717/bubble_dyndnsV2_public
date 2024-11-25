@@ -124,7 +124,7 @@ var tasks =
             }
 
             //Mailaddress check
-            let checkeduserdata =  await addfunctions.check_for_valid_user_entries({ "mailaddress": req.body.data.mailaddress })
+            let checkeduserdata = await addfunctions.check_for_valid_user_entries({ "mailaddress": req.body.data.mailaddress })
             if (!checkeduserdata.success) {
                 res.writeHead(403, { 'Content-Type': 'text/html' });
                 res.write(JSON.stringify(checkeduserdata))

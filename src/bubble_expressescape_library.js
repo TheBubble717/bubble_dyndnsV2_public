@@ -31,7 +31,7 @@ var escape = function (req, res, next) {
         }
     }
     else {
-        log.addlog("NON POST OR GET received, ignoring in EscapeLibrary", { color: "yellow", warn: "ExpressEscape-Warning" })
+        log.addlog("NON POST OR GET received, ignoring in EscapeLibrary", { color: "yellow", warn: "ExpressEscape-Warning", level: 3 })
     }
 
     //If special characters were found, directly decline message
@@ -46,7 +46,7 @@ var escape = function (req, res, next) {
 
 
 
-        log.addlog(`User with IP=${addfunctions.getclientipv4(req)} tried to use special characters! Message: ${JSON.stringify(messagedata)}`, { colour: "red", warn: "ExpressEscape-Error" })
+        log.addlog(`User with IP=${addfunctions.getclientipv4(req)} tried to use special characters! Message: ${JSON.stringify(messagedata)}`, { colour: "red", warn: "ExpressEscape-Error", level: 3 })
         res.writeHead(403, { 'Content-Type': 'text/html' });
         res.write(JSON.stringify({ "success": false, "msg": "Unknown Error" }))
         res.end();
