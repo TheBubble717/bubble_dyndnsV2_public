@@ -3,8 +3,8 @@
     "mysql":
     {
         "debug":true,
-        "debuglevel_display":1,
-        "debuglevel_file":1,
+        "screenLogLevel":1,
+        "fileLogLevel":1,
         "connectiondata":{
             "host":"127.0.0.1",
             "port":3306,
@@ -16,8 +16,8 @@
     "dnsserver":
     {
         "debug":true,
-        "debuglevel_display":1,
-        "debuglevel_file":1,
+        "screenLogLevel":1,
+        "fileLogLevel":1,
         "port":5300
     },
     "webserver":
@@ -29,20 +29,20 @@
         },
         "hostname":"127.0.0.1",
         "debug":true,
-        "debuglevel_display":1,
-        "debuglevel_file":1,
+        "screenLogLevel":1,
+        "fileLogLevel":1,
         "port":12512
     },
     "mailclient":
     {
         "debug":true,
-        "debuglevel_display":1,
-        "debuglevel_file":1
+        "screenLogLevel":1,
+        "fileLogLevel":1
     },
     "api":
     {
         "debug":true,
-        "debuglevel_display":1,
-        "debuglevel_file":1
+        "screenLogLevel":1,
+        "fileLogLevel":1
     }
 }

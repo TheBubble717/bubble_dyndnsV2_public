@@ -14,7 +14,7 @@ import { apiclass_acc } from "./api_acc.js"
 import { apiclass_admin } from "./api_admin.js"
 import { userclass } from "./classes.js"
 
-var log = mainlog({ displayatleastlevel: 1, addcallerlocation: true })
+var log = mainlog({ screenLogLevel: 1, addcallerlocation: true })
 var classdata = {}
 classdata.classes = {
     "userclass": userclass
@@ -35,7 +35,7 @@ async function bubbledns() {
 
     //Activate MYSQL
     log.addlog("Activating Mysql-Connection", { color: "green", warn: "Startup-Info", level: 3 })
-    var dblog = new logclass({ displayatleastlevel: config.mysql.debuglevel_display, writeatleastlevel: config.mysql.debuglevel_file, addcallerlocation: config.mysql.debug })
+    var dblog = new logclass({ screenLogLevel: config.mysql.screenLogLevel, fileLogLevel: config.mysql.fileLogLevel, addcallerlocation: config.mysql.debug })
     await dblog.activatestream("log/", addfunctions.unixtime_to_local() + " - Database.log")
     classdata.db = new mysqlclass({ ...config.mysql, public_ip: config.public_ip }, dblog)
     await classdata.db.connect(async function (err, res) {
@@ -50,14 +50,14 @@ async function bubbledns() {
 
     //Activate Mailservice
     log.addlog("Activating Mailserver-Connection", { color: "green", warn: "Startup-Info", level: 3 })
-    var maillog = new logclass({ displayatleastlevel: config.mailclient.debuglevel_display, writeatleastlevel: config.mailclient.debuglevel_file, addcallerlocation: config.mailclient.debug })
+    var maillog = new logclass({ screenLogLevel: config.mailclient.screenLogLevel, fileLogLevel: config.mailclient.fileLogLevel, addcallerlocation: config.mailclient.debug })
     await maillog.activatestream("log/", addfunctions.unixtime_to_local() + " - Mail_Client.log")
     classdata.mail = new mailclass(config.mailclient, maillog)
 
 
 
     //Activate API & Tasks
-    var apilog = new logclass({ displayatleastlevel: config.api.debuglevel_display, writeatleastlevel: config.api.debuglevel_file, addcallerlocation: config.api.debug })
+    var apilog = new logclass({ screenLogLevel: config.api.screenLogLevel, fileLogLevel: config.api.fileLogLevel, addcallerlocation: config.api.debug })
     await apilog.activatestream("log/", addfunctions.unixtime_to_local() + " - APIlog.log")
     classdata.api = {
         "dns": new apiclass_dns(config.api, apilog),
@@ -78,7 +78,7 @@ async function bubbledns() {
     if (existsindb.length) {
         //Activate DNS-Server (Gets always activated if databseentry of it exists, even if it is not used; It doesn't get registered as nameservers; Needed for Synctest)
         log.addlog("Activating DNS-Server", { color: "green", warn: "Startup-Info", level: 3 })
-        var dnslog = new logclass({ displayatleastlevel: config.dnsserver.debuglevel_display, writeatleastlevel: config.dnsserver.debuglevel_file, addcallerlocation: config.dnsserver.debug })
+        var dnslog = new logclass({ screenLogLevel: config.dnsserver.screenLogLevel, fileLogLevel: config.dnsserver.fileLogLevel, addcallerlocation: config.dnsserver.debug })
         await dnslog.activatestream("log/", addfunctions.unixtime_to_local() + " - DNS_Server.log")
         classdata.dnsserver = new dnsclass({ ...config.dnsserver, public_ip: config.public_ip }, dnslog)
         await classdata.dnsserver.createserver(async function (err, res) {
@@ -99,7 +99,7 @@ async function bubbledns() {
     if (existsindb_enableweb.length) {
         //Activate Web-Server
         log.addlog("Activating WEB-Server", { color: "green", warn: "Startup-Info", level: 3 })
-        var weblog = new logclass({ displayatleastlevel: config.webserver.debuglevel_display, writeatleastlevel: config.webserver.debuglevel_file, addcallerlocation: config.webserver.debug })
+        var weblog = new logclass({ screenLogLevel: config.webserver.screenLogLevel, fileLogLevel: config.webserver.fileLogLevel, addcallerlocation: config.webserver.debug })
         await weblog.activatestream("log/", addfunctions.unixtime_to_local() + " - WEB_Server.log")
         classdata.webserver = new webclass({ ...config.webserver, public_ip: config.public_ip }, weblog)
         await classdata.webserver.createserver(async function (err, res) {
