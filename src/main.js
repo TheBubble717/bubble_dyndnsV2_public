@@ -20,6 +20,19 @@ classdata.classes = {
     "userclass": userclass
 }
 
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught exception:', error);
+    process.emit('SIGINT');
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    log.addlog(reason.stack, { color: "red", warn: "Crash", level: 99 })
+    process.emit('SIGINT');
+    process.exit(1);
+});
+
+
 
 
 async function bubbledns() {
@@ -53,8 +66,6 @@ async function bubbledns() {
     var maillog = new logclass({ screenLogLevel: config.mailclient.screenLogLevel, fileLogLevel: config.mailclient.fileLogLevel, addcallerlocation: config.mailclient.debug })
     await maillog.activatestream("log/", addfunctions.unixtime_to_local() + " - Mail_Client.log")
     classdata.mail = new mailclass(config.mailclient, maillog)
-
-
 
     //Activate API & Tasks
     var apilog = new logclass({ screenLogLevel: config.api.screenLogLevel, fileLogLevel: config.api.fileLogLevel, addcallerlocation: config.api.debug })
