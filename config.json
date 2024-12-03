@@ -10,7 +10,8 @@
             "port":3306,
             "user":"bubblednsuser",
             "password":"TESTDATABASE1",
-            "database":"bubbledns"
+            "database":"bubbledns",
+            "connectionLimit": 20
         }
     },
     "dnsserver":

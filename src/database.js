@@ -6,22 +6,24 @@ import * as mysql from "mysql"
 class mysqlclass {
     constructor(config, log) {
         this.config = config;
-        this.connection = null;
+        this.pool = null;
         this.log = log;
 
         this.routinedata = {
             "domains": [],
+            "dnsentries":[],
             "bubbledns_settings": [],
-            "bubbledns_servers": []
+            "bubbledns_servers": [],
+            "mailserver_settings":[]
         },
         this.routinemanger = new RoutineManager()
     }
 
     connect(callback) {
+        var that = this
         return new Promise(async (resolve, reject) => {
-            var that = this;
-            that.connection = mysql.createConnection(that.config.connectiondata);
-            that.connection.connect(async function (err) {
+            that.pool = mysql.createPool(that.config.connectiondata);
+            that.pool.getConnection(async function (err, connection) {
                 if (err) {
                     let error = `Error connecting to database! Message: ${err}`
                     if (callback && typeof callback == 'function') {
@@ -35,6 +37,7 @@ class mysqlclass {
                 }
                 else {
                     let answer = `Successfully connected to Mysql-Database`
+                    connection.release();
                     if (callback && typeof callback == 'function') {
                         await callback("", answer);
                         resolve();
@@ -51,7 +54,7 @@ class mysqlclass {
     databasequerryhandler_unsecure(querry, callback) {
         var that = this;
         return new Promise(async (resolve, reject) => {
-            that.connection.query(querry, async function (err, result) {
+            that.pool.query(querry, async function (err, result) {
                 if (err) {
                     let error = `Error in databasequerryhandler: ${err}`
                     if (callback && typeof callback == 'function') {
@@ -97,7 +100,7 @@ class mysqlclass {
                 return;
             }
 
-            that.connection.query(querry, sanitizedinputs, async function (err, result) {
+            that.pool.query(querry, sanitizedinputs, async function (err, result) {
                 if (err) {
                     let error = `Error in databasequerryhandler: ${err}`
                     if (callback && typeof callback == 'function') {
@@ -129,8 +132,7 @@ class mysqlclass {
         return new Promise(async (resolve, reject) => {
             if (entryname == "@")   //Only wants the main entry
             {
-                const promise1 = that.databasequerryhandler_secure(`select * FROM dns_entries where entryname = ? and entrytype = ? and domainid = ?`, ["@", entrytype, domainid]);
-                Promise.all([promise1]).then((response) => {
+                that.databasequerryhandler_secure(`select * FROM dns_entries where entryname = ? and entrytype = ? and domainid = ?`, ["@", entrytype, domainid]).then((response) => {
                     if (response[0].length) //Answer with the entryname
                     {
                         resolve(response[0]);
@@ -181,7 +183,7 @@ class mysqlclass {
                 });
             }
 
-            var routine_fetchdomains = async function () {
+            var routine_fetch_domains = async function () {
                 return new Promise(async (resolve, reject) => {
                     await that.databasequerryhandler_secure("select * from domains where isregistered=?", [true], async function (err, res) {
                         if (err) {
@@ -196,7 +198,7 @@ class mysqlclass {
                 });
             }
 
-            var routine_fetchbubbledns_settings = async function () {
+            var routine_fetch_bubbledns_settings = async function () {
                 return new Promise(async (resolve, reject) => {
                     await that.databasequerryhandler_secure("select * from bubbledns_settings", [], async function (err, res) {
                         if (err) {
@@ -279,15 +281,15 @@ class mysqlclass {
                 reject("Already active!")
             }
 
-            await this.routinemanger.addRoutine(1, routine_fetchdomains, 30)
-            this.log.addlog("Routine: FetchDomains activated", { color: "green", warn: "Startup-Info", level: 3 })
-            await this.routinemanger.addRoutine(2, routine_fetchbubbledns_settings, 30)
-            this.log.addlog("Routine: FetchBubbledns_settings activated", { color: "green", warn: "Startup-Info", level: 3 })
+            await this.routinemanger.addRoutine(1, routine_fetch_domains, 30)
+            this.log.addlog("Routine: Fetch_Domains activated", { color: "green", warn: "Startup-Info", level: 3 })
+            await this.routinemanger.addRoutine(2, routine_fetch_bubbledns_settings, 30)
+            this.log.addlog("Routine: Fetch_Bubbledns_settings activated", { color: "green", warn: "Startup-Info", level: 3 })
             await this.routinemanger.addRoutine(3, routine_fetch_bubbledns_servers, 30)
-            this.log.addlog("Routine: FetchBubbledns_servers activated", { color: "green", warn: "Startup-Info", level: 3 })
+            this.log.addlog("Routine: Fetch_Bubbledns_servers activated", { color: "green", warn: "Startup-Info", level: 3 })
             await this.routinemanger.addRoutine(4, routine_fetch_mailserver_settings, 30)
-            this.log.addlog("Routine: Fetchmailserver_settings activated", { color: "green", warn: "Startup-Info", level: 3 })
-
+            this.log.addlog("Routine: Fetch_mailserver_settings activated", { color: "green", warn: "Startup-Info", level: 3 })
+            
 
             //Only Masternode
             var ismain = classdata.db.routinedata.bubbledns_servers.filter(function (r) { if (((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip)) && (r.masternode == true)) { return true } })
