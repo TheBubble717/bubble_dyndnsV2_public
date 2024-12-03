@@ -26,6 +26,12 @@ class mailclass extends EventEmitter {
                 return;
             }
 
+            if (!classdata.db.routinedata.mailserver_settings.length) {
+                that.log.addlog(`Error sending Mail to ${recipentmailaddress}: No Mailserver configured! `, { color: "yellow", warn: "API-MAIL-Warning", level: 2 })
+                resolve({ "success": false, "msg": "No Mailserver configured!" })
+                return;
+            }
+
             var mailserver = classdata.db.routinedata.mailserver_settings[0];
 
             //Check mailserver configuration
@@ -43,10 +49,7 @@ class mailclass extends EventEmitter {
                 return;
             }
 
-            if (!classdata.db.routinedata.mailserver_settings.length) {
-                resolve({ "success": false, "msg": "No Mailserver configured!" })
-                return;
-            }
+
 
             var nodemailerTransport = nodemailer.createTransport({
                 host: mailserver.host,

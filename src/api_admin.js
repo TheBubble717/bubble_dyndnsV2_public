@@ -203,7 +203,7 @@ class apiclass_admin {
 
 
             //No good idea to check itself
-            if (bubblednsserver.ipv4address === classdata.db.config.public_ip || bubblednsserver.ipv6address === classdata.db.config.public_ip) {
+            if (bubblednsserver.public_ipv4 === classdata.db.config.public_ip || bubblednsserver.public_ipv6 === classdata.db.config.public_ip) {
 
                 //Should be looked in the future with multiple Masternodes
                 await classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers set synctest =? where id = ? `, [true, bubblednsservertotest.id], function (err, res) {
@@ -225,7 +225,7 @@ class apiclass_admin {
             try {
                 await classdata.db.databasequerryhandler_secure("insert into bubbledns_servers_testvalues values (?);", [testdata])
                 await addfunctions.waittime(3);
-                var requesteddnsentry = await classdata.dnsserver.askrealdns_customserver("synctest", "TXT", function () { if (bubblednsserver.ipv4address != null) { return bubblednsserver.ipv4address } else { return bubblednsserver.ipv6address } }())
+                var requesteddnsentry = await classdata.dnsserver.askrealdns_customserver("synctest", "TXT", function () { if (bubblednsserver.public_ipv4 != null) { return bubblednsserver.public_ipv4 } else { return bubblednsserver.public_ipv6 } }())
                     .then(function (data) {
                         data.data = data.data.map(function (r) { return r[0] })
                         return data;
@@ -278,7 +278,7 @@ class apiclass_admin {
         var that = this;
         return new Promise(async (resolve) => {
 
-            let requiredFields = { "subdomainname": "string", "enabled_dns": ["boolean", "number"], "enabled_web": ["boolean", "number"], "ipv4address": ["string", "null"], "ipv6address": ["string", "null"], "masternode": ["boolean", "number"] };
+            let requiredFields = { "subdomainname": "string", "enabled_dns": ["boolean", "number"], "enabled_web": ["boolean", "number"], "public_ipv4": ["string", "null"], "public_ipv6": ["string", "null"], "internal_ipv4": ["string", "null"], "internal_ipv6": ["string", "null"], "masternode": ["boolean", "number"] };
             bubblednsserver = addfunctions.objectconverter(bubblednsserver)
             let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
             if (!check_for_correct_datatype.success) {
@@ -286,21 +286,33 @@ class apiclass_admin {
                 return;
             }
 
-            //IPV4 & IPV6 check
-            if (!addfunctions.isIPv4(bubblednsserver.ipv4address) && !((bubblednsserver.ipv4address === null) || (bubblednsserver.ipv4address === "null"))) {
-                resolve({ "success": false, "msg": "IPV4-Address is neither a IPV4-Address nor 'null'" })
+            //Public: IPV4 & IPV6 check
+            if (!addfunctions.isIPv4(bubblednsserver.public_ipv4) && !((bubblednsserver.public_ipv4 === null) || (bubblednsserver.public_ipv4 === "null"))) {
+                resolve({ "success": false, "msg": "Public_IPV4 Address is neither a IPV4-Address nor 'null'" })
                 return;
             }
-            else if (!addfunctions.isIPv6(bubblednsserver.ipv6address) && !((bubblednsserver.ipv6address === null) || (bubblednsserver.ipv6address === "null"))) {
-                resolve({ "success": false, "msg": "IPV6-Address is neither a IPV6-Address nor 'null'" })
+            else if (!addfunctions.isIPv6(bubblednsserver.public_ipv6) && !((bubblednsserver.public_ipv6 === null) || (bubblednsserver.public_ipv6 === "null"))) {
+                resolve({ "success": false, "msg": "Public_IPV6 Address is neither a IPV6-Address nor 'null'" })
                 return;
             }
-            else if (((bubblednsserver.ipv4address === null) || (bubblednsserver.ipv4address === "null")) && ((bubblednsserver.ipv6address === null) || (bubblednsserver.ipv6address === "null"))) {
-                resolve({ "success": false, "msg": "IPV4-Address or IPV6-Address needs to be used" })
+            else if (((bubblednsserver.public_ipv4 === null) || (bubblednsserver.public_ipv4 === "null")) && ((bubblednsserver.public_ipv6 === null) || (bubblednsserver.public_ipv6 === "null"))) {
+                resolve({ "success": false, "msg": "Public_IPV4 Address or Public_IPV6 Address needs to be used" })
                 return;
             }
-            bubblednsserver.ipv4address = addfunctions.isIPv4(bubblednsserver.ipv4address) === true ? bubblednsserver.ipv4address : null;
-            bubblednsserver.ipv6address = addfunctions.isIPv6(bubblednsserver.ipv6address) === true ? bubblednsserver.ipv6address : null;
+            bubblednsserver.public_ipv4 = addfunctions.isIPv4(bubblednsserver.public_ipv4) === true ? bubblednsserver.public_ipv4 : null;
+            bubblednsserver.public_ipv6 = addfunctions.isIPv6(bubblednsserver.public_ipv6) === true ? bubblednsserver.public_ipv6 : null;
+
+            //Internal: IPV4 & IPV6 check
+            if (!addfunctions.isIPv4(bubblednsserver.internal_ipv4) && !((bubblednsserver.internal_ipv4 === null) || (bubblednsserver.internal_ipv4 === "null"))) {
+                resolve({ "success": false, "msg": "Internal_IPV4 Address is neither a IPV4-Address nor 'null'" })
+                return;
+            }
+            else if (!addfunctions.isIPv6(bubblednsserver.internal_ipv6) && !((bubblednsserver.internal_ipv6 === null) || (bubblednsserver.internal_ipv6 === "null"))) {
+                resolve({ "success": false, "msg": "Internal_IPV6 Address is neither a IPV6-Address nor 'null'" })
+                return;
+            }
+            bubblednsserver.internal_ipv4 = addfunctions.isIPv4(bubblednsserver.internal_ipv4) === true ? bubblednsserver.internal_ipv4 : null;
+            bubblednsserver.internal_ipv6 = addfunctions.isIPv6(bubblednsserver.internal_ipv6) === true ? bubblednsserver.internal_ipv6 : null;
 
 
             //Subdomainname always lowercase
@@ -335,7 +347,7 @@ class apiclass_admin {
                 return;
             }
 
-            classdata.db.databasequerryhandler_secure(`INSERT into bubbledns_servers values (?,?,?,?,?,?,0,?)`, [randomid, bubblednsserver.subdomainname, bubblednsserver.enabled_dns, bubblednsserver.enabled_web, bubblednsserver.ipv4address, bubblednsserver.ipv6address, bubblednsserver.masternode], function (err, results) {
+            classdata.db.databasequerryhandler_secure(`INSERT into bubbledns_servers values (?,?,?,?,?,?,?,?,0,?)`, [randomid, bubblednsserver.subdomainname, bubblednsserver.enabled_dns, bubblednsserver.enabled_web, bubblednsserver.public_ipv4, bubblednsserver.public_ipv6,bubblednsserver.internal_ipv4, bubblednsserver.internal_ipv6, bubblednsserver.masternode], function (err, results) {
                 if (err) {
                     that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })
@@ -360,7 +372,7 @@ class apiclass_admin {
         var that = this;
         return new Promise(async (resolve) => {
 
-            let requiredFields = { "subdomainname": "string", "enabled_dns": ["boolean", "number"], "enabled_web": ["boolean", "number"], "ipv4address": ["string", "null"], "ipv6address": ["string", "null"], "masternode": ["boolean", "number"], "id": "number" };
+            let requiredFields = { "subdomainname": "string", "enabled_dns": ["boolean", "number"], "enabled_web": ["boolean", "number"], "public_ipv4": ["string", "null"], "public_ipv6": ["string", "null"],"internal_ipv4": ["string", "null"], "internal_ipv6": ["string", "null"], "masternode": ["boolean", "number"], "id": "number" };
             bubblednsserver = addfunctions.objectconverter(bubblednsserver)
             let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
             if (!check_for_correct_datatype.success) {
@@ -368,21 +380,33 @@ class apiclass_admin {
                 return;
             }
 
-            //IPV4 & IPV6 check
-            if (!addfunctions.isIPv4(bubblednsserver.ipv4address) && !((bubblednsserver.ipv4address === null) || (bubblednsserver.ipv4address === "null"))) {
-                resolve({ "success": false, "msg": "IPV4-Address is neither a IPV4-Address nor 'null'" })
+            //Public: IPV4 & IPV6 check
+            if (!addfunctions.isIPv4(bubblednsserver.public_ipv4) && !((bubblednsserver.public_ipv4 === null) || (bubblednsserver.public_ipv4 === "null"))) {
+                resolve({ "success": false, "msg": "Public_IPV4 Address is neither a IPV4-Address nor 'null'" })
                 return;
             }
-            else if (!addfunctions.isIPv6(bubblednsserver.ipv6address) && !((bubblednsserver.ipv6address === null) || (bubblednsserver.ipv6address === "null"))) {
-                resolve({ "success": false, "msg": "IPV4-Address is neither a IPV4-Address nor 'null'" })
+            else if (!addfunctions.isIPv6(bubblednsserver.public_ipv6) && !((bubblednsserver.public_ipv6 === null) || (bubblednsserver.public_ipv6 === "null"))) {
+                resolve({ "success": false, "msg": "Public_IPV6 Address is neither a IPV6-Address nor 'null'" })
                 return;
             }
-            else if (((bubblednsserver.ipv4address === null) || (bubblednsserver.ipv4address === "null")) && ((bubblednsserver.ipv6address === null) || (bubblednsserver.ipv6address === "null"))) {
-                resolve({ "success": false, "msg": "IPV4-Address or IPV6-Address needs to be used" })
+            else if (((bubblednsserver.public_ipv4 === null) || (bubblednsserver.public_ipv4 === "null")) && ((bubblednsserver.public_ipv6 === null) || (bubblednsserver.public_ipv6 === "null"))) {
+                resolve({ "success": false, "msg": "Public_IPV4 Address or Public_IPV6 Address needs to be used" })
                 return;
             }
-            bubblednsserver.ipv4address = addfunctions.isIPv4(bubblednsserver.ipv4address) === true ? bubblednsserver.ipv4address : null;
-            bubblednsserver.ipv6address = addfunctions.isIPv6(bubblednsserver.ipv6address) === true ? bubblednsserver.ipv6address : null;
+            bubblednsserver.public_ipv4 = addfunctions.isIPv4(bubblednsserver.public_ipv4) === true ? bubblednsserver.public_ipv4 : null;
+            bubblednsserver.public_ipv6 = addfunctions.isIPv6(bubblednsserver.public_ipv6) === true ? bubblednsserver.public_ipv6 : null;
+
+            //Internal: IPV4 & IPV6 check
+            if (!addfunctions.isIPv4(bubblednsserver.internal_ipv4) && !((bubblednsserver.internal_ipv4 === null) || (bubblednsserver.internal_ipv4 === "null"))) {
+                resolve({ "success": false, "msg": "Internal_IPV4 Address is neither a IPV4-Address nor 'null'" })
+                return;
+            }
+            else if (!addfunctions.isIPv6(bubblednsserver.internal_ipv6) && !((bubblednsserver.internal_ipv6 === null) || (bubblednsserver.internal_ipv6 === "null"))) {
+                resolve({ "success": false, "msg": "Internal_IPV6 Address is neither a IPV6-Address nor 'null'" })
+                return;
+            }
+            bubblednsserver.internal_ipv4 = addfunctions.isIPv4(bubblednsserver.internal_ipv4) === true ? bubblednsserver.internal_ipv4 : null;
+            bubblednsserver.internal_ipv6 = addfunctions.isIPv6(bubblednsserver.internal_ipv6) === true ? bubblednsserver.internal_ipv6 : null;
 
 
 
@@ -410,7 +434,7 @@ class apiclass_admin {
             }
 
 
-            classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers set subdomainname=?,enabled_dns=?,enabled_web=?,ipv4address=?,ipv6address=?,masternode=? where id =? `, [bubblednsserver.subdomainname, bubblednsserver.enabled_dns, bubblednsserver.enabled_web, bubblednsserver.ipv4address, bubblednsserver.ipv6address, bubblednsserver.masternode, bubblednsserver.id], function (err, results) {
+            classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers set subdomainname=?,enabled_dns=?,enabled_web=?,public_ipv4=?,public_ipv6=?,internal_ipv4=?,internal_ipv6=?,masternode=? where id =? `, [bubblednsserver.subdomainname, bubblednsserver.enabled_dns, bubblednsserver.enabled_web, bubblednsserver.public_ipv4, bubblednsserver.public_ipv6,bubblednsserver.internal_ipv4, bubblednsserver.internal_ipv6, bubblednsserver.masternode, bubblednsserver.id], function (err, results) {
                 if (err) {
                     that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ADMIN-Warning", level: 2 })
                     resolve({ "success": false, "msg": "Unknown Error" })

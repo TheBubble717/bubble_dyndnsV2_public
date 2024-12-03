@@ -171,7 +171,7 @@ class mysqlclass {
                     await that.databasequerryhandler_secure("delete from bubbledns_servers_testvalues", [], async function (err, res) {
                         if (err) {
                             that.log.addlog("Error deleting old testvalues", { color: "red", warn: "Startup-Error", level: 3 })
-                            process.exit("Error deleting old testvalues")
+                            process.exit(1)
                         }
                         else {
                             resolve()
@@ -186,7 +186,7 @@ class mysqlclass {
                     await that.databasequerryhandler_secure("select * from domains where isregistered=?", [true], async function (err, res) {
                         if (err) {
                             that.log.addlog("Error fetching Domains", { color: "red", warn: "Startup-Error", level: 3 })
-                            process.exit("Error fetching Domains")
+                            process.exit(1)
                         }
                         else {
                             that.routinedata.domains = res;
@@ -201,7 +201,7 @@ class mysqlclass {
                     await that.databasequerryhandler_secure("select * from bubbledns_settings", [], async function (err, res) {
                         if (err) {
                             that.log.addlog("Error fetching Bubbledns_settings", { color: "red", warn: "Startup-Error", level: 3 })
-                            process.exit("Error fetching Bubbledns_settings")
+                            process.exit(1)
                         }
                         else {
                             var settings = {}
@@ -225,17 +225,17 @@ class mysqlclass {
                 await that.databasequerryhandler_secure("select * from bubbledns_servers", [], async function (err, res) {
                     if (err) {
                         that.log.addlog("Error fetching Bubbledns_servers", { color: "red", warn: "Startup-Error", level: 3 })
-                        process.exit("Error fetching Bubbledns_servers")
+                        process.exit(1)
                     }
                     else {
                         //Check if something changed on this instance (f.e activating WEB)
                         if (that.routinedata.bubbledns_servers.length) //Ignore if empty
                         {
-                            let thisserver_old = that.routinedata.bubbledns_servers.filter(function (r) { if ((r.ipv4address == that.config.public_ip) || (r.ipv6address == that.config.public_ip)) { return true } })
-                            let thisserver_new = res.filter(function (r) { if ((r.ipv4address == that.config.public_ip) || (r.ipv6address == that.config.public_ip)) { return true } })
+                            let thisserver_old = that.routinedata.bubbledns_servers.filter(function (r) { if ((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip)) { return true } })
+                            let thisserver_new = res.filter(function (r) { if ((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip)) { return true } })
                             if (JSON.stringify(thisserver_old) != JSON.stringify(thisserver_new)) {
                                 that.log.addlog("SERVER UPDATE DETECTED, KILLING PROGRAM", { color: "red", warn: "Startup-Error", level: 3 })
-                                process.abort("SERVER UPDATE DETECTED, KILLING PROGRAM")
+                                process.exit(1)
                             }
                         }
 
@@ -249,7 +249,7 @@ class mysqlclass {
                 return new Promise(async (resolve, reject) => {
                     resolve() //Don't wait for test to finish
                     for (let i = 0; i < that.routinedata.bubbledns_servers.length; i++) {
-                        if (!(that.routinedata.bubbledns_servers[i].ipv4address === classdata.db.config.public_ip || that.routinedata.bubbledns_servers[i].ipv6address === classdata.db.config.public_ip)) {
+                        if (!(that.routinedata.bubbledns_servers[i].public_ipv4 === classdata.db.config.public_ip || that.routinedata.bubbledns_servers[i].public_ipv6 === classdata.db.config.public_ip)) {
                             var synctestresult = await classdata.api.admin.bubbledns_servers_synctest({ "id": that.routinedata.bubbledns_servers[i].id })
                             if (that.config.debug && synctestresult.success === false) {
                                 that.log.addlog(`Synctest ${that.routinedata.bubbledns_servers[i].subdomainname}.${that.routinedata.bubbledns_settings.maindomain} failed with error: ${synctestresult.msg}`, { color: "red", warn: "Routine-Error", level: 3 })
@@ -265,7 +265,7 @@ class mysqlclass {
                     await that.databasequerryhandler_secure("select * from mailserver_settings", [], async function (err, res) {
                         if (err) {
                             that.log.addlog("Error fetching mailserver_settings", { color: "red", warn: "Startup-Error", level: 3 })
-                            process.exit("Error fetching mailserver_settings")
+                            process.exit(1)
                         }
                         else {
                             that.routinedata.mailserver_settings = res;
@@ -290,7 +290,7 @@ class mysqlclass {
 
 
             //Only Masternode
-            var ismain = classdata.db.routinedata.bubbledns_servers.filter(function (r) { if (((r.ipv4address == that.config.public_ip) || (r.ipv6address == that.config.public_ip)) && (r.masternode == true)) { return true } })
+            var ismain = classdata.db.routinedata.bubbledns_servers.filter(function (r) { if (((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip)) && (r.masternode == true)) { return true } })
             if (ismain.length) {
 
                 await this.routinemanger.addRoutine(5, routine_synctest_bubbledns_servers, 180)

@@ -49,7 +49,7 @@ class dnsclass extends EventEmitter {
                     reject(error);
                 }
 
-                process.abort()
+                process.exit(2)
             });
 
             that.server.server.on('request', (request) => {
@@ -107,7 +107,7 @@ class dnsclass extends EventEmitter {
             }
 
             //No Answer if synctest=0
-            else if (classdata.db.routinedata.bubbledns_servers.filter(function (r) { if (((r.ipv4address == that.config.public_ip) || (r.ipv6address == that.config.public_ip)) && (r.synctest == 0)) { return true } }).length) {
+            else if (classdata.db.routinedata.bubbledns_servers.filter(function (r) { if (((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip)) && (r.synctest == 0)) { return true } }).length) {
                 response = { "type": question.type, "data": [], "server": "SELFANSWER", "dnsflags": 5 } //Query refused
             }
 
@@ -143,9 +143,9 @@ class dnsclass extends EventEmitter {
                             .filter(item => item.subdomainname === requested_domain.subdomain && item.synctest === 1)
                             .map(item => {
                                 if (question.type == "A") {
-                                    return item.ipv4address;
+                                    return item.public_ipv4;
                                 } else {
-                                    return item.ipv6address;
+                                    return item.public_ipv6;
                                 }
                             })
                             .filter(address => address != null);
@@ -160,10 +160,10 @@ class dnsclass extends EventEmitter {
                     else if (requested_domain.subdomain == "@" && requested_domain.domain == classdata.db.routinedata.bubbledns_settings.maindomain && (question.type == "A" || question.type == "AAAA")) {
                         var bubblednsserversweb = classdata.db.routinedata.bubbledns_servers.filter(r => r.enabled_web == 1 && r.synctest === 1)
                         if (question.type == "A") {
-                            var dataresponse = bubblednsserversweb.filter(item => item != null && item.ipv4address != null).map(item => item.ipv4address);
+                            var dataresponse = bubblednsserversweb.filter(item => item != null && item.public_ipv4 != null).map(item => item.public_ipv4);
                         }
                         else {
-                            var dataresponse = bubblednsserversweb.filter(item => item != null && item.ipv6address != null).map(item => item.ipv6address);
+                            var dataresponse = bubblednsserversweb.filter(item => item != null && item.public_ipv6 != null).map(item => item.public_ipv6);
                         }
                         response = { "type": question.type, "data": dataresponse, "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER }
                     }
@@ -321,7 +321,7 @@ class dnsclass extends EventEmitter {
                     {
                         let banned_until = new Date().getTime() + classdata.db.routinedata.bubbledns_settings.realdns_bantime * 1000
                         let ismasternode = classdata.db.routinedata.bubbledns_servers.filter(function (r) {
-                            if (((r.ipv4address == that.config.public_ip) || (r.ipv6address == that.config.public_ip)) && (r.masternode == 1)) { return true }
+                            if (((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip)) && (r.masternode == 1)) { return true }
                         })
                         var localerrormessage = "";
                         if (ismasternode.length) {

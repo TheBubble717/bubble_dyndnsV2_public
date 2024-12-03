@@ -86,8 +86,10 @@ create table bubbledns_servers(
 	subdomainname varchar(100) NOT NULL,
 	enabled_dns boolean NOT NULL CHECK (enabled_dns IN (0, 1)),
 	enabled_web boolean NOT NULL CHECK (enabled_web IN (0, 1)),
-	ipv4address varchar(100),
-	ipv6address varchar(100),
+	public_ipv4 varchar(100),
+	public_ipv6 varchar(100),
+	internal_ipv4 varchar(100),
+	internal_ipv6 varchar(100),
 	synctest boolean NOT NULL CHECK (synctest IN (0, 1)),
 	masternode boolean NOT NULL CHECK (masternode IN (0, 1))
 );

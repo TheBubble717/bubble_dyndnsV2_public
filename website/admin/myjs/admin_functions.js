@@ -417,16 +417,16 @@ async function admin_bubbledns_serversmenu() {
 
 			//Setting Values
 			doc.getElementById("bubbledns_subdomain").textContent  = response[2].data[i].subdomainname
-			doc.getElementById("bubbledns_ipv4").textContent  = response[2].data[i].ipv4address
-			doc.getElementById("bubbledns_ipv6").textContent  = response[2].data[i].ipv6address
+			doc.getElementById("bubbledns_public_ipv4").textContent  = response[2].data[i].public_ipv4
+			doc.getElementById("bubbledns_public_ipv6").textContent  = response[2].data[i].public_ipv6
 			doc.getElementById("bubbledns_synctest").textContent  = response[2].data[i].synctest
 			doc.getElementById("bubbledns_masternode").textContent  = response[2].data[i].masternode
 
 
 			//Rewrite IDs to prevent doubles!!!
 			doc.getElementById("bubbledns_subdomain").id = `bubbledns_subdomain${response[2].data[i].id}`
-			doc.getElementById("bubbledns_ipv4").id = `bubbledns_ipv4${response[2].data[i].id}`
-			doc.getElementById("bubbledns_ipv6").id = `bubbledns_ipv6${response[2].data[i].id}`
+			doc.getElementById("bubbledns_public_ipv4").id = `bubbledns_public_ipv4${response[2].data[i].id}`
+			doc.getElementById("bubbledns_public_ipv6").id = `bubbledns_public_ipv6${response[2].data[i].id}`
 			doc.getElementById("bubbledns_synctest").id = `bubbledns_synctest${response[2].data[i].id}`
 			doc.getElementById("bubbledns_masternode").id = `bubbledns_masternode${response[2].data[i].id}`
 			doc.getElementById("singlebubblednsserver").id = `singlebubblednsserver${response[2].data[i].id}`
@@ -456,23 +456,25 @@ async function admin_bubbledns_serversmenu() {
 		let bubblednsentry = {
 			"id": null,
 			"subdomainname": "",
-			"ipv4address": "",
+			"public_ipv4": "",
 			"synctest": 0,
-			"ipv6address": "",
+			"public_ipv6": "",
+			"internal_ipv4":"",
+			"internal_ipv6":"",
 			"enabled_dns": "",
 			"enabled_web": "",
 			"masternode": ""
 		}
 		doc.getElementById("bubbledns_subdomain").textContent  = "NEW"
-		doc.getElementById("bubbledns_ipv4").textContent  = ""
-		doc.getElementById("bubbledns_ipv6").textContent  = ""
+		doc.getElementById("bubbledns_public_ipv4").textContent  = ""
+		doc.getElementById("bubbledns_public_ipv6").textContent  = ""
 		doc.getElementById("bubbledns_synctest").textContent  = ""
 		doc.getElementById("bubbledns_masternode").textContent  = ""
 
 		//Rewrite IDs to prevent doubles!!!
 		doc.getElementById("bubbledns_subdomain").id = `bubbledns_subdomainNEW`
-		doc.getElementById("bubbledns_ipv4").id = `bubbledns_ipv4NEW`
-		doc.getElementById("bubbledns_ipv6").id = `bubbledns_ipv6NEW`
+		doc.getElementById("bubbledns_public_ipv4").id = `bubbledns_public_ipv4NEW`
+		doc.getElementById("bubbledns_public_ipv6").id = `bubbledns_public_ipv6NEW`
 		doc.getElementById("bubbledns_synctest").id = `bubbledns_synctestNEW`
 		doc.getElementById("bubbledns_masternode").id = `bubbledns_masternodeNEW`
 		doc.getElementById("singlebubblednsserver").id = `singlebubblednsserverNEW`
@@ -504,8 +506,10 @@ async function admin_bubbledns_serversmenu() {
 		doc.getElementById("id").textContent  = bubblednsentry.id
 		doc.getElementById("synctest").textContent  = bubblednsentry.synctest
 		doc.getElementById("subdomainname").setAttribute("value", bubblednsentry.subdomainname)
-		doc.getElementById("ipv4address").setAttribute("value", bubblednsentry.ipv4address)
-		doc.getElementById("ipv6address").setAttribute("value", bubblednsentry.ipv6address)
+		doc.getElementById("public_ipv4").setAttribute("value", bubblednsentry.public_ipv4)
+		doc.getElementById("public_ipv6").setAttribute("value", bubblednsentry.public_ipv6)
+		doc.getElementById("internal_ipv4").setAttribute("value", bubblednsentry.internal_ipv4)
+		doc.getElementById("internal_ipv6").setAttribute("value", bubblednsentry.internal_ipv6)
 		doc.getElementById("enableddns").setAttribute("value", bubblednsentry.enabled_dns)
 		doc.getElementById("enabledweb").setAttribute("value", bubblednsentry.enabled_web)
 		doc.getElementById("masternode").setAttribute("value", bubblednsentry.masternode)
@@ -533,8 +537,10 @@ async function admin_bubbledns_serversmenu() {
 			var bubblednsentry = {
 				"id": doc.querySelector("#id").textContent ,
 				"subdomainname": doc.querySelector('#subdomainname').value,
-				"ipv4address": doc.querySelector("#ipv4address").value,
-				"ipv6address": doc.querySelector("#ipv6address").value,
+				"public_ipv4": doc.querySelector("#public_ipv4").value,
+				"public_ipv6": doc.querySelector("#public_ipv6").value,
+				"internal_ipv4": doc.querySelector("#internal_ipv4").value,
+				"internal_ipv6": doc.querySelector("#internal_ipv6").value,
 				"enabled_dns": doc.querySelector("#enableddns").value,
 				"enabled_web": doc.querySelector("#enabledweb").value,
 				"masternode": doc.querySelector("#masternode").value,

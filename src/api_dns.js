@@ -946,8 +946,8 @@ class apiclass_dns {
             for (let i = 0; i < classdata.db.routinedata.bubbledns_servers.length; i++) {
                 if (classdata.db.routinedata.bubbledns_servers[i].enabled_dns && classdata.db.routinedata.bubbledns_servers[i].synctest) {
                     dnsservers.domain.push(`${classdata.db.routinedata.bubbledns_servers[i].subdomainname}.${classdata.db.routinedata.bubbledns_settings.maindomain}`)
-                    dnsservers.ip.ipv4.push(classdata.db.routinedata.bubbledns_servers[i].ipv4address)
-                    dnsservers.ip.ipv6.push(classdata.db.routinedata.bubbledns_servers[i].ipv6address)
+                    dnsservers.ip.ipv4.push(classdata.db.routinedata.bubbledns_servers[i].public_ipv4)
+                    dnsservers.ip.ipv6.push(classdata.db.routinedata.bubbledns_servers[i].public_ipv6)
                 }
             }
             resolve({ "success": true, "data": dnsservers })
