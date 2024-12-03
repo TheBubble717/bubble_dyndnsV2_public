@@ -133,7 +133,7 @@ class mysqlclass {
             if (entryname == "@")   //Only wants the main entry
             {
                 that.databasequerryhandler_secure(`select * FROM dns_entries where entryname = ? and entrytype = ? and domainid = ?`, ["@", entrytype, domainid]).then((response) => {
-                    if (response[0].length) //Answer with the entryname
+                    if (response.length) //Answer with the entryname
                     {
                         resolve(response[0]);
                         return
@@ -159,7 +159,6 @@ class mysqlclass {
                     return;
                 });
             }
-
         });
     }
 

@@ -81,8 +81,8 @@ class apiclass_dns {
             }
 
             //Check if dnsentry.entryname is at least 4 characters long
-            if (dnsentry.entryname.length < 4) {
-                resolve({ "success": false, "msg": "DNS-Entry-Name too short (4 is min)" })
+            if (dnsentry.entryname.length < 4 && dnsentry.entryname !== "*" && dnsentry.entryname !== "@") {
+                resolve({ "success": false, "msg": "DNS-Entry-Name too short (4 is min)" });
                 return;
             }
             //Check if dnsentry.entryname is max 19 characters long
@@ -314,10 +314,9 @@ class apiclass_dns {
                 return;
             }
 
-
             //Check if dnsentry.entryname is at least 4 characters long
-            if (dnsentry.entryname.length < 4) {
-                resolve({ "success": false, "msg": "DNS-Entry-Name too short (4 is min)" })
+            if (dnsentry.entryname.length < 4 && dnsentry.entryname !== "*" && dnsentry.entryname !== "@") {
+                resolve({ "success": false, "msg": "DNS-Entry-Name too short (4 is min)" });
                 return;
             }
             //Check if dnsentry.entryname is max 19 characters long
