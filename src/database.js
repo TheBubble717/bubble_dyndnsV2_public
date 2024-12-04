@@ -1,4 +1,5 @@
 "use strict";
+import { addfunctions } from "./addfunctions.js";
 import { objectsanitizer } from "./bubble_expressescape_library.js"
 import { classdata } from './main.js';
 import * as mysql from "mysql"
@@ -16,6 +17,10 @@ class mysqlclass {
             "bubbledns_servers": [],
             "mailserver_settings":[]
         },
+        this.routinecaches = {
+            dnsentries : [],
+            dnsentries_locks: {}
+        }
         this.routinemanger = new RoutineManager()
     }
 
@@ -129,36 +134,113 @@ class mysqlclass {
 
     dns_lookup(entryname, entrytype, domainid) {
         var that = this;
+    
+        // Initialize a lock system for handling concurrency
+        if (!that.routinecaches.dnsentries_locks) {
+            that.routinecaches.dnsentries_locks = {};
+        }
+    
+        const lockKey = `${entryname}:${entrytype}:${domainid}`;
+    
         return new Promise(async (resolve, reject) => {
-            if (entryname == "@")   //Only wants the main entry
-            {
-                that.databasequerryhandler_secure(`select * FROM dns_entries where entryname = ? and entrytype = ? and domainid = ?`, ["@", entrytype, domainid]).then((response) => {
-                    if (response.length) //Answer with the entryname
-                    {
-                        resolve(response[0]);
-                        return
-                    }
-                    reject("No Data found!")
-                });
+            // Check if there's an ongoing request for the same key
+            if (that.routinecaches.dnsentries_locks[lockKey]) {
+                that.routinecaches.dnsentries_locks[lockKey].then(resolve).catch(reject);
+                return;
             }
-            else {
-                const promise1 = that.databasequerryhandler_secure(`select * FROM dns_entries where entryname = ? and entrytype = ? and domainid = ?`, [entryname, entrytype, domainid]);
-                const promise2 = that.databasequerryhandler_secure(`select * FROM dns_entries where entryname = ? and entrytype = ? and domainid = ?`, ["*", entrytype, domainid]);
-                Promise.all([promise1, promise2]).then((response) => {
-                    if (response[0].length) //Answer with the entryname
-                    {
-                        resolve(response[0]);
-                        return
+    
+            // Create a new lock for this request
+            that.routinecaches.dnsentries_locks[lockKey] = new Promise(async (lockResolve, lockReject) => {
+                try {
+                    // Check for exact cached entry
+                    const locallysavedexact = that.routinecaches.dnsentries.filter(function (r) {
+                        return r.entryname === entryname && r.entrytype === entrytype && r.domainid === domainid;
+                    });
+    
+                    if (locallysavedexact.length) {
+                        if (locallysavedexact.length === 1 && locallysavedexact[0].noData) {
+                            // Check for wildcard cached entry as a fallback
+                            const locallysavedstar = that.routinecaches.dnsentries.filter(function (r) {
+                                return r.entryname === "*" && r.entrytype === entrytype && r.domainid === domainid;
+                            });
+                            if (locallysavedstar.length === 1 && locallysavedstar[0].noData) {
+                                lockReject("No Data found! (Cached)");
+                            } else {
+                                lockResolve(locallysavedstar);
+                            }
+                            delete that.routinecaches.dnsentries_locks[lockKey];
+                            return;
+                        } else {
+                            lockResolve(locallysavedexact);
+                            delete that.routinecaches.dnsentries_locks[lockKey];
+                            return;
+                        }
                     }
-                    if (response[1].length) //If the specific entryname doesnt exist, use the * value
-                    {
-                        resolve(response[1]);
-                        return
+    
+                    // If "@" (main entry) is requested
+                    if (entryname === "@") {
+                        const response = await that.databasequerryhandler_secure(
+                            `select * FROM dns_entries where entryname = ? and entrytype = ? and domainid = ?`,
+                            ["@", entrytype, domainid]
+                        );
+    
+                        if (response.length) {
+                            that.routinecaches.dnsentries = that.routinecaches.dnsentries.concat(response);
+                            lockResolve(response);
+                        } else {
+                            that.routinecaches.dnsentries.push({ entryname, entrytype, domainid, noData: true });
+                            lockReject("No Data found! (Requested)");
+                        }
+                        delete that.routinecaches.dnsentries_locks[lockKey];
+                        return;
                     }
-                    reject("No Data found!")
-                    return;
-                });
-            }
+    
+                    // Database query for both exact and wildcard entries
+                    const [exactResponse, wildcardResponse] = await Promise.all([
+                        that.databasequerryhandler_secure(
+                            `select * FROM dns_entries where entryname = ? and entrytype = ? and domainid = ?`,
+                            [entryname, entrytype, domainid]
+                        ),
+                        that.databasequerryhandler_secure(
+                            `select * FROM dns_entries where entryname = ? and entrytype = ? and domainid = ?`,
+                            ["*", entrytype, domainid]
+                        ),
+                    ]);
+    
+                    if (exactResponse.length) {
+                        that.routinecaches.dnsentries = that.routinecaches.dnsentries.concat(exactResponse);
+                        lockResolve(exactResponse);
+                    } else {
+                        that.routinecaches.dnsentries.push({ entryname, entrytype, domainid, noData: true });
+                    }
+    
+                    if (wildcardResponse.length) {
+                        const existingWildcard = that.routinecaches.dnsentries.filter(function (r) {
+                            return r.entryname === "*" && r.entrytype === entrytype && r.domainid === domainid;
+                        });
+                        if (!existingWildcard.length) {
+                            that.routinecaches.dnsentries = that.routinecaches.dnsentries.concat(wildcardResponse);
+                        }
+                        lockResolve(wildcardResponse);
+                    } else {
+                        const existingWildcard = that.routinecaches.dnsentries.filter(function (r) {
+                            return r.entryname === "*" && r.entrytype === entrytype && r.domainid === domainid;
+                        });
+                        if (!existingWildcard.length) {
+                            that.routinecaches.dnsentries.push({ entryname: "*", entrytype, domainid, noData: true });
+                        }
+                    }
+                    
+                    lockReject("No Data found! (Requested)");
+                    delete that.routinecaches.dnsentries_locks[lockKey];
+                } catch (err) {
+                    lockReject(err);
+                    delete that.routinecaches.dnsentries_locks[lockKey];
+                }
+            });
+    
+            // Wait for the lock's result
+            that.routinecaches.dnsentries_locks[lockKey].then(resolve).catch(reject);
         });
     }
 
@@ -276,6 +358,13 @@ class mysqlclass {
                 })
             }
 
+            var routine_delete_cache_dnsentry = async function () {
+                return new Promise(async (resolve, reject) => {
+                    that.routinecaches.dnsentries = [];
+                    resolve()
+                })
+            }
+
             if (this.routinemanger.listRoutines().length) {
                 reject("Already active!")
             }
@@ -288,13 +377,15 @@ class mysqlclass {
             this.log.addlog("Routine: Fetch_Bubbledns_servers activated", { color: "green", warn: "Startup-Info", level: 3 })
             await this.routinemanger.addRoutine(4, routine_fetch_mailserver_settings, 30)
             this.log.addlog("Routine: Fetch_mailserver_settings activated", { color: "green", warn: "Startup-Info", level: 3 })
+            await this.routinemanger.addRoutine(5, routine_delete_cache_dnsentry, 10)
+            this.log.addlog("Routine: Delete_cache_dnsentry activated", { color: "green", warn: "Startup-Info", level: 3 })
             
 
             //Only Masternode
             var ismain = classdata.db.routinedata.bubbledns_servers.filter(function (r) { if (((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip)) && (r.masternode == true)) { return true } })
             if (ismain.length) {
 
-                await this.routinemanger.addRoutine(5, routine_synctest_bubbledns_servers, 180)
+                await this.routinemanger.addRoutine(6, routine_synctest_bubbledns_servers, 180)
                 this.log.addlog("Routine: Synctest from Masternode to Slaves activated", { color: "green", warn: "Startup-Info", level: 3 })
                 await once_startup_masternode()
                 this.log.addlog("ONCE: Startup-Commands activated", { color: "green", warn: "Startup-Info", level: 3 })
