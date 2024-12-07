@@ -1,4 +1,6 @@
 -- Complete Remake of the Front-End
+-- Better API Returns (adding e.g. internal messages!)
 
 Problems
 ---mx records no priority possible
+---Multiple Tasks of the same user can be performed at the same time (Race Condition)

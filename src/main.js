@@ -15,6 +15,7 @@ import { apiclass_admin } from "./api_admin.js"
 import { userclass } from "./classes.js"
 
 var log = mainlog({ screenLogLevel: 1, addcallerlocation: true })
+var alllogs = {"mainlog":log}
 errorhandling()
 
 var classdata = {}
@@ -40,9 +41,9 @@ async function bubbledns() {
 
     //Activate MYSQL
     log.addlog("Activating Mysql-Connection", { color: "green", warn: "Startup-Info", level: 3 })
-    var dblog = new logclass({ screenLogLevel: config.mysql.screenLogLevel, fileLogLevel: config.mysql.fileLogLevel, addcallerlocation: config.mysql.debug })
-    await dblog.activatestream("log/", addfunctions.unixtime_to_local() + " - Database.log")
-    classdata.db = new mysqlclass({ ...config.mysql, public_ip: config.public_ip }, dblog)
+    alllogs.dblog = new logclass({ screenLogLevel: config.mysql.screenLogLevel, fileLogLevel: config.mysql.fileLogLevel, addcallerlocation: config.mysql.debug })
+    await alllogs.dblog.activatestream("log/", addfunctions.unixtime_to_local() + " - Database.log")
+    classdata.db = new mysqlclass({ ...config.mysql, public_ip: config.public_ip }, alllogs.dblog)
     await classdata.db.connect(async function (err, res) {
         if (err) {
             log.addlog(err, { color: "red", warn: "Startup-Error", level: 3 });
@@ -55,17 +56,17 @@ async function bubbledns() {
 
     //Activate Mailservice
     log.addlog("Activating Mailserver-Connection", { color: "green", warn: "Startup-Info", level: 3 })
-    var maillog = new logclass({ screenLogLevel: config.mailclient.screenLogLevel, fileLogLevel: config.mailclient.fileLogLevel, addcallerlocation: config.mailclient.debug })
-    await maillog.activatestream("log/", addfunctions.unixtime_to_local() + " - Mail_Client.log")
-    classdata.mail = new mailclass(config.mailclient, maillog)
+    alllogs.maillog = new logclass({ screenLogLevel: config.mailclient.screenLogLevel, fileLogLevel: config.mailclient.fileLogLevel, addcallerlocation: config.mailclient.debug })
+    await alllogs.maillog.activatestream("log/", addfunctions.unixtime_to_local() + " - Mail_Client.log")
+    classdata.mail = new mailclass(config.mailclient, alllogs.maillog)
 
     //Activate API & Tasks
-    var apilog = new logclass({ screenLogLevel: config.api.screenLogLevel, fileLogLevel: config.api.fileLogLevel, addcallerlocation: config.api.debug })
-    await apilog.activatestream("log/", addfunctions.unixtime_to_local() + " - APIlog.log")
+    alllogs.apilog = new logclass({ screenLogLevel: config.api.screenLogLevel, fileLogLevel: config.api.fileLogLevel, addcallerlocation: config.api.debug })
+    await alllogs.apilog.activatestream("log/", addfunctions.unixtime_to_local() + " - APIlog.log")
     classdata.api = {
-        "dns": new apiclass_dns(config.api, apilog),
-        "account": new apiclass_acc(config.api, apilog),
-        "admin": new apiclass_admin(config.api, apilog),
+        "dns": new apiclass_dns(config.api, alllogs.apilog),
+        "account": new apiclass_acc(config.api, alllogs.apilog),
+        "admin": new apiclass_admin(config.api, alllogs.apilog),
     }
     classdata.tasks = {
         "dns": web_tasks_dns,
@@ -81,9 +82,9 @@ async function bubbledns() {
     if (existsindb.length) {
         //Activate DNS-Server (Gets always activated if databseentry of it exists, even if it is not used; It doesn't get registered as nameservers; Needed for Synctest)
         log.addlog("Activating DNS-Server", { color: "green", warn: "Startup-Info", level: 3 })
-        var dnslog = new logclass({ screenLogLevel: config.dnsserver.screenLogLevel, fileLogLevel: config.dnsserver.fileLogLevel, addcallerlocation: config.dnsserver.debug })
-        await dnslog.activatestream("log/", addfunctions.unixtime_to_local() + " - DNS_Server.log")
-        classdata.dnsserver = new dnsclass({ ...config.dnsserver, public_ip: config.public_ip }, dnslog)
+        alllogs.dnslog = new logclass({ screenLogLevel: config.dnsserver.screenLogLevel, fileLogLevel: config.dnsserver.fileLogLevel, addcallerlocation: config.dnsserver.debug })
+        await alllogs.dnslog.activatestream("log/", addfunctions.unixtime_to_local() + " - DNS_Server.log")
+        classdata.dnsserver = new dnsclass({ ...config.dnsserver, public_ip: config.public_ip }, alllogs.dnslog)
         await classdata.dnsserver.createserver(async function (err, res) {
             if (err) {
                 log.addlog(err, { color: "red", warn: "Startup-Error", level: 3 });
@@ -102,9 +103,9 @@ async function bubbledns() {
     if (existsindb_enableweb.length) {
         //Activate Web-Server
         log.addlog("Activating WEB-Server", { color: "green", warn: "Startup-Info", level: 3 })
-        var weblog = new logclass({ screenLogLevel: config.webserver.screenLogLevel, fileLogLevel: config.webserver.fileLogLevel, addcallerlocation: config.webserver.debug })
-        await weblog.activatestream("log/", addfunctions.unixtime_to_local() + " - WEB_Server.log")
-        classdata.webserver = new webclass({ ...config.webserver, public_ip: config.public_ip }, weblog)
+        alllogs.weblog = new logclass({ screenLogLevel: config.webserver.screenLogLevel, fileLogLevel: config.webserver.fileLogLevel, addcallerlocation: config.webserver.debug })
+        await alllogs.weblog.activatestream("log/", addfunctions.unixtime_to_local() + " - WEB_Server.log")
+        classdata.webserver = new webclass({ ...config.webserver, public_ip: config.public_ip }, alllogs.weblog)
         await classdata.webserver.createserver(async function (err, res) {
             if (err) {
                 log.addlog(err, { color: "red", warn: "Startup-Error", level: 3 });
@@ -195,9 +196,6 @@ async function bubbledns() {
     }
 
 
-
-
-
 }
 
 async function errorhandling(){
@@ -209,7 +207,10 @@ async function errorhandling(){
     
         console.log("Performing graceful shutdown...");
         try {
-            await addfunctions.waittime(1);
+            let logstoshutdown = Object.values(alllogs)
+            logstoshutdown.forEach(element => {
+                element.em.emit("exit")
+            });
         } catch (err) {
             console.error("Error during shutdown:", err);
         }
