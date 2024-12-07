@@ -15,28 +15,14 @@ import { apiclass_admin } from "./api_admin.js"
 import { userclass } from "./classes.js"
 
 var log = mainlog({ screenLogLevel: 1, addcallerlocation: true })
+errorhandling()
+
 var classdata = {}
 classdata.classes = {
     "userclass": userclass
 }
 
-process.on('uncaughtException', (error) => {
-    console.error('Uncaught exception:', error);
-    process.emit('SIGINT');
-    process.exit(1);
-});
 
-process.on('unhandledRejection', (reason, promise) => {
-    log.addlog(reason.stack, { color: "red", warn: "Crash", level: 99 })
-    process.emit('SIGINT');
-    process.exit(1);
-});
-
-process.on('exit', (errorcode) => {
-    log.addlog(`Program is exiting with eror Code ${errorcode}`, { color: "red", warn: "Crash", level: 99 })
-    process.emit('SIGINT');
-    process.exit(1);
-});
 
 
 
@@ -212,6 +198,45 @@ async function bubbledns() {
 
 
 
+}
+
+async function errorhandling(){
+    let isShuttingDown = false;
+
+    async function gracefulStop() {
+        if (isShuttingDown) return; 
+        isShuttingDown = true;
+    
+        console.log("Performing graceful shutdown...");
+        try {
+            await addfunctions.waittime(1);
+        } catch (err) {
+            console.error("Error during shutdown:", err);
+        }
+        process.exit(1);
+    }
+    
+    // Handle uncaught exceptions
+    process.on('uncaughtException', async (error) => {
+        console.error("Uncaught exception:", error);
+        await gracefulStop();
+    });
+    
+    // Handle unhandled promise rejections
+    process.on('unhandledRejection', async (reason, promise) => {
+        log.addlog(reason.stack || "Unknown reason", { color: "red", warn: "Crash", level: 99 });
+        await gracefulStop();
+    });
+    
+    // Handle system signals for graceful shutdown
+    process.on('SIGINT', gracefulStop);
+    process.on('SIGTERM', gracefulStop);
+    
+    // Handle process exit
+    process.on('exit', (exitCode) => {
+        log.addlog(`Program exiting with error code ${exitCode}`, { color: "red", warn: "Crash", level: 99 });
+        gracefulStop();
+    });
 }
 
 
