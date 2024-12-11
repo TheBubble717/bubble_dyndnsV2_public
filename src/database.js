@@ -85,51 +85,49 @@ class mysqlclass {
         });
     }
 
-    databasequerryhandler_secure(querry, values, callback) {
-        var that = this;
-        return new Promise(async (resolve, reject) => {
-
-            //Sanitize input again!
-            var sanitizedinputs = objectsanitizer(values)
-
-            if (JSON.stringify(values) !== JSON.stringify(sanitizedinputs)) {
-                let error = `Tried to use special characters inside the databasequerryhandler`
-                that.log.addlog(`Someone tried to use special characters inside the databasequerryhandler, was blocked successfully`, { color: "red", warn: "ExpressEscape-Error", level: 3 })
-                if (callback && typeof callback == 'function') {
-                    await callback(error, "");
-                    resolve();
-                }
-                else {
-                    reject(error);
-                }
-                return;
+    //Rewritten+
+    async databasequerryhandler_secure(query, values, callback) {
+        const that = this;
+    
+        // Sanitize inputs
+        const sanitizedInputs = objectsanitizer(values);
+    
+        if (JSON.stringify(values) !== JSON.stringify(sanitizedInputs)) {
+            const error = `Tried to use special characters inside the databasequerryhandler`;
+            that.log.addlog(`Someone tried to use special characters inside the databasequerryhandler, was blocked successfully`,{ color: "red", warn: "ExpressEscape-Error", level: 3 });
+            
+            if (callback && typeof callback === 'function') {
+                await callback(error, null);
             }
+            throw new Error(error);
+        }
+    
+        try {
+            // Execute the query using the connection pool
+            const result = await new Promise((resolve, reject) => {
+                that.pool.query(query, sanitizedInputs, (err, res) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve(res);
+                });
+            });
+    
+            // Sanitize outputs
+            var sanitizedOutputs = objectsanitizer(result);
 
-            that.pool.query(querry, sanitizedinputs, async function (err, result) {
-                if (err) {
-                    let error = `Error in databasequerryhandler: ${err}`
-                    if (callback && typeof callback == 'function') {
-                        await callback(error, "");
-                        resolve();
-                    }
-                    else {
-                        reject(error);
-                    }
-                    return;
-                }
-                else {
-                    let sanitizedoutputs = objectsanitizer(result)
-                    if (callback && typeof callback == 'function') {
-                        await callback("", sanitizedoutputs);
-                        resolve();
-                    }
-                    else {
-                        resolve(sanitizedoutputs);
-                    }
-                    return;
-                }
-            })
-        });
+            if (callback && typeof callback === 'function') {
+                await callback(null, sanitizedOutputs);
+            }
+    
+            return sanitizedOutputs;
+        } catch (err) {
+            const error = `Error in databasequerryhandler: ${err}`;
+            if (callback && typeof callback === 'function') {
+                await callback(error, null);
+            }
+            throw new Error(error);
+        }
     }
 
     dns_lookup(entryname, entrytype, domainid) {

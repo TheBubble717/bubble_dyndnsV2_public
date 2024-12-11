@@ -9,7 +9,7 @@ var bodyParser = require("body-parser");
 var express = require('express');
 var cookieParser = require('cookie-parser')
 var path = require('path');
-import { escape as expressescape } from "./bubble_expressescape_library.js"
+import { escape as expressescape,objectsanitizer } from "./bubble_expressescape_library.js"
 const rateLimit = require('express-rate-limit')
 import { EventEmitter } from "node:events"
 
@@ -21,6 +21,7 @@ class webclass extends EventEmitter {
         this.expressserver = null;
         this.http_s_server = null;
         this.log = log
+        this.locks ={}
     }
 
     createserver(callback) {
@@ -98,6 +99,7 @@ class webclass extends EventEmitter {
                     next();
                 } else {
                     res.status(403).send('Forbidden: You do not have access to this resource.');
+                    res.end();
                 }
             }, express.static(path.resolve('website/admin/')));
             that.expressserver.use('/website', express.static(path.resolve('website')))
@@ -106,24 +108,59 @@ class webclass extends EventEmitter {
 
 
 
-
+            //Rewritten+
             that.expressserver.post('/accapi*', apilimiter, async function (req, res) {
-
+                var responseclass = new api_responseclass(req,res)
+    
                 if (req.body.task === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Task not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Task not given!" })
+                    return;
+                }
+                
+
+                if (classdata.tasks.account[req.body.task]) {
+                    classdata.tasks.account[req.body.task].process(req, res,responseclass)
+                }
+                else {
+                    responseclass.send({ "success": false, "msg": "Task unclear" })
                     return;
                 }
 
-                let tasks = classdata.tasks.account
-                if (tasks[req.body.task]) {
-                    tasks[req.body.task].process(req, res, that)
+            });
+
+            //Rewritten+
+            that.expressserver.post('/dnsapi*', apilimiter, async function (req, res) {
+                var responseclass = new api_responseclass(req,res)
+
+                if ((req.body.apikey === undefined) || (req.body.task === undefined)) {
+                    responseclass.send({ "success": false, "msg": "Task not given!" })
+                    return;
+                }
+
+                if (classdata.tasks.dns[req.body.task]) {
+                    classdata.tasks.dns[req.body.task].process(req, res,responseclass)
                 }
                 else {
-                    res.writeHead(404, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Task unclear" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Task unclear" })
+                    return;
+                }
+
+            });
+
+            //Rewritten+
+            that.expressserver.post('/adminapi*', apilimiter, async function (req, res) {
+                var responseclass = new api_responseclass(req,res)
+
+                if ((req.body.apikey === undefined) || (req.body.task === undefined)) {
+                    responseclass.send({ "success": false, "msg": "API or Task not given!" })
+                    return;
+                }
+
+                if (classdata.tasks.admin[req.body.task]) {
+                    classdata.tasks.admin[req.body.task].process(req, res,responseclass)
+                }
+                else {
+                    responseclass.send({ "success": false, "msg": "Task unclear" })
                     return;
                 }
 
@@ -154,51 +191,6 @@ class webclass extends EventEmitter {
                     res.end();
                     return;
                 }
-            });
-
-            that.expressserver.post('/dnsapi*', apilimiter, async function (req, res) {
-
-                //Only continue if apikey AND task are defined!
-                if ((req.body.apikey === undefined) || (req.body.task === undefined)) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "API or Task not given!" }))
-                    res.end();
-                    return;
-                }
-
-                let tasks = classdata.tasks.dns
-                if (tasks[req.body.task]) {
-                    tasks[req.body.task].process(req, res, that)
-                }
-                else {
-                    res.writeHead(404, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Task unclear" }))
-                    res.end();
-                    return;
-                }
-
-            });
-
-            that.expressserver.post('/adminapi/', apilimiter, async function (req, res) {
-                //Only continue if apikey AND task are defined!
-                if ((req.body.apikey === undefined) || (req.body.task === undefined)) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "API or Task not given!" }))
-                    res.end();
-                    return;
-                }
-
-                let tasks = classdata.tasks.admin
-                if (tasks[req.body.task]) {
-                    tasks[req.body.task].process(req, res, that)
-                }
-                else {
-                    res.writeHead(404, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Task unclear" }))
-                    res.end();
-                    return;
-                }
-
             });
 
             // /update?id=8063110&apikey=jfaG1n1NzPukGydLhyZqHn48giCuqb8GBPo8jys4YHyCl9SUbnQ3ekszZsTEnQSmIYWFDs1ayDd8qYTsiUE9nlwiQgak3Sx
@@ -320,6 +312,53 @@ class webclass extends EventEmitter {
 
 }
 
+// {success:true, data:--data- ,}
+// {success:false, msg:--data- ,}
+class api_responseclass{
+    constructor(req, res)
+    {
+        this.req = req,
+        this.res = res
+    }
+    
+    send = (unfilteredanswer, internal = { statuscode: 403 }) =>
+    {
+        if(unfilteredanswer.success)
+        {
+            var filteredanswer = {success:unfilteredanswer.success,data:unfilteredanswer.data}
+            this.res.writeHead(200, { 'Content-Type': 'text/html' });
+        }
+        else
+        {
+            var filteredanswer = {success:unfilteredanswer.success,msg:unfilteredanswer.msg}
+            this.res.writeHead(internal.statuscode, { 'Content-Type': 'text/html' });
+            if(internal.statuscode === 500)
+            {
+                //Find where the error occured!
+                var errorlocation = ""
+                let stack = new Error().stack;
+                let stackLines = stack.split("\n");
+                let callerLine = stackLines[2];
+    
+                let match = callerLine.match(/([\/\\]([^\/\\]+\.js:\d+:\d+))/);
+    
+                if (match) {
+                    errorlocation = `${match[1].replace(/^.*[\/\\]/, '')} --- `
+                }
+
+                //Check if internal.error exists, set to "NOT SET" if not
+                if(typeof internal.err == "undefined"){internal.err = "NOT SET"}
+
+                classdata.webserver.log.addlog(`Error ${internal.statuscode} happened in "${errorlocation} with the error: ${internal.err}`)
+            }
+        }
+        this.res.write(JSON.stringify(filteredanswer))
+        this.res.end();
+        return;
+    }
+
+
+}
 
 
 

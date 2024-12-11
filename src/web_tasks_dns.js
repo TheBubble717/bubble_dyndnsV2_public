@@ -4,514 +4,367 @@ import { classdata } from './main.js';
 
 var tasks =
 {
-
+    //Rewritten+
     "dnsentry_update":
     {
-        description: "Register an Account on the site",
-        example: "dnsapi?apikey=leckerapi&task=update&id=82917045&ipv4=1.2.3.4&ipv6=::1 oder dnsapi?apikey=leckerapi&task=update&id=82917045 für local oder &domain=sdas",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Update a DNS Entry of the Domain",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data is defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-                //Actual Update
-                let answer = await classdata.api.dns.dnsentry_update(pretaskdata.user.data, req.body.data)
-                if (answer.success) {
-                    res.writeHead(200, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer))
-                    res.end();
-                }
-                else {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
-                    return;
-                }
+                await classdata.api.dns.dnsentry_update(pretaskdata.user.data, req.body.data)
+                    .then(responseclass.send)
+                    .catch(function (err) {
+                        responseclass.send({ success: false, msg: "Error dnsentry_update, 500 Error" }, { statuscode: 500, err: err })
+                    })
+                return;
             });
         }
 
     },
 
+    //Rewritten+
     "dnsentry_delete":
     {
-        description: "Register an Account on the site",
-        example: "/dnsapi?apikey=leckerapi3&task=dns_delete&id=213212",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Delete a DNS Entry of the Domain",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data is defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-                //Actual Deletion
-                let answer = await classdata.api.dns.dnsentry_delete(pretaskdata.user.data, req.body.data)
-                if (answer.success) {
-                    res.writeHead(200, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer))
-                    res.end();
-                }
-                else {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
-                    return;
-                }
+                await classdata.api.dns.dnsentry_delete(pretaskdata.user.data, req.body.data)
+                    .then(responseclass.send)
+                    .catch(function (err) {
+                        responseclass.send({ success: false, msg: "Error dnsentry_delete, 500 Error" }, { statuscode: 500, err: err })
+                    })
+                return;
             });
         }
     },
 
+    //Rewritten+
     "dnsentry_create":
     {
-        description: "Register an Account on the site",
-        example: "dnsapi?apikey=leckerapi&task=create&domain=testdomain&ipv4=1.2.3.4&ipv6=::1 oder /dnsapi?apikey=leckerapi&task=create&name=testdomain für local",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Create a DNS Entry of the Domain",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data is defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-
-                //Actual Creation
-                let answer = await classdata.api.dns.dnsentry_create(pretaskdata.user.data, req.body.data)
-                if (answer.success) {
-                    res.writeHead(200, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer))
-                    res.end();
-                }
-                else {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
-                    return;
-                }
+                await classdata.api.dns.dnsentry_create(pretaskdata.user.data, req.body.data)
+                    .then(responseclass.send)
+                    .catch(function (err) {
+                        responseclass.send({ success: false, msg: "Error dnsentry_create, 500 Error" }, { statuscode: 500, err: err })
+                    })
+                return;
             });
         }
 
     },
 
+    //Rewritten+
     "domain_list_owner":
     {
-        description: "Register an Account on the site",
+        description: "Get all Domains the user ownes (also the dnsentries and sharelist)",
         example: "/dnsapi?apikey=leckerapi3&task=dns_list",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Actual Listing
-                let answer = await classdata.api.dns.domain_list_owner(pretaskdata.user.data)
-                if (answer.success) {
-                    res.writeHead(200, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer))
-                    res.end();
-                }
-                else {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
-                    return;
-                }
+                await classdata.api.dns.domain_list_owner(pretaskdata.user.data)
+                    .then(responseclass.send)
+                    .catch(function (err) {
+                        responseclass.send({ success: false, msg: "Error domain_list_owner, 500 Error" }, { statuscode: 500, err: err })
+                    })
+                return;
             });
         }
     },
 
+    //Rewritten+
     "domain_list_shared":
     {
-        description: "Register an Account on the site",
-        example: "/dnsapi?apikey=leckerapi3&task=dns_list",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Get all Domains the user got shared (also the dnsentries and empty sharelist)",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Actual Listing
-                let answer = await classdata.api.dns.domain_list_shared(pretaskdata.user.data)
-                if (answer.success) {
-                    res.writeHead(200, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer))
-                    res.end();
-                }
-                else {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
-                    return;
-                }
+                await classdata.api.dns.domain_list_shared(pretaskdata.user.data)
+                    .then(responseclass.send)
+                    .catch(function (err) {
+                        responseclass.send({ success: false, msg: "Error domain_list_shared, 500 Error" }, { statuscode: 500, err: err })
+                    })
+                return;
             });
         }
     },
 
+    //Rewritten+
     "domain_create":
     {
-        description: "Register an Account on the site",
-        example: "dnsapi?apikey=leckerapi&task=create&domain=testdomain&ipv4=1.2.3.4&ipv6=::1 oder /dnsapi?apikey=leckerapi&task=create&name=testdomain für local",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Create a new Domain",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data is defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-                //Actual Creation
-                let creationresult = await classdata.api.dns.domain_create(pretaskdata.user.data, req.body.data)
-                if (creationresult.success) {
-                    let answer = await classdata.api.dns.domain_list_owner(pretaskdata.user.data, creationresult.data)
-                    if (answer.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer))
-                        res.end();
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer));
-                        res.end();
-                        return;
-                    }
-                }
-                else {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(creationresult));
-                    res.end();
-                    return;
-                }
-
-
-
+                await classdata.api.dns.domain_create(pretaskdata.user.data, req.body.data)
+                    .then(async function (res1) {
+                        if (res1.success) {
+                            var res2 = await classdata.api.dns.domain_list_owner(pretaskdata.user.data, res1.data)
+                            return res2;
+                        }
+                        return res1
+                    })
+                    .then(responseclass.send)
+                    .catch(function (err) {
+                        responseclass.send({ success: false, msg: "Error domain_create, 500 Error" }, { statuscode: 500, err: err })
+                    })
+                return;
             });
         }
 
+
     },
 
+    //Rewritten+
     "domain_delete":
     {
-        description: "Register an Account on the site",
-        example: "/dnsapi?apikey=leckerapi3&task=dns_delete&id=213212",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Delete a Domain",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data is defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-
-                //Actual Deletion
-                let answer = await classdata.api.dns.domain_delete(pretaskdata.user.data, req.body.data)
-                if (answer.success) {
-                    res.writeHead(200, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer))
-                    res.end();
-                }
-                else {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
-                    return;
-                }
+                await classdata.api.dns.domain_delete(pretaskdata.user.data, req.body.data)
+                    .then(responseclass.send)
+                    .catch(function (err) {
+                        responseclass.send({ success: false, msg: "Error domain_delete, 500 Error" }, { statuscode: 500, err: err })
+                    })
+                return;
             });
         }
+
     },
 
+    //Rewritten+
     "domain_verify":
     {
-        description: "Register an Account on the site",
-        example: "dnsapi?apikey=leckerapi&task=create&domain=testdomain&ipv4=1.2.3.4&ipv6=::1 oder /dnsapi?apikey=leckerapi&task=create&name=testdomain für local",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Verify a Domain",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data is defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-                //Actual Verification
-                let answer1 = await classdata.api.dns.domain_verify(pretaskdata.user.data, req.body.data)
-                if (answer1.success) {
-                    let answer2 = await classdata.api.dns.domain_list_owner(pretaskdata.user.data, req.body.data)
-                    if (answer2.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer2))
-                        res.end();
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer2));
-                        res.end();
-                        return;
-                    }
-
-                }
-                else {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer1));
-                    res.end();
-                    return;
-                }
-
-
-
+                await classdata.api.dns.domain_verify(pretaskdata.user.data, req.body.data)
+                    .then(async function (res1) {
+                        if (res1.success) {
+                            var res2 = await classdata.api.dns.domain_list_owner(pretaskdata.user.data, req.body.data)
+                            return res2;
+                        }
+                        return res1
+                    })
+                    .then(responseclass.send)
+                    .catch(function (err) {
+                        responseclass.send({ success: false, msg: "Error domain_verify, 500 Error" }, { statuscode: 500, err: err })
+                    })
+                return;
             });
         }
 
     },
 
+    //Rewritten+
     "domain_share_adduser":
     {
-        description: "Register an Account on the site",
-        example: "dnsapi?apikey=leckerapi&task=create&domain=testdomain&ipv4=1.2.3.4&ipv6=::1 oder /dnsapi?apikey=leckerapi&task=create&name=testdomain für local",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Share a Domain with a User",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data is defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
                     if (!((typeof req.body.data === "object") && (req.body.data !== null))) {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                        res.end();
+                        responseclass.send({ "success": false, "msg": "Data not given!" })
                         return;
                     }
                 }
-
 
                 //Only continue if domainid and mailaddress is defined!
                 if ((req.body.data.domainid === undefined) || (req.body.data.mailaddress === undefined)) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Domain ID or mailaddress is not provided" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Domain ID or mailaddress is not provided" })
                     return;
                 }
 
 
-
-                //Actual Creation
-                let creationresult = await classdata.api.dns.domain_share_adduser(pretaskdata.user.data, req.body.data.domainid, req.body.data.mailaddress)
-                if (creationresult.success) {
-                    let answer = await classdata.api.dns.domain_list_owner(pretaskdata.user.data, { "id": req.body.data.domainid })
-                    if (answer.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer))
-                        res.end();
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer));
-                        res.end();
-                        return;
-                    }
-                }
-                else {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(creationresult));
-                    res.end();
-                    return;
-                }
-
-
-
+                await classdata.api.dns.domain_share_adduser(pretaskdata.user.data, req.body.data.domainid, req.body.data.mailaddress)
+                    .then(async function (res1) {
+                        if (res1.success) {
+                            var res2 = await classdata.api.dns.domain_list_owner(pretaskdata.user.data, { "id": req.body.data.domainid })
+                            return res2;
+                        }
+                        return res1
+                    })
+                    .then(responseclass.send)
+                    .catch(function (err) {
+                        responseclass.send({ success: false, msg: "Error domain_verify, 500 Error" }, { statuscode: 500, err: err })
+                    })
+                return;
             });
         }
 
     },
 
+    //Rewritten+
     "domain_share_deleteuser":
     {
-        description: "Register an Account on the site",
-        example: "/dnsapi?apikey=leckerapi3&task=dns_delete&id=213212",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Delete your Domain share of a specific user (deleting all of his dnsentries too)",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data is defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
                     if (!((typeof req.body.data === "object") && (req.body.data !== null))) {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                        res.end();
+                        responseclass.send({ "success": false, "msg": "Data not given!" })
                         return;
                     }
                 }
 
                 //Only continue if userid and domainid is defined!
                 if ((req.body.data.userid === undefined) || (req.body.data.domainid === undefined)) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Domain ID or User ID is not provided" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Domain ID or mailaddress is not provided" })
                     return;
                 }
 
-                //Actual Deletion
-                let answer = await classdata.api.dns.domain_share_deleteuser(pretaskdata.user.data, req.body.data.domainid, req.body.data.userid)
-                if (answer.success) {
-                    let answer = await classdata.api.dns.domain_list_owner(pretaskdata.user.data, { "id": req.body.data.domainid })
-                    if (answer.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer))
-                        res.end();
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer));
-                        res.end();
-                        return;
-                    }
 
-                }
-                else {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
-                    return;
-                }
+                await classdata.api.dns.domain_share_deleteuser(pretaskdata.user.data, req.body.data.domainid, req.body.data.userid)
+                    .then(async function (res1) {
+                        if (res1.success) {
+                            var res2 = await classdata.api.dns.domain_list_owner(pretaskdata.user.data, { "id": req.body.data.domainid })
+                            return res2;
+                        }
+                        return res1
+                    })
+                    .then(responseclass.send)
+                    .catch(function (err) {
+                        responseclass.send({ success: false, msg: "Error domain_verify, 500 Error" }, { statuscode: 500, err: err })
+                    })
+                return;
             });
         }
     },
 
+    //Rewritten+
     "dns_get_bubblednsservers":
     {
-        description: "Register an Account on the site",
-        example: "/dnsapi?apikey=leckerapi3&task=dns_delete&id=213212",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Get the BubbleDNS-Servers",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                let answer = await classdata.api.dns.dns_get_bubblednsservers()
-                if (answer.success) {
-                    res.writeHead(200, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer))
-                    res.end();
-                }
-                else {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
-                    return;
-                }
+                await classdata.api.dns.dns_get_bubblednsservers()
+                    .then(responseclass.send)
+                    .catch(function (err) {
+                        responseclass.send({ success: false, msg: "Error dns_get_allowed_dnstype_entries, 500 Error" }, { statuscode: 500, err: err })
+                    })
+                return;
             });
         }
     },
 
+    //Rewritten+
     "dns_get_allowed_dnstype_entries":
     {
-        description: "Register an Account on the site",
-        example: "/dnsapi?apikey=leckerapi3&task=dns_delete&id=213212",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "dns_get_allowed_dnstype_entries",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                let answer = await classdata.api.dns.dns_get_allowed_dnstype_entries()
-                if (answer.success) {
-                    res.writeHead(200, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer))
-                    res.end();
-                }
-                else {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
-                    return;
-                }
+                await classdata.api.dns.dns_get_allowed_dnstype_entries()
+                    .then(responseclass.send)
+                    .catch(function (err) {
+                        responseclass.send({ success: false, msg: "Error dns_get_allowed_dnstype_entries, 500 Error" }, { statuscode: 500, err: err })
+                    })
+                return;
             });
         }
     },
@@ -521,45 +374,40 @@ var tasks =
 
 export { tasks, pretask }
 
+//Rewritten+
+async function pretask(req, res, callback) {
 
-async function pretask(req, res, that, callback) {
+    //Get ipv4-Address of the user.
+    var useripv4 = addfunctions.getclientipv4(req);
+    if (!addfunctions.isIPv4(useripv4)) {
+        useripv4 = null;
+    }
 
-    return new Promise(async (resolve, reject) => {
-        //Get ipv4-Address of the user.
-        var useripv4 = addfunctions.getclientipv4(req);
-        if (!addfunctions.isIPv4(useripv4)) {
-            useripv4 = null;
+    //Get ipv6-Address of the user. //XXXXXXXXXXXX
+    var useripv6 = null;
+
+    //Check if apikey belongs to a user
+
+    try {
+        var user = await classdata.api.account.auth_api(req.body.apikey)
+        if (user.success) {
+            let answer = { "useripv4": useripv4, "useripv6": useripv6, "user": user }
+            if (callback && typeof callback == 'function') {
+                await callback("", answer);
+            }
+            return (answer);
         }
-
-        //Get ipv6-Address of the user. //XXXXXXXXXXXX
-        var useripv6 = null;
-
-        //Check if apikey belongs to a user
-        classdata.api.account.auth_api(req.body.apikey).then(async function (userreq) {
-            if (userreq.success) {
-                let answer = { "useripv4": useripv4, "useripv6": useripv6, "user": userreq }
-                if (callback && typeof callback == 'function') {
-                    await callback("", answer);
-                    resolve();
-                }
-                else {
-                    resolve(answer);
-                }
-                return;
-
-            }
-            else {
-                let error = "API doesn't belong to a user"
-                if (callback && typeof callback == 'function') {
-                    await callback(error, "");
-                    resolve();
-                }
-                else {
-                    reject(error);
-                }
-                return;
-            }
-        })
-    });
+        else
+        {
+            let error = "API doesn't belong to a user"
+            throw (error);
+        }
+    }
+    catch (err) {
+        if (callback && typeof callback == 'function') {
+            await callback(err, "");
+        }
+        return;
+    }
 }
 

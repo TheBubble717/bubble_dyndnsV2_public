@@ -5,152 +5,112 @@ import { classdata } from './main.js';
 
 var tasks =
 {
+    //Rewritten+
     "auth_register":
     {
         description: "Register an Account on the site",
-        example: "/accapi?task=auth_register&mailaddress=hal1lo&password1=du&password2=du",
-        do_pretask: true,
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
                 //Only continue data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ success: false, msg: "Data not given!" })
                     return;
                 }
+
                 req.body.data.useripv4 = pretaskdata.useripv4
                 req.body.data.useripv6 = pretaskdata.useripv6
 
 
                 //Actual Registration
-                classdata.api.account.auth_register(req.body.data).then(function (user) {
-                    if (user.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(user))
-                        res.end();
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(user))
-                        res.end();
-                        return;
-                    }
-                })
-                    .catch(function (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/html' });
-                        res.write("Error registering")
-                        res.end();
-                        return;
-                    })
-
-            });
-
-
+                await classdata.api.account.auth_register(req.body.data)
+                .then(responseclass.send)
+                .catch(function (err) {responseclass.send({ success: false, msg: "Error Registering, 500 Error" }, { statuscode: 500, err: err })})
+                return;
+            })
         }
     },
 
+    //Rewritten+
     "auth_login":
     {
-        description: "Register an Account on the site",
-        example: "/accapi?task=login&mailaddress=hal1lo&password=du",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Login on the site",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
                 //Only continue data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ success: false, msg: "Data not given!" })
                     return;
                 }
+
                 req.body.data.useripv4 = pretaskdata.useripv4
                 req.body.data.useripv6 = pretaskdata.useripv6
 
+
                 //Actual Login
-                classdata.api.account.auth_login(req.body.data).then(function (user) {
-                    if (user.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(user))
-                        res.end();
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(user))
-                        res.end();
-                        return;
-                    }
+                await classdata.api.account.auth_login(req.body.data)
+                .then(responseclass.send)
+                .catch(function (err) {
+                    responseclass.send({ success: false, msg: "Error Login, 500 Error" }, { statuscode: 500, err: err })
                 })
-                    .catch(function (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/html' });
-                        res.write("Error login")
-                        res.end();
-                        return;
-                    })
-
-            });
-
+                return;
+            })
         }
 
     },
 
+    //Rewritten+
     "req_passwordreset":
     {
-        description: "Register an Account on the site",
-        example: "/accapi?task=login&mailaddress=hal1lo&password=du",
-        process: async function (req, res, that) {
-
+        description: "Request a Password Reset via Mailaddress",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
             //Only continue data is defined
             if (req.body.data === undefined) {
-                res.writeHead(403, { 'Content-Type': 'text/html' });
-                res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                res.end();
+                responseclass.send({ success: false, msg: "Data not given!" })
                 return;
             }
 
             //Mailaddress check
             let checkeduserdata = await addfunctions.check_for_valid_user_entries({ "mailaddress": req.body.data.mailaddress })
             if (!checkeduserdata.success) {
-                res.writeHead(403, { 'Content-Type': 'text/html' });
-                res.write(JSON.stringify(checkeduserdata))
-                res.end();
-                return
+                responseclass.send(checkeduserdata)
+                return;
             }
 
             var user = new classdata.classes.userclass({ "mailaddress": req.body.data.mailaddress })
-            var load_useranswer = await user.get_user_from_mailaddress()
-            if (load_useranswer.success) {
-                classdata.mail.mailconfirmation_create({ "keytype": 1, "userid": user.get_user_public().id })
+            try
+            {
+                var load_useranswer = await user.get_user_from_mailaddress()
+                if (load_useranswer.success) {
+                    classdata.mail.mailconfirmation_create({ "keytype": 1, "userid": user.get_user_public().id })
+                }
+                var standardanswer = { "success": true, data: "Recovery E-Mail was sent to the User" }
+                await addfunctions.waittime_random(100, 2000)
+                responseclass.send(standardanswer)
             }
-            var standardanswer = { "success": true, data: "Recovery E-Mail was sent to the User" }
-            await addfunctions.waittime_random(100, 2000)
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.write(JSON.stringify(standardanswer))
-            res.end();
-
+            catch(err) {
+                responseclass.send({ success: false, msg: "Error Passwordreset, 500 Error" }, { statuscode: 500, err: err })
+                return;
+            }
+            return;
         }
-
     }
 }
 
-
-async function pretask(req, res, that, callback) {
-    return new Promise(async (resolve, reject) => {
+//Rewritten
+async function pretask(req, res, callback) {
 
         //Get ipv4-Address of the user.
         var useripv4 = addfunctions.getclientipv4(req);
@@ -162,17 +122,11 @@ async function pretask(req, res, that, callback) {
         var useripv6 = null;
 
 
-
         let answer = { "useripv4": useripv4, "useripv6": useripv6 }
         if (callback && typeof callback == 'function') {
             await callback("", answer);
-            resolve();
         }
-        else {
-            resolve(answer);
-        }
-        return;
-    });
+        return(answer);
 }
 
 export { tasks, pretask }

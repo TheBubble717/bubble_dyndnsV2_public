@@ -298,7 +298,7 @@ var addfunctions = {
                 }
 
             }
-            resolve({ "success": true, "data": "Nothing to test" })
+            resolve({ "success": true, "data": "OK" })
             return
         });
     }

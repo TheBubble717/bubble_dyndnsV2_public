@@ -4,596 +4,378 @@ import { classdata } from './main.js';
 
 var tasks =
 {
+    //Rewritten+
     "dns_upstream_servers_list":
     {
-        description: "Register an Account on the site",
-        example: "",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Get Upstream DNS Servers that get used for requesting dnsentries that for e.g. domain check",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-
-
-                classdata.api.admin.dns_upstream_servers_list().then(function (answer) {
-                    if (answer.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer))
-                        res.end();
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer));
-                        res.end();
-                        return;
-                    }
-                })
+                await classdata.api.admin.dns_upstream_servers_list()
+                    .then(responseclass.send)
                     .catch(function (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/html' });
-                        res.write("Error dns_upstream_servers_list error")
-                        res.end();
-                        return;
+                        responseclass.send({ success: false, msg: "Error dns_upstream_servers_list, 500 Error" }, { statuscode: 500, err: err })
                     })
-
+                return;
             });
         }
     },
 
+    //Rewritten+
     "dns_upstream_servers_enabledisable":
     {
-        description: "Register an Account on the site",
-        example: "",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Enable/Disable a certain DNS Upstream Server",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data is defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-                classdata.api.admin.dns_upstream_servers_enabledisable(req.body.data).then(function (answer) {
-                    if (answer.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer))
-                        res.end();
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer));
-                        res.end();
-                        return;
-                    }
-                })
+                await classdata.api.admin.dns_upstream_servers_enabledisable(req.body.data)
+                    .then(responseclass.send)
                     .catch(function (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/html' });
-                        res.write("Error dns_upstream_servers_enabledisable error")
-                        res.end();
-                        return;
+                        responseclass.send({ success: false, msg: "Error dns_upstream_servers_enabledisable, 500 Error" }, { statuscode: 500, err: err })
                     })
+                return;
             });
         }
     },
 
+    //Rewritten+
     "dns_upstream_servers_delete":
     {
-        description: "Register an Account on the site",
-        example: "",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Delete a DNS Upstream Server",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data is defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-                classdata.api.admin.dns_upstream_servers_delete(req.body.data).then(function (answer) {
-                    if (answer.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer))
-                        res.end();
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer));
-                        res.end();
-                        return;
-                    }
-                })
+                await classdata.api.admin.dns_upstream_servers_delete(req.body.data)
+                    .then(responseclass.send)
                     .catch(function (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/html' });
-                        res.write("Error dns_upstream_servers_delete error")
-                        res.end();
-                        return;
+                        responseclass.send({ success: false, msg: "Error dns_upstream_servers_delete, 500 Error" }, { statuscode: 500, err: err })
                     })
-
+                return;
             });
         }
     },
 
+    //Rewritten+
     "dns_upstream_servers_create":
     {
-        description: "Register an Account on the site",
-        example: "",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        ddescription: "Create a new DNS Upstream Server",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data is defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-                classdata.api.admin.dns_upstream_servers_create(req.body.data).then(function (answer) {
-                    if (answer.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer))
-                        res.end();
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer));
-                        res.end();
-                        return;
-                    }
-                })
+                await classdata.api.admin.dns_upstream_servers_create(req.body.data)
+                    .then(responseclass.send)
                     .catch(function (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/html' });
-                        res.write("Error dns_upstream_servers_create error")
-                        res.end();
-                        return;
+                        responseclass.send({ success: false, msg: "Error dns_upstream_servers_create, 500 Error" }, { statuscode: 500, err: err })
                     })
-
+                return;
             });
         }
     },
 
+    //Rewritten+
     "user_management_list_all":
     {
-        description: "Register an Account on the site",
-        example: "",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "List all Users",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                classdata.api.account.get_user_all().then(function (answer) {
-                    if (answer.success) {
-                        answer.data = answer.data.map(function (user) { return user.get_user_public() })
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer))
-                        res.end();
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer));
-                        res.end();
-                        return;
-                    }
-                })
-                    .catch(function (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/html' });
-                        res.write("Error user_management_list_all error")
-                        res.end();
-                        return;
+                await classdata.api.account.get_user_all()
+                    .then(function (res) {
+                        res.data = res.data.map(function (user) { return user.get_user_public() })
+                        responseclass.send(res)
                     })
-
-            });
+                    .catch(function (err) {
+                        responseclass.send({ success: false, msg: "Error user_management_list_all, 500 Error" }, { statuscode: 500, err: err })
+                    })
+                return;
+            })
         }
     },
 
+    //Rewritten+
     "user_management_list_id":
     {
-        description: "Register an Account on the site",
-        example: "",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        description: "Get everything of a specific User",
+        example: "TBD",
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-
-                //Only continue data is defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-                classdata.api.account.get_user_full(req.body.data).then(function (answer1) {
-                    if (answer1.success) {
-                        answer1.data[1] = answer1.data[1].get_user_public()
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer1))
-                        res.end();
-
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer1));
-                        res.end();
-                        return;
-                    }
-                })
-                    .catch(function (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/html' });
-                        res.write("Error user_management_list_id error")
-                        res.end();
-                        return;
+                await classdata.api.account.get_user_full(req.body.data)
+                    .then(function (res) {
+                        res.data[1] = res.data[1].get_user_public()
+                        responseclass.send(res)
                     })
-            });
+
+                    .catch(function (err) {
+                        responseclass.send({ success: false, msg: "Error user_management_list_id, 500 Error" }, { statuscode: 500, err: err })
+                    })
+                return;
+
+            })
         }
+
     },
 
+    //Rewritten+
     "user_management_update_user":
     {
-        description: "Register an Account on the site",
+        description: "Update settings of a user",
         example: "",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data is defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-                classdata.api.account.update_user(req.body.data).then(function (answer) {
-                    if (answer.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer))
-                        res.end();
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer));
-                        res.end();
-                        return;
-                    }
-                })
+                await classdata.api.account.update_user(req.body.data)
+                    .then(responseclass.send)
                     .catch(function (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/html' });
-                        res.write("Error user_management_list_id error")
-                        res.end();
-                        return;
+                        responseclass.send({ success: false, msg: "Error user_management_update_user, 500 Error" }, { statuscode: 500, err: err })
                     })
-            });
+                return;
+
+            })
         }
+
     },
 
+    //Rewritten+
     "bubbledns_servers_list":
     {
-        description: "Register an Account on the site",
+        description: "Get the Bubble DNS Servers",
         example: "",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                classdata.api.admin.bubbledns_servers_list().then(function (bubblednsservers) {
-                    if (bubblednsservers.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(bubblednsservers))
-                        res.end();
-                        return;
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(bubblednsservers));
-                        res.end();
-                        return;
-                    }
-                })
+                await classdata.api.admin.bubbledns_servers_list()
+                    .then(responseclass.send)
                     .catch(function (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/html' });
-                        res.write("Error bubbledns_servers_list error")
-                        res.end();
-                        return;
+                        responseclass.send({ success: false, msg: "Error bubbledns_servers_list, 500 Error" }, { statuscode: 500, err: err })
                     })
-
+                return;
             });
         }
     },
 
+    //Rewritten+
     "bubbledns_servers_synctest":
     {
-        description: "Register an Account on the site",
+        description: "Synctest a BubbleDNS Server",
         example: "",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data is defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-                classdata.api.admin.bubbledns_servers_synctest(req.body.data).then(function (answer) {
-                    if (answer.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer))
-                        res.end();
-                        return;
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer));
-                        res.end();
-                        return;
-                    }
-                })
+                await classdata.api.admin.bubbledns_servers_synctest(req.body.data)
+                    .then(responseclass.send)
                     .catch(function (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/html' });
-                        res.write("Error bubbledns_servers_list error")
-                        res.end();
-                        return;
+                        responseclass.send({ success: false, msg: "Error bubbledns_servers_synctest, 500 Error" }, { statuscode: 500, err: err })
                     })
-
+                return;
             });
         }
     },
 
+    //Rewritten+
     "bubbledns_servers_create":
     {
-        description: "Register an Account on the site",
+        description: "Create a new BubbleDNS Server",
         example: "",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data id defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-                classdata.api.admin.bubbledns_servers_create(req.body.data).then(function (answer) {
-                    if (answer.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer))
-                        res.end();
-                        return;
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer));
-                        res.end();
-                        return;
-                    }
-                })
+                await classdata.api.admin.bubbledns_servers_create(req.body.data)
+                    .then(responseclass.send)
                     .catch(function (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/html' });
-                        res.write("Error bubbledns_servers_create error")
-                        res.end();
-                        return;
+                        responseclass.send({ success: false, msg: "Error bubbledns_servers_create, 500 Error" }, { statuscode: 500, err: err })
                     })
-
+                return;
             });
         }
     },
 
+    //Rewritten+
     "bubbledns_servers_update":
     {
-        description: "Register an Account on the site",
+        description: "Update a BubbleDNS Server",
         example: "",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data id defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-                classdata.api.admin.bubbledns_servers_update(req.body.data).then(function (answer) {
-                    if (answer.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer))
-                        res.end();
-                        return;
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer));
-                        res.end();
-                        return;
-                    }
-                })
+                await classdata.api.admin.bubbledns_servers_update(req.body.data)
+                    .then(responseclass.send)
                     .catch(function (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/html' });
-                        res.write("Error bubbledns_servers_update error")
-                        res.end();
-                        return;
+                        responseclass.send({ success: false, msg: "Error bubbledns_servers_update, 500 Error" }, { statuscode: 500, err: err })
                     })
-
+                return;
             });
         }
     },
 
+    //Rewritten+
     "bubbledns_servers_delete":
     {
-        description: "Register an Account on the site",
+        description: "Delete a BubbleDNS Server",
         example: "",
-        process: async function (req, res, that) {
-            pretask(req, res, that, async function (err, pretaskdata) {
+        process: async function (req, res, responseclass) {
+            pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
-                    let answer = { "success": false, "msg": err }
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(answer));
-                    res.end();
+                    responseclass.send({ success: false, msg: err })
                     return;
                 }
 
-                //Only continue data id defined
+                //Only continue if data is defined
                 if (req.body.data === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not given!" })
                     return;
                 }
 
-                classdata.api.admin.bubbledns_servers_delete(req.body.data).then(function (answer) {
-                    if (answer.success) {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer))
-                        res.end();
-                        return;
-                    }
-                    else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(answer));
-                        res.end();
-                        return;
-                    }
-                })
+                await classdata.api.admin.bubbledns_servers_delete(req.body.data)
+                    .then(responseclass.send)
                     .catch(function (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/html' });
-                        res.write("Error bubbledns_servers_delete error")
-                        res.end();
-                        return;
+                        responseclass.send({ success: false, msg: "Error bubbledns_servers_delete, 500 Error" }, { statuscode: 500, err: err })
                     })
-
+                return;
             });
         }
     }
 
 }
 
+//Rewritten+
+async function pretask(req, res, callback) {
 
-async function pretask(req, res, that, callback) {
+    //Get ipv4-Address of the user.
+    var useripv4 = addfunctions.getclientipv4(req);
+    if (!addfunctions.isIPv4(useripv4)) {
+        useripv4 = null;
+    }
 
-    return new Promise(async (resolve, reject) => {
-        //Get ipv4-Address of the user.
-        var useripv4 = addfunctions.getclientipv4(req);
-        if (!addfunctions.isIPv4(useripv4)) {
-            useripv4 = null;
-        }
+    //Get ipv6-Address of the user. //XXXXXXXXXXXX
+    var useripv6 = null;
 
-        //Get ipv6-Address of the user. //XXXXXXXXXXXX
-        var useripv6 = null;
+    //Check if apikey belongs to a user & isadmin =1
 
-        //Check if apikey belongs to a user & isadmin =1
-        classdata.api.account.auth_api(req.body.apikey).then(async function (userreq) {
-            if (userreq.success) {
-                if (userreq.data.get_user_public().isadmin) {
-                    let answer = { "useripv4": useripv4, "useripv6": useripv6, "user": userreq }
-                    if (callback && typeof callback == 'function') {
-                        await callback("", answer);
-                        resolve();
-                    }
-                    else {
-                        resolve(answer);
-                    }
-                    return;
+    try {
+        var user = await classdata.api.account.auth_api(req.body.apikey)
+        if (user.success) {
+            if (user.data.get_user_public().isadmin) {
+                let answer = { "useripv4": useripv4, "useripv6": useripv6, "user": user }
+                if (callback && typeof callback == 'function') {
+                    await callback("", answer);
                 }
-                else {
-                    let error = "API doesn't belong to a user or is not an admin"
-                    if (callback && typeof callback == 'function') {
-                        await callback(error, "");
-                        resolve();
-                    }
-                    else {
-                        reject(error);
-                    }
-                    return;
-                }
+                return (answer);
             }
             else {
                 let error = "API doesn't belong to a user or is not an admin"
-                if (callback && typeof callback == 'function') {
-                    await callback(error, "");
-                    resolve();
-                }
-                else {
-                    reject(error);
-                }
-                return;
+                throw (error);
             }
-        })
-    });
+        }
+        else
+        {
+            let error = "API doesn't belong to a user or is not an admin"
+            throw (error);
+        }
+    }
+    catch (err) {
+        if (callback && typeof callback == 'function') {
+            await callback(err, "");
+        }
+        return;
+    }
 }
 
 

@@ -1,7 +1,7 @@
 'use strict';
 
 import { addfunctions } from "./../src/addfunctions.js"
-import {bubbledns,classdata} from "./../src/main.js"
+import { bubbledns, classdata } from "./../src/main.js"
 
 bubbledns();
 
