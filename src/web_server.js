@@ -9,7 +9,7 @@ var bodyParser = require("body-parser");
 var express = require('express');
 var cookieParser = require('cookie-parser')
 var path = require('path');
-import { escape as expressescape,objectsanitizer } from "./bubble_expressescape_library.js"
+import { escape as expressescape, objectsanitizer } from "./bubble_expressescape_library.js"
 const rateLimit = require('express-rate-limit')
 import { EventEmitter } from "node:events"
 
@@ -21,7 +21,7 @@ class webclass extends EventEmitter {
         this.expressserver = null;
         this.http_s_server = null;
         this.log = log
-        this.locks ={}
+        this.locks = {}
     }
 
     createserver(callback) {
@@ -110,69 +110,85 @@ class webclass extends EventEmitter {
 
             //Rewritten+
             that.expressserver.post('/accapi*', apilimiter, async function (req, res) {
-                var responseclass = new api_responseclass(req,res)
-    
-                if (req.body.task === undefined) {
+                var responseclass = new api_responseclass(req, res)
+
+                //Check if apikey and task is string
+                let requiredFields = { "task": "string" };
+                req.body = addfunctions.objectconverter(req.body)
+                let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, req.body, false)
+                if (!check_for_correct_datatype.success) {
                     responseclass.send({ "success": false, "msg": "Task not given!" })
                     return;
                 }
-                
 
+                var ipv4 = addfunctions.getclientipv4(req)
+
+                const lockKey = `${ipv4}:${req.body.task}`;
                 if (classdata.tasks.account[req.body.task]) {
-                    classdata.tasks.account[req.body.task].process(req, res,responseclass)
-                }
-                else {
-                    responseclass.send({ "success": false, "msg": "Task unclear" })
+                    var taskProcessor = classdata.tasks.account[req.body.task]
+                } else {
+                    responseclass.send({ "success": false, "msg": "Task unclear" });
                     return;
                 }
+                that.processWithLock(lockKey, taskProcessor, res, req, responseclass)
 
             });
 
             //Rewritten+
             that.expressserver.post('/dnsapi*', apilimiter, async function (req, res) {
-                var responseclass = new api_responseclass(req,res)
+                const responseclass = new api_responseclass(req, res);
 
-                if ((req.body.apikey === undefined) || (req.body.task === undefined)) {
-                    responseclass.send({ "success": false, "msg": "Task not given!" })
+                // Validate if apikey and task are strings
+                const requiredFields = { "apikey": "string", "task": "string" };
+                req.body = addfunctions.objectconverter(req.body);
+                const check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, req.body, false);
+                if (!check_for_correct_datatype.success) {
+                    responseclass.send({ "success": false, "msg": "Task not given!" });
                     return;
                 }
 
+                const lockKey = `${req.body.apikey}:${req.body.task}`;
                 if (classdata.tasks.dns[req.body.task]) {
-                    classdata.tasks.dns[req.body.task].process(req, res,responseclass)
-                }
-                else {
-                    responseclass.send({ "success": false, "msg": "Task unclear" })
+                    var taskProcessor = classdata.tasks.dns[req.body.task]
+                } else {
+                    responseclass.send({ "success": false, "msg": "Task unclear" });
                     return;
                 }
+                that.processWithLock(lockKey, taskProcessor, res, req, responseclass)
+
 
             });
 
             //Rewritten+
             that.expressserver.post('/adminapi*', apilimiter, async function (req, res) {
-                var responseclass = new api_responseclass(req,res)
+                var responseclass = new api_responseclass(req, res)
 
-                if ((req.body.apikey === undefined) || (req.body.task === undefined)) {
-                    responseclass.send({ "success": false, "msg": "API or Task not given!" })
+                //Check if apikey and task is string
+                let requiredFields = { "apikey": "string", "task": "string" };
+                req.body = addfunctions.objectconverter(req.body)
+                let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, req.body, false)
+                if (!check_for_correct_datatype.success) {
+                    responseclass.send({ "success": false, "msg": "Task not given!" })
                     return;
                 }
 
+                const lockKey = `${req.body.apikey}:${req.body.task}`;
                 if (classdata.tasks.admin[req.body.task]) {
-                    classdata.tasks.admin[req.body.task].process(req, res,responseclass)
-                }
-                else {
-                    responseclass.send({ "success": false, "msg": "Task unclear" })
+                    var taskProcessor = classdata.tasks.admin[req.body.task]
+                } else {
+                    responseclass.send({ "success": false, "msg": "Task unclear" });
                     return;
                 }
-
+                that.processWithLock(lockKey, taskProcessor, res, req, responseclass)
             });
 
+            //Rewritten+
             that.expressserver.post('/autologin/', apilimiter, async function (req, res) {
+                var responseclass = new api_responseclass(req, res)
 
                 //Only continue if cookie is defined
                 if (req.body.cookie === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Cookie not given!" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Cookie not given!" })
                     return;
                 }
 
@@ -181,26 +197,18 @@ class webclass extends EventEmitter {
                 let user = await classdata.api.account.auth_cookie(cookie)
                 if (user.success) {
                     user.data = user.data.get_user_personal()
-                    res.writeHead(200, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(user))
-                    res.end();
                 }
-                else {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify(user))
-                    res.end();
-                    return;
-                }
+                responseclass.send(user)
             });
 
-            // /update?id=8063110&apikey=jfaG1n1NzPukGydLhyZqHn48giCuqb8GBPo8jys4YHyCl9SUbnQ3ekszZsTEnQSmIYWFDs1ayDd8qYTsiUE9nlwiQgak3Sx
+            //Rewritten+
             that.expressserver.get('/update*', apilimiter, async function (req, res) //Only works with IPV4 to be set automatically
             {
 
+                var responseclass = new api_responseclass(req, res)
+
                 if (req.query.id === undefined || req.query.apikey === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not complete" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not complete" })
                     return;
                 }
 
@@ -209,90 +217,66 @@ class webclass extends EventEmitter {
                     req.query.value = addfunctions.getclientipv4(req);
                 }
 
+
                 try {
                     let user = await classdata.api.account.auth_api(req.query.apikey)
                     if (user.success) {
                         let dnsentry = await classdata.api.dns.dnsentry_list(user.data, { "id": req.query.id })
-                        if (dnsentry.success && typeof dnsentry.data !== "undefined" && dnsentry.data.length === 1) {
+                        if (dnsentry.success && dnsentry.data.length) {
                             dnsentry.data[0].entryvalue = req.query.value;
                             let updateddnsentry = await classdata.api.dns.dnsentry_update(user.data, dnsentry.data[0])
-                            if (updateddnsentry.success) {
-                                res.writeHead(200, { 'Content-Type': 'text/html' });
-                                res.write(JSON.stringify(updateddnsentry))
-                                res.end();
-                            }
-                            else {
-                                res.writeHead(403, { 'Content-Type': 'text/html' });
-                                res.write(JSON.stringify(updateddnsentry));
-                                res.end();
-                                return;
-                            }
-
-                        }
-                        else {
-                            res.writeHead(403, { 'Content-Type': 'text/html' });
-                            res.write(JSON.stringify({ "success": false, "msg": "Can't find DNS-Entry" }));
-                            res.end();
+                            responseclass.send(updateddnsentry);
                             return;
                         }
-
+                        else {
+                            responseclass.send({ success: false, msg: "Can't find DNS-Entry" });
+                            return;
+                        }
                     }
                     else {
-                        res.writeHead(403, { 'Content-Type': 'text/html' });
-                        res.write(JSON.stringify(user));
-                        res.end();
+                        responseclass.send(user);
                         return;
                     }
                 }
                 catch (err) {
-                    that.log.addlog("Unknown ERROR:" + err, { colour: "red", warn: "Allg. API-Error", level: 3 })
-                    resolve({ "success": false, "msg": "Unknown Error" })
+                    responseclass.send({ "success": false, "msg": "Error updating DNS-Entry, 500 Error" }, { statuscode: 500, err: err })
                     return;
                 }
-
-
             });
 
+            //Rewritten+
             that.expressserver.get('/confirm*', apilimiter, async function (req, res) {
+                var responseclass = new api_responseclass(req, res)
 
                 if (req.query.keytext === undefined) {
-                    res.writeHead(403, { 'Content-Type': 'text/html' });
-                    res.write(JSON.stringify({ "success": false, "msg": "Data not complete" }))
-                    res.end();
+                    responseclass.send({ "success": false, "msg": "Data not complete" })
                     return;
                 }
 
                 const { keytext, ...data } = req.query;
                 var answer = await classdata.mail.mailconfirmation_processing({ "keytext": req.query.keytext }, data) //the whole req.query becomes data
                 if (!answer.success) {
-                    res.writeHead(302, { 'Location': '/404.html' });
-                    res.end();
+                    responseclass.send(null, { statuscode: 302, statusmessage: { 'Location': '/404.html' } })
                     return;
                 }
                 else {
                     if (answer.data.completed) {
                         if (answer.data.keytype == 1) {
-
-                            res.writeHead(200, { 'Content-Type': 'text/html' });
-                            res.write(JSON.stringify(answer))
-                            res.end();
+                            responseclass.send(answer)
                             return;
                         }
                         else if (answer.data.keytype == 2) {
-                            res.writeHead(302, { 'Location': `/` });
-                            res.end();
+                            responseclass.send(null, { statuscode: 302, statusmessage: { 'Location': '/' } })
                             return;
                         }
                     }
                     else {
                         if (answer.data.keytype == 1) {
-                            res.writeHead(302, { 'Location': `/resetpasswd?keytext=${answer.data.keytext}` });
-                            res.end();
+                            responseclass.send(null, { statuscode: 302, statusmessage: { 'Location': `/resetpasswd?keytext=${answer.data.keytext}` } })
                             return;
                         }
                         else {
-                            res.writeHead(302, { 'Location': '/404.html' });
-                            res.end();
+                            responseclass.send(null, { statuscode: 302, statusmessage: { 'Location': '/404.html' } })
                             return;
                         }
                     }
@@ -300,6 +284,7 @@ class webclass extends EventEmitter {
 
             });
 
+            //Rewritten+
             that.expressserver.get(['*'], apilimiter, async function (req, res) {
                 let content = await addfunctions.read_file("./website/index.html")
                 res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -310,55 +295,143 @@ class webclass extends EventEmitter {
         });
     }
 
+    //Rewritten+
+    async processWithLock(lockKey, taskProcessor, res, req, responseclass) {
+        var that = this;
+        const createLock = async () => {
+            try {
+                var timetocomplete = {
+                    "start": new Date().getTime(),
+                    "stop": null
+                }
+                await taskProcessor.process(req, res, responseclass);
+                timetocomplete.stop = new Date().getTime();
+                that.log.addlog(`Task: ${req.body.task} Performance: ${timetocomplete.stop - timetocomplete.start}ms`, { color: "white", warn: "Webserver-Log", level: 1 })
+            } catch (err) {
+                that.log.addlog(`Error processing task for lockKey ${lockKey}: ${err.message}`, { color: "red", "warn": "Webserver-Error", level: 3 });
+            } finally {
+                delete that.locks[lockKey]; // Clean up the lock
+                if (that.lockQueues[lockKey] && that.lockQueues[lockKey].length > 0) {
+                    // Resolve the next promise in the queue
+                    const nextResolve = that.lockQueues[lockKey].shift();
+                    nextResolve(); // Allow the next request to proceed
+
+                }
+            }
+        };
+
+        // Ensure lock queues are initialized
+        that.lockQueues = that.lockQueues || {};
+        that.locks = that.locks || {};
+
+        if (!that.lockQueues[lockKey]) {
+            that.lockQueues[lockKey] = [];
+        }
+
+        if (that.locks[lockKey]) {
+            // Wait in the queue if a lock exists
+            await new Promise((resolve) => {
+                that.lockQueues[lockKey].push(resolve);
+            });
+        }
+
+        // Acquire the lock and process the request
+        that.locks[lockKey] = createLock();
+        await that.locks[lockKey];
+    }
+
 }
 
 // {success:true, data:--data- ,}
 // {success:false, msg:--data- ,}
-class api_responseclass{
-    constructor(req, res)
-    {
+class api_responseclass {
+    constructor(req, res) {
         this.req = req,
-        this.res = res
+            this.res = res
+        this.alreadysent = false
     }
-    
-    send = (unfilteredanswer, internal = { statuscode: 403 }) =>
-    {
-        if(unfilteredanswer.success)
-        {
-            var filteredanswer = {success:unfilteredanswer.success,data:unfilteredanswer.data}
-            this.res.writeHead(200, { 'Content-Type': 'text/html' });
-        }
-        else
-        {
-            var filteredanswer = {success:unfilteredanswer.success,msg:unfilteredanswer.msg}
-            this.res.writeHead(internal.statuscode, { 'Content-Type': 'text/html' });
-            if(internal.statuscode === 500)
-            {
-                //Find where the error occured!
-                var errorlocation = ""
-                let stack = new Error().stack;
-                let stackLines = stack.split("\n");
-                let callerLine = stackLines[2];
-    
-                let match = callerLine.match(/([\/\\]([^\/\\]+\.js:\d+:\d+))/);
-    
-                if (match) {
-                    errorlocation = `${match[1].replace(/^.*[\/\\]/, '')} --- `
+
+    //Sets the rest of the override settings to null
+    send = (unfilteredanswer = null, override = { statuscode: null, statusmessage: null, err: null }) => {
+        override = { statuscode: null, statusmessage: null, err: null, ...override, };
+
+        var filteredanswer = function () {
+            if (typeof unfilteredanswer === "object" && unfilteredanswer !== null) {
+                if (unfilteredanswer.success === true) {
+                    return { success: unfilteredanswer.success, data: unfilteredanswer.data }
                 }
-
-                //Check if internal.error exists, set to "NOT SET" if not
-                if(typeof internal.err == "undefined"){internal.err = "NOT SET"}
-
-                classdata.webserver.log.addlog(`Error ${internal.statuscode} happened in "${errorlocation} with the error: ${internal.err}`)
+                else {
+                    return { success: unfilteredanswer.success, msg: unfilteredanswer.msg }
+                }
             }
+            return null;
+
+        }()
+        var statuscode = function () {
+            if (override.statuscode !== null) {
+                return override.statuscode
+            }
+            else if (unfilteredanswer === null) {
+                return 200;
+            }
+            else if (typeof unfilteredanswer === "object" && unfilteredanswer !== null) {
+                if (typeof unfilteredanswer.success == "boolean" && unfilteredanswer.success) {
+                    return 200;
+                }
+                else {
+                    return 403;
+                }
+            }
+            else {
+                return 200;
+            }
+        }()
+        var statusmessage = function () {
+            if (override.statusmessage !== null) {
+                return override.statusmessage
+            }
+            else {
+                return { 'Content-Type': 'text/html' }
+            }
+        }()
+
+        if (this.alreadysent) {
+            classdata.webserver.log.addlog(`api_responseclass wanted to write to res altough it is already sent!`, { color: "red", "warn": "Webserver-Error", level: 3 });
+            return;
         }
-        this.res.write(JSON.stringify(filteredanswer))
+
+        this.res.writeHead(statuscode, statusmessage);
+        if (filteredanswer !== null) {
+            this.res.write(JSON.stringify(filteredanswer))
+        }
+
+        if (statuscode === 500) {
+            //Find where the error occured!
+            var errorlocation = ""
+            let stack = new Error().stack;
+            let stackLines = stack.split("\n");
+            let callerLine = stackLines[2];
+
+            let match = callerLine.match(/([\/\\]([^\/\\]+\.js:\d+:\d+))/);
+
+            if (match) {
+                errorlocation = `${match[1].replace(/^.*[\/\\]/, '')} --- `
+            }
+
+            //Check if override.error exists, set to "NOT SET" if not
+            if (typeof override.err == "undefined") { override.err = "NOT SET" }
+
+            classdata.webserver.log.addlog(`Error ${override.statuscode} happened in "${errorlocation} with the error:\n ${override.err.stack || override.err}`, { color: "red", "warn": "Webserver-Error", level: 3 });
+        }
+
         this.res.end();
+        this.alreadysent = true
         return;
+
     }
-
-
 }
+
+
 
 
 

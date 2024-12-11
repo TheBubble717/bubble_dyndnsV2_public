@@ -11,7 +11,7 @@ var tasks =
         description: "Register an Account on the site",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -42,7 +42,7 @@ var tasks =
         description: "Login on the site",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;

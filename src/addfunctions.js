@@ -5,6 +5,7 @@ import fs from "fs"
 
 var addfunctions = {
 
+    //Rewritten+
     randomidf: function () {
         var length = 7
         var result = '';
@@ -17,6 +18,7 @@ var addfunctions = {
         return result;
     },
 
+    //Rewritten+
     randomapif: function () {
         var length = 95
         var result = '';
@@ -29,6 +31,7 @@ var addfunctions = {
         return result;
     },
 
+    //Rewritten+
     randomcookief: function () {
         var length = 180
         var result = '';
@@ -41,6 +44,7 @@ var addfunctions = {
         return result;
     },
 
+    //Rewritten+
     unixtime_to_local: function (unixtimestamp) {
         if (unixtimestamp === undefined) {
             var date = new Date();
@@ -69,6 +73,7 @@ var addfunctions = {
         return year + month + day + "-" + hour + min + sec;
     },
 
+    //Rewritten+
     current_time: function () {
         var date = new Date();
         var hour = date.getHours();
@@ -101,19 +106,23 @@ var addfunctions = {
 
     },
 
+    //Rewritten+
     isIPv4: function (str) {
         return net.isIPv4(str);
     },
 
+    //Rewritten+
     isIPv6: function (str) {
         return net.isIPv6(str);
     },
 
+    //Rewritten+
     isDomain: function (str) {
         const domainRegex = /^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z]{2,})+$/;
         return domainRegex.test(str);
     },
 
+    //Rewritten+
     isTLDomain: function (domain) {
         const mainDomainRegex = /^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.[A-Za-z]{2,}$/;
         return mainDomainRegex.test(domain);
@@ -133,27 +142,21 @@ var addfunctions = {
 
     },
 
-    waittime: function (s) {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                resolve();
-                return;
-            }, s * 1000);
-        });
+    //Rewritten+
+    waittime: async function (s) {
+        return new Promise(resolve => setTimeout(resolve, s * 1000));
     },
 
+    //Rewritten+
     waittime_random: function (min, max) {
         return new Promise(resolve => {
-            setTimeout(() => {
-                resolve();
-                return;
-            }, Math.floor(Math.random() * (max - min + 1)) + min);
+            const delay = Math.floor(Math.random() * (max - min + 1)) + min;
+            setTimeout(() => resolve(), delay);
         });
     },
 
     read_file: function (file, callback) {
         return new Promise(async (resolve, reject) => {
-            //console.log(`Loading File ${file}`)
             fs.readFile(`${file}`, async function (err, data) {
                 if (err) {
                     if (callback && typeof callback == 'function') {
@@ -179,18 +182,23 @@ var addfunctions = {
         });
     },
 
-    check_for_correct_datatype(requiredFields, data) {
+    //Rewritten+
+    check_for_correct_datatype(requiredFields, data, deleterest = true) {
         if (typeof data !== "object" || data === null) {
             return { "success": false, "msg": `Function received data not as object.` };
-        } else {
-            // Remove properties from data that are not in requiredFields
-            for (const key in data) {
-                if (!requiredFields.hasOwnProperty(key)) {
-                    //console.log("deleted " + data[key] +" of "+ key)
-                    delete data[key];
+        } 
+        else {
 
+            // Remove properties from data that are not in requiredFields
+            if (deleterest) {
+                for (const key in data) {
+                    if (!requiredFields.hasOwnProperty(key)) {
+                        //console.log("deleted " + data[key] +" of "+ key)
+                        delete data[key];
+                    }
                 }
             }
+
 
             for (const [field, type] of Object.entries(requiredFields)) {
                 if (!data.hasOwnProperty(field)) {
@@ -214,7 +222,8 @@ var addfunctions = {
         }
     },
 
-    check_dns_entry_validation(dnstype, dnsvalue) {
+    //Rewritten+
+    check_dns_entry_validation: function(dnstype, dnsvalue) {
         switch (dnstype.toUpperCase()) {
             case 'A':
                 // Validate IPv4 address
@@ -237,36 +246,33 @@ var addfunctions = {
         }
     },
 
-    objectconverter(obj) {
+    //Rewritten+
+    objectconverter: function(obj) {
         return objectconverter_bubble_expressescape_library(obj)
     },
 
-    check_for_valid_user_entries: function ({ mailaddress = null, password1 = null, password2 = null } = {}) {
-        return new Promise(async (resolve) => {
+    //Rewritten+
+    check_for_valid_user_entries: async function ({ mailaddress = null, password1 = null, password2 = null } = {}) {
 
             if (mailaddress !== null) {
 
                 if (typeof mailaddress != "string") {
-                    resolve({ "success": false, "msg": "mailaddress not a string" })
-                    return
+                    return({ "success": false, "msg": "mailaddress not a string" })
                 }
 
                 //Check if mailaddress is too long
                 if (mailaddress.length > 40) {
-                    resolve({ "success": false, "msg": "mailaddress too long (40 is max)" })
-                    return
+                    return({ "success": false, "msg": "mailaddress too long (40 is max)" })
                 }
 
                 //Check if mailaddress is too short
                 if (mailaddress.length < 4) {
-                    resolve({ "success": false, "msg": "mailaddress too short (4 is min)" })
-                    return
+                    return({ "success": false, "msg": "mailaddress too short (4 is min)" })
                 }
 
                 // Regular expression for validating email addresses
                 if (mailaddress.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/) === null) {
-                    resolve({ "success": false, "msg": "mail address contains unallowed characters or is invalid" });
-                    return;
+                    return({ "success": false, "msg": "mail address contains unallowed characters or is invalid" });
                 }
             }
             if (password1 !== null) {
@@ -275,32 +281,26 @@ var addfunctions = {
 
                     //Check if passowrd1 & password2 are the same
                     if (password1 !== password2) {
-                        resolve({ "success": false, "msg": "Passwords not the same" })
-                        return
+                        return({ "success": false, "msg": "Passwords not the same" })
                     }
                 }
 
                 if (typeof password1 != "string") {
-                    resolve({ "success": false, "msg": "password not a string" })
-                    return
+                    return({ "success": false, "msg": "password not a string" })
                 }
 
                 //Check if password is too long
                 if (password1.length > 50) {
-                    resolve({ "success": false, "msg": "Password too long (50 is max)" })
-                    return
+                    return({ "success": false, "msg": "Password too long (50 is max)" })
                 }
 
                 //Check if password is too short
                 if (password1.length < 8) {
-                    resolve({ "success": false, "msg": "Password too short (8 is min)" })
-                    return
+                    return({ "success": false, "msg": "Password too short (8 is min)" })
                 }
 
             }
-            resolve({ "success": true, "data": "OK" })
-            return
-        });
+            return({ "success": true, "data": "OK" })
     }
 
 }

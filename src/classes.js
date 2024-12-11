@@ -89,46 +89,36 @@ class userclass {
         }
     }
 
-    get_user_from_id() {
+    async get_user_from_id() {
         var that = this;
-        return new Promise(async (resolve) => {
-            classdata.db.databasequerryhandler_secure(`select * from users where id=? `, [that.#id], function (err, res) {
-                if (err) {
-                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
-                    resolve({ "success": false, "msg": "Unknown Error" })
-                    return;
-                }
-                if (!res.length) {
-                    resolve({ "success": false, "msg": "No user found!" })
-                    return;
-                }
-
-                that.set_user_data(res[0])
-                resolve({ "success": true, "data": "Userdata loaded and saved!" })
-                return;
-            });
-        });
+        try {
+            var result = await classdata.db.databasequerryhandler_secure(`select * from users where id=? `, [that.#id])
+            if (result.length) {
+                that.set_user_data(result[0])
+                return ({ "success": true, "data": "Userdata loaded and saved!" })
+            } else {
+                return { success: false, msg: "No user found!" };
+            }
+        }
+        catch (err) {
+            return { success: false, msg: "Error Requesting User from ID" };
+        }
     }
 
-    get_user_from_mailaddress() {
+    async get_user_from_mailaddress() {
         var that = this;
-        return new Promise(async (resolve) => {
-            classdata.db.databasequerryhandler_secure(`select * from users where mailaddress=? `, [that.#mailaddress], function (err, res) {
-                if (err) {
-                    that.log.addlog("Unknown ERROR:" + err, { color: "yellow", warn: "API-ACC-Warning", level: 2 })
-                    resolve({ "success": false, "msg": "Unknown Error" })
-                    return;
-                }
-                if (!res.length) {
-                    resolve({ "success": false, "msg": "No user found!" })
-                    return;
-                }
-
-                that.set_user_data(res[0])
-                resolve({ "success": true, "data": "Userdata loaded and saved!" })
-                return;
-            });
-        });
+        try {
+            var result = await classdata.db.databasequerryhandler_secure(`select * from users where mailaddress=? `, [that.#mailaddress])
+            if (result.length) {
+                that.set_user_data(result[0])
+                return ({ "success": true, "data": "Userdata loaded and saved!" })
+            } else {
+                return { success: false, msg: "No user found!" };
+            }
+        }
+        catch (err) {
+            return { success: false, msg: "Error Requesting User from Mailaddress" };
+        }
     }
 
     get_user_public() {

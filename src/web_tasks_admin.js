@@ -10,7 +10,7 @@ var tasks =
         description: "Get Upstream DNS Servers that get used for requesting dnsentries that for e.g. domain check",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -32,7 +32,7 @@ var tasks =
         description: "Enable/Disable a certain DNS Upstream Server",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -60,7 +60,7 @@ var tasks =
         description: "Delete a DNS Upstream Server",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -88,7 +88,7 @@ var tasks =
         ddescription: "Create a new DNS Upstream Server",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -116,7 +116,7 @@ var tasks =
         description: "List all Users",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -141,7 +141,7 @@ var tasks =
         description: "Get everything of a specific User",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -175,7 +175,7 @@ var tasks =
         description: "Update settings of a user",
         example: "",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -205,7 +205,7 @@ var tasks =
         description: "Get the Bubble DNS Servers",
         example: "",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -227,7 +227,7 @@ var tasks =
         description: "Synctest a BubbleDNS Server",
         example: "",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -255,7 +255,7 @@ var tasks =
         description: "Create a new BubbleDNS Server",
         example: "",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -283,7 +283,7 @@ var tasks =
         description: "Update a BubbleDNS Server",
         example: "",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -311,7 +311,7 @@ var tasks =
         description: "Delete a BubbleDNS Server",
         example: "",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -347,8 +347,19 @@ async function pretask(req, res, callback) {
     //Get ipv6-Address of the user. //XXXXXXXXXXXX
     var useripv6 = null;
 
-    //Check if apikey belongs to a user & isadmin =1
+    //Check if apikey and task is string
+    let requiredFields = { "apikey": "string","task":"string" };
+    req.body = addfunctions.objectconverter(req.body)
+    let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, req.body,false)
+    if (!check_for_correct_datatype.success) {
+        let err = "API doesn't belong to a user or is not an admin"
+        if (callback && typeof callback == 'function') {
+            await callback(err, "");
+        }
+        return;
+    }
 
+    //Check if apikey belongs to a user & isadmin =1
     try {
         var user = await classdata.api.account.auth_api(req.body.apikey)
         if (user.success) {
@@ -364,8 +375,7 @@ async function pretask(req, res, callback) {
                 throw (error);
             }
         }
-        else
-        {
+        else {
             let error = "API doesn't belong to a user or is not an admin"
             throw (error);
         }
@@ -374,7 +384,7 @@ async function pretask(req, res, callback) {
         if (callback && typeof callback == 'function') {
             await callback(err, "");
         }
-        return;
+        throw new Error(err);
     }
 }
 

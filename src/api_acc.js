@@ -315,7 +315,7 @@ class apiclass_acc {
             throw new Error(err);
         }
     }
-0
+
     //Rewritten+
     async update_user(data) {
         var that = this;

@@ -10,7 +10,7 @@ var tasks =
         description: "Update a DNS Entry of the Domain",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -26,6 +26,7 @@ var tasks =
                     .then(responseclass.send)
                     .catch(function (err) {
                         responseclass.send({ success: false, msg: "Error dnsentry_update, 500 Error" }, { statuscode: 500, err: err })
+                        throw "nope"
                     })
                 return;
             });
@@ -39,7 +40,7 @@ var tasks =
         description: "Delete a DNS Entry of the Domain",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -67,7 +68,7 @@ var tasks =
         description: "Create a DNS Entry of the Domain",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -96,7 +97,7 @@ var tasks =
         description: "Get all Domains the user ownes (also the dnsentries and sharelist)",
         example: "/dnsapi?apikey=leckerapi3&task=dns_list",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -118,7 +119,7 @@ var tasks =
         description: "Get all Domains the user got shared (also the dnsentries and empty sharelist)",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -140,7 +141,7 @@ var tasks =
         description: "Create a new Domain",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -177,7 +178,7 @@ var tasks =
         description: "Delete a Domain",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -206,7 +207,7 @@ var tasks =
         description: "Verify a Domain",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -242,7 +243,7 @@ var tasks =
         description: "Share a Domain with a User",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -287,7 +288,7 @@ var tasks =
         description: "Delete your Domain share of a specific user (deleting all of his dnsentries too)",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -331,7 +332,7 @@ var tasks =
         description: "Get the BubbleDNS-Servers",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -353,7 +354,7 @@ var tasks =
         description: "dns_get_allowed_dnstype_entries",
         example: "TBD",
         process: async function (req, res, responseclass) {
-            pretask(req, res, async function (err, pretaskdata) {
+            await pretask(req, res, async function (err, pretaskdata) {
                 if (err) {
                     responseclass.send({ success: false, msg: err })
                     return;
@@ -386,6 +387,18 @@ async function pretask(req, res, callback) {
     //Get ipv6-Address of the user. //XXXXXXXXXXXX
     var useripv6 = null;
 
+    //Check if apikey and task is string
+    let requiredFields = { "apikey": "string", "task": "string" };
+    req.body = addfunctions.objectconverter(req.body)
+    let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, req.body, false)
+    if (!check_for_correct_datatype.success) {
+        let err = "API doesn't belong to a user"
+        if (callback && typeof callback == 'function') {
+            await callback(err, "");
+        }
+        return;
+    }
+
     //Check if apikey belongs to a user
 
     try {
@@ -397,8 +410,7 @@ async function pretask(req, res, callback) {
             }
             return (answer);
         }
-        else
-        {
+        else {
             let error = "API doesn't belong to a user"
             throw (error);
         }
@@ -407,7 +419,7 @@ async function pretask(req, res, callback) {
         if (callback && typeof callback == 'function') {
             await callback(err, "");
         }
-        return;
+        throw new Error(err);
     }
 }
 
