@@ -12,7 +12,6 @@ class apiclass_dns {
     //Rewritten+
     async dnsentry_update(user, dnsentry) {
         var that = this;
-
         //Check if everything that's needed in dnsentry is set
         let requiredFields = { "entryname": "string", "entryvalue": ["string", "number"], "entrytype": "string", "domainid": "number", "id": "number" };
         dnsentry = addfunctions.objectconverter(dnsentry)

@@ -308,7 +308,7 @@ class webclass extends EventEmitter {
                 timetocomplete.stop = new Date().getTime();
                 that.log.addlog(`Task: ${req.body.task} Performance: ${timetocomplete.stop - timetocomplete.start}ms`, { color: "white", warn: "Webserver-Log", level: 1 })
             } catch (err) {
-                that.log.addlog(`Error processing task for lockKey ${lockKey}: ${err.message}`, { color: "red", "warn": "Webserver-Error", level: 3 });
+                that.log.addlog(`Error processing task for lockKey ${lockKey}: ${err.message}`, { color: "red", "warn": "Webserver-Error", level: 3 }); //Shouldn't be able to be thrown!
             } finally {
                 delete that.locks[lockKey]; // Clean up the lock
                 if (that.lockQueues[lockKey] && that.lockQueues[lockKey].length > 0) {

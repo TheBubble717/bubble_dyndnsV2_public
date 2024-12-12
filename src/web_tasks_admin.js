@@ -384,7 +384,8 @@ async function pretask(req, res, callback) {
         if (callback && typeof callback == 'function') {
             await callback(err, "");
         }
-        throw new Error(err);
+        //We don't want the throw to go one level up and the error gets already processed in the callback!
+        return;
     }
 }
 

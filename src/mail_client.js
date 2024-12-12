@@ -1,3 +1,5 @@
+//Still needs cleanup of useless Promises
+
 "use strict";
 import { EventEmitter } from "node:events"
 import * as nodemailer from "nodemailer"
