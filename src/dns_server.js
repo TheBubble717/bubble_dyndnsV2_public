@@ -106,8 +106,10 @@ class dnsclass extends EventEmitter {
                 response = { "type": question.type, "data": synctestdata.map(function (r) { return r.testvalue }), "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER }
             }
 
+            
+
             //No Answer if synctest=0
-            else if (classdata.db.routinedata.bubbledns_servers.filter(function (r) { if (((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip)) && (r.synctest == 0)) { return true } }).length) {
+            else if (!classdata.db.routinedata.this_server?.synctest==1) {
                 response = { "type": question.type, "data": [], "server": "SELFANSWER", "dnsflags": 5 } //Query refused
             }
 
@@ -158,7 +160,7 @@ class dnsclass extends EventEmitter {
                     }
                     //Main @.bubbledns.com A & AAAA request
                     else if (requested_domain.subdomain == "@" && requested_domain.domain == classdata.db.routinedata.bubbledns_settings.maindomain && (question.type == "A" || question.type == "AAAA")) {
-                        var bubblednsserversweb = classdata.db.routinedata.bubbledns_servers.filter(r => r.enabled_web == 1 && r.synctest === 1)
+                        var bubblednsserversweb = classdata.db.routinedata.bubbledns_servers.filter(r => r.enabled_web == 1 && r.synctest === 1 && r.virtual === 0)
                         if (question.type == "A") {
                             var dataresponse = bubblednsserversweb.filter(item => item != null && item.public_ipv4 != null).map(item => item.public_ipv4);
                         }
@@ -320,11 +322,10 @@ class dnsclass extends EventEmitter {
                     if (err.code == "ETIMEOUT") // If Timeout, ban the server to prevent further timeouts
                     {
                         let banned_until = new Date().getTime() + classdata.db.routinedata.bubbledns_settings.realdns_bantime * 1000
-                        let ismasternode = classdata.db.routinedata.bubbledns_servers.filter(function (r) {
-                            if (((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip)) && (r.masternode == 1)) { return true }
-                        })
                         var localerrormessage = "";
-                        if (ismasternode.length) {
+
+                        //Only Masternode bans the Server
+                        if (classdata.db.routinedata.this_server?.masternode) {
                             await classdata.db.databasequerryhandler_secure(`UPDATE dns_upstreamservers SET lasttimebanned = ? , amountbanned = amountbanned + 1 where id = ?`, [banned_until, randomserver[0].id])
                             localerrormessage = `Banned ${randomserver[0].address} for ${classdata.db.routinedata.bubbledns_settings.realdns_bantime}`
                         }

@@ -74,12 +74,7 @@ async function bubbledns() {
         "admin": web_tasks_admin,
     }
 
-
-    let existsindb = classdata.db.routinedata.bubbledns_servers.filter(function (r) { if (((r.public_ipv4 == config.public_ip) || (r.public_ipv6 == config.public_ip))) { return true } })
-    let existsindb_enableweb = existsindb.filter(function (r) { if (r.enabled_web == true) { return true } })
-
-
-    if (existsindb.length) {
+    if (classdata.db.routinedata.this_server) {
         //Activate DNS-Server (Gets always activated if databseentry of it exists, even if it is not used; It doesn't get registered as nameservers; Needed for Synctest)
         log.addlog("Activating DNS-Server", { color: "green", warn: "Startup-Info", level: 3 })
         alllogs.dnslog = new logclass({ screenLogLevel: config.dnsserver.screenLogLevel, fileLogLevel: config.dnsserver.fileLogLevel, addcallerlocation: config.dnsserver.debug })
@@ -100,7 +95,7 @@ async function bubbledns() {
 
 
     //Check if Server should start Webserver
-    if (existsindb_enableweb.length) {
+    if (classdata.db.routinedata.this_server?.enabled_web) {
         //Activate Web-Server
         log.addlog("Activating WEB-Server", { color: "green", warn: "Startup-Info", level: 3 })
         alllogs.weblog = new logclass({ screenLogLevel: config.webserver.screenLogLevel, fileLogLevel: config.webserver.fileLogLevel, addcallerlocation: config.webserver.debug })

@@ -131,8 +131,24 @@ class apiclass_admin {
     //Rewritten+
     async bubbledns_servers_list() {
         try {
-            var result = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers`, [])
-            return { success: true, data: result };
+            var bubbledns_servers_from_db = await classdata.db.databasequerryhandler_secure("select * from bubbledns_servers", []);
+            for (let i = 0; i < bubbledns_servers_from_db.length; i++) {
+                bubbledns_servers_from_db[i].virtual = 0
+            }
+
+            //Add the virtual Servers too
+            var bubbledns_servers_from_db_virtual = await classdata.db.databasequerryhandler_secure("select * from bubbledns_servers_virtual", []);
+            bubbledns_servers_from_db_virtual.forEach(virtual_server => {
+                let exists = bubbledns_servers_from_db.filter(r => r.id === virtual_server.bubblednsserverid)
+                if (exists.length) {
+                    delete virtual_server.bubblednsserverid
+                    virtual_server.virtual = 1
+                    bubbledns_servers_from_db.push({ ...exists[0], ...virtual_server })
+                }
+
+            });
+
+            return { success: true, data: bubbledns_servers_from_db };
         }
         catch (err) {
             throw new Error(err);
@@ -149,14 +165,20 @@ class apiclass_admin {
             return ({ "success": false, "msg": check_for_correct_datatype.msg })
         }
 
+
         //Search BubbleDNS_SERVER
         var bubblednsserver = classdata.db.routinedata.bubbledns_servers.filter(r => r.id == bubblednsservertotest.id)[0]
         if (typeof bubblednsserver == "undefined") {
             return ({ "success": false, "msg": `BubbleDNS_Server with ID ${bubblednsservertotest.id} not found` })
         }
 
+        //Don't synctest virtual Servers
+        if (bubblednsserver.virtual) {
+            return ({ "success": false, "msg": `Unable to test virtual BubbleDNS-Servers` })
+        }
+
         //No good idea to check itself
-        if (bubblednsserver.public_ipv4 === classdata.db.config.public_ip || bubblednsserver.public_ipv6 === classdata.db.config.public_ip) {
+        if (bubblednsserver == classdata.db.routinedata.this_server) {
 
             //Should be looked in the future with multiple Masternodes
             try {
@@ -244,6 +266,7 @@ class apiclass_admin {
         bubblednsserver.internal_ipv6 = addfunctions.isIPv6(bubblednsserver.internal_ipv6) === true ? bubblednsserver.internal_ipv6 : null;
 
 
+
         //Subdomainname always lowercase
         bubblednsserver.subdomainname = bubblednsserver.subdomainname.toLowerCase()
 
@@ -251,9 +274,10 @@ class apiclass_admin {
         try {
             do {
                 var randomid = addfunctions.randomidf()
-                var answer = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers where id=?`, [randomid]);
+                var answer1 = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers where id=?`, [randomid]);
+                var answer2 = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers_virtual where id=?`, [randomid]);
             }
-            while (answer && answer.length)
+            while ((answer1 && answer1.length) || (answer2 && answer2.length))
 
         }
         catch (err) {
@@ -263,7 +287,8 @@ class apiclass_admin {
         //Check if subdomainname is still free
         try {
             let preventdouble = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers where subdomainname = ?`, [bubblednsserver.subdomainname])
-            if (preventdouble.length) {
+            let preventdouble2 = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers_virtual where subdomainname = ?`, [bubblednsserver.subdomainname])
+            if (preventdouble.length || preventdouble2.length) {
                 return ({ "success": false, "msg": "Subdomainname already in use" })
             }
         }
@@ -293,34 +318,28 @@ class apiclass_admin {
         bubblednsserver = addfunctions.objectconverter(bubblednsserver)
         let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
         if (!check_for_correct_datatype.success) {
-            resolve({ "success": false, "msg": check_for_correct_datatype.msg })
-            return;
+            return ({ "success": false, "msg": check_for_correct_datatype.msg })
         }
 
         //Public: IPV4 & IPV6 check
         if (!addfunctions.isIPv4(bubblednsserver.public_ipv4) && !((bubblednsserver.public_ipv4 === null) || (bubblednsserver.public_ipv4 === "null"))) {
-            resolve({ "success": false, "msg": "Public_IPV4 Address is neither a IPV4-Address nor 'null'" })
-            return;
+            return ({ "success": false, "msg": "Public_IPV4 Address is neither a IPV4-Address nor 'null'" })
         }
         else if (!addfunctions.isIPv6(bubblednsserver.public_ipv6) && !((bubblednsserver.public_ipv6 === null) || (bubblednsserver.public_ipv6 === "null"))) {
-            resolve({ "success": false, "msg": "Public_IPV6 Address is neither a IPV6-Address nor 'null'" })
-            return;
+            return ({ "success": false, "msg": "Public_IPV6 Address is neither a IPV6-Address nor 'null'" })
         }
         else if (((bubblednsserver.public_ipv4 === null) || (bubblednsserver.public_ipv4 === "null")) && ((bubblednsserver.public_ipv6 === null) || (bubblednsserver.public_ipv6 === "null"))) {
-            resolve({ "success": false, "msg": "Public_IPV4 Address or Public_IPV6 Address needs to be used" })
-            return;
+            return ({ "success": false, "msg": "Public_IPV4 Address or Public_IPV6 Address needs to be used" })
         }
         bubblednsserver.public_ipv4 = addfunctions.isIPv4(bubblednsserver.public_ipv4) === true ? bubblednsserver.public_ipv4 : null;
         bubblednsserver.public_ipv6 = addfunctions.isIPv6(bubblednsserver.public_ipv6) === true ? bubblednsserver.public_ipv6 : null;
 
         //Internal: IPV4 & IPV6 check
         if (!addfunctions.isIPv4(bubblednsserver.internal_ipv4) && !((bubblednsserver.internal_ipv4 === null) || (bubblednsserver.internal_ipv4 === "null"))) {
-            resolve({ "success": false, "msg": "Internal_IPV4 Address is neither a IPV4-Address nor 'null'" })
-            return;
+            return ({ "success": false, "msg": "Internal_IPV4 Address is neither a IPV4-Address nor 'null'" })
         }
         else if (!addfunctions.isIPv6(bubblednsserver.internal_ipv6) && !((bubblednsserver.internal_ipv6 === null) || (bubblednsserver.internal_ipv6 === "null"))) {
-            resolve({ "success": false, "msg": "Internal_IPV6 Address is neither a IPV6-Address nor 'null'" })
-            return;
+            return ({ "success": false, "msg": "Internal_IPV6 Address is neither a IPV6-Address nor 'null'" })
         }
         bubblednsserver.internal_ipv4 = addfunctions.isIPv4(bubblednsserver.internal_ipv4) === true ? bubblednsserver.internal_ipv4 : null;
         bubblednsserver.internal_ipv6 = addfunctions.isIPv6(bubblednsserver.internal_ipv6) === true ? bubblednsserver.internal_ipv6 : null;
@@ -332,14 +351,15 @@ class apiclass_admin {
 
         //enabled_web only available together with masternode
         if (!bubblednsserver.masternode && bubblednsserver.enabled_web) {
-            return({ "success": false, "msg": "Enabled_web requires that the server runs as a masternode" })
+            return ({ "success": false, "msg": "Enabled_web requires that the server runs as a masternode" })
         }
 
         //Check if subdomainname is still free
         try {
             let preventdouble = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers where subdomainname = ? AND id != ?`, [bubblednsserver.subdomainname, bubblednsserver.id])
-            if (preventdouble.length) {
-                return({ "success": false, "msg": "Subdomainname already in use" })
+            let preventdouble2 = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers_virtual where subdomainname = ? AND id != ?`, [bubblednsserver.subdomainname, bubblednsserver.id])
+            if (preventdouble.length || preventdouble2.length) {
+                return ({ "success": false, "msg": "Subdomainname already in use" })
             }
         }
         catch (err) {
@@ -365,15 +385,14 @@ class apiclass_admin {
     async bubbledns_servers_delete(bubblednsserver) {
         var that = this;
 
-            let requiredFields = { "id": "number" };
-            bubblednsserver = addfunctions.objectconverter(bubblednsserver)
-            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
-            if (!check_for_correct_datatype.success) {
-                resolve({ "success": false, "msg": check_for_correct_datatype.msg })
-                return;
-            }
+        let requiredFields = { "id": "number" };
+        bubblednsserver = addfunctions.objectconverter(bubblednsserver)
+        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
+        if (!check_for_correct_datatype.success) {
+            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+        }
 
-            
+
         try {
             const databaseupdate = await classdata.db.databasequerryhandler_secure(`DELETE FROM bubbledns_servers where id =?`, [bubblednsserver.id]);
             if (databaseupdate.affectedRows === 1) {

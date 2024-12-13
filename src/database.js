@@ -15,7 +15,8 @@ class mysqlclass {
             "dnsentries": [],
             "bubbledns_settings": [],
             "bubbledns_servers": [],
-            "mailserver_settings": []
+            "this_server":null,
+            "mailserver_settings": [],
         },
             this.routinecaches = {
                 dnsentries: [],
@@ -43,7 +44,7 @@ class mysqlclass {
                 await callback("", answer);
             }
             return (answer);
-            
+
         } catch (err) {
             const error = `Error connecting to database! Message: ${err}`
             if (callback && typeof callback === 'function') {
@@ -74,7 +75,7 @@ class mysqlclass {
                 await callback("", result);
             }
             return (result);
-            
+
         } catch (err) {
             const error = `Error in databasequerryhandler: ${err}`;
             if (callback && typeof callback === 'function') {
@@ -121,7 +122,7 @@ class mysqlclass {
                 await callback("", sanitizedOutputs);
             }
             return (sanitizedOutputs);
-            
+
         } catch (err) {
             const error = `Error in databasequerryhandler: ${err}`;
             if (callback && typeof callback === 'function') {
@@ -247,140 +248,167 @@ class mysqlclass {
     async enable_routines() {
         var that = this;
 
-            var once_startup_masternode = async function () {
-                try {
-                    var deletiondatabase = await that.databasequerryhandler_secure("delete from bubbledns_servers_testvalues");
-                }
-                catch (err) {
-                    that.log.addlog("Error deleting old testvalues", { color: "red", warn: "Startup-Error", level: 3 })
-                    process.exit(1)
-                }
+        var once_startup_masternode = async function () {
+            try {
+                var deletiondatabase = await that.databasequerryhandler_secure("delete from bubbledns_servers_testvalues");
             }
-
-            var routine_fetch_domains = async function () {
-                try {
-                    var domains = await that.databasequerryhandler_secure("select * from domains where isregistered=?", [true]);
-                    that.routinedata.domains = domains;
-                }
-                catch (err) {
-                    that.log.addlog("Error fetching Domains", { color: "red", warn: "Startup-Error", level: 3 })
-                    process.exit(1)
-                }
+            catch (err) {
+                that.log.addlog("Error deleting old testvalues", { color: "red", warn: "Startup-Error", level: 3 })
+                process.exit(1)
             }
+        }
 
-            var routine_fetch_bubbledns_settings = async function () {
-                try {
-                    var settingsraw = await that.databasequerryhandler_secure("select * from bubbledns_settings", [true]);
-                    var settings = {}
-                    for (let i = 0; i < settingsraw.length; i++) {
-                        settingsraw[i].variablevalue = settingsraw[i].variablevalue.replace(/`/g, '"'); //JSON.parse requires " instead of `
-                        try {
-                            settings[settingsraw[i].variablename] = JSON.parse(settingsraw[i].variablevalue);
-                        }
-                        catch (err) {
-                            settings[settingsraw[i].variablename] = settingsraw[i].variablevalue
-                        }
+        var routine_fetch_domains = async function () {
+            try {
+                var domains = await that.databasequerryhandler_secure("select * from domains where isregistered=?", [true]);
+                that.routinedata.domains = domains;
+            }
+            catch (err) {
+                that.log.addlog("Error fetching Domains", { color: "red", warn: "Startup-Error", level: 3 })
+                process.exit(1)
+            }
+        }
+
+        var routine_fetch_bubbledns_settings = async function () {
+            try {
+                var settingsraw = await that.databasequerryhandler_secure("select * from bubbledns_settings", [true]);
+                var settings = {}
+                for (let i = 0; i < settingsraw.length; i++) {
+                    settingsraw[i].variablevalue = settingsraw[i].variablevalue.replace(/`/g, '"'); //JSON.parse requires " instead of `
+                    try {
+                        settings[settingsraw[i].variablename] = JSON.parse(settingsraw[i].variablevalue);
                     }
-                    that.routinedata.bubbledns_settings = settings;
-                }
-                catch (err) {
-                    that.log.addlog("Error fetching Bubbledns_settings", { color: "red", warn: "Startup-Error", level: 3 })
-                    process.exit(1)
-                }
-
-            }
-
-            var routine_fetch_bubbledns_servers = async function () {
-                try {
-                    var bubbledns_servers_from_db = await that.databasequerryhandler_secure("select * from bubbledns_servers", []);
-                    
-                    //Check if something changed on this instance (f.e activating WEB)
-                    if (that.routinedata.bubbledns_servers.length) //Ignore if empty
-                    {
-                        let thisserver_old = that.routinedata.bubbledns_servers.filter(function (r) { if ((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip)) { return true } })
-                        let thisserver_new = bubbledns_servers_from_db.filter(function (r) { if ((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip)) { return true } })
-                        if (JSON.stringify(thisserver_old) != JSON.stringify(thisserver_new)) {
-                            that.log.addlog("SERVER UPDATE DETECTED, KILLING PROGRAM", { color: "red", warn: "Startup-Error", level: 3 })
-                            process.exit(1)
-                        }
+                    catch (err) {
+                        settings[settingsraw[i].variablename] = settingsraw[i].variablevalue
                     }
-
-                    that.routinedata.bubbledns_servers = bubbledns_servers_from_db;
-                    return;
-
                 }
-                catch (err) {
-                    that.log.addlog("Error fetching Bubbledns_servers", { color: "red", warn: "Startup-Error", level: 3 })
-                    process.exit(1)
-                }
+                that.routinedata.bubbledns_settings = settings;
+            }
+            catch (err) {
+                that.log.addlog("Error fetching Bubbledns_settings", { color: "red", warn: "Startup-Error", level: 3 })
+                process.exit(1)
             }
 
-            var routine_synctest_bubbledns_servers = async function () {
-                try
+        }
+
+        var routine_fetch_bubbledns_servers = async function () {
+            try {
+                var bubbledns_servers_from_db = await that.databasequerryhandler_secure("select * from bubbledns_servers", []);
+                for (let i = 0; i < bubbledns_servers_from_db.length; i++) {
+                    bubbledns_servers_from_db[i].virtual = 0
+                }
+
+                //Check if something changed on this instance (f.e activating WEB)
+                if (that.routinedata.bubbledns_servers.length) //Ignore if empty
                 {
-                    return new Promise(async (resolve, reject) => {
-                        resolve() //Don't wait for test to finish
-                        for (let i = 0; i < that.routinedata.bubbledns_servers.length; i++) {
-                            if (!(that.routinedata.bubbledns_servers[i].public_ipv4 === classdata.db.config.public_ip || that.routinedata.bubbledns_servers[i].public_ipv6 === classdata.db.config.public_ip)) {
-                                var synctestresult = await classdata.api.admin.bubbledns_servers_synctest({ "id": that.routinedata.bubbledns_servers[i].id })
-                                if (that.config.debug && synctestresult.success === false) {
-                                    that.log.addlog(`Synctest ${that.routinedata.bubbledns_servers[i].subdomainname}.${that.routinedata.bubbledns_settings.maindomain} failed with error: ${synctestresult.msg}`, { color: "red", warn: "Routine-Error", level: 3 })
-                                }
+                    let thisserver_old = [that.routinedata.this_server]
+                    let thisserver_new = bubbledns_servers_from_db.filter(function (r) { if (((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip))&& r.virtual == 0) { return true } })
+                    if (JSON.stringify(thisserver_old) != JSON.stringify(thisserver_new)) {
+                        that.log.addlog("SERVER UPDATE DETECTED, KILLING PROGRAM", { color: "red", warn: "Startup-Error", level: 3 })
+                        process.exit(1)
+                    }
+                }
+
+                //Add the virtual Servers too
+                var bubbledns_servers_from_db_virtual = await that.databasequerryhandler_secure("select * from bubbledns_servers_virtual", []);
+                bubbledns_servers_from_db_virtual.forEach(virtual_server => {
+                    let exists = bubbledns_servers_from_db.filter(r => r.id === virtual_server.bubblednsserverid)
+                    if (exists.length) {
+                        delete virtual_server.bubblednsserverid
+                        virtual_server.virtual = 1
+                        bubbledns_servers_from_db.push({ ...exists[0], ...virtual_server })
+                    }
+
+                });
+
+                //Set this_server
+                let this_server = bubbledns_servers_from_db.filter(function (r) { if (((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip))&& r.virtual == 0) { return true } })
+                if(this_server.length)
+                {
+                    that.routinedata.this_server = this_server[0]
+                }
+                else
+                {
+                    that.routinedata.this_server = null;
+                }
+                that.routinedata.bubbledns_servers = bubbledns_servers_from_db;
+                return;
+
+            }
+            catch (err) {
+                that.log.addlog("Error fetching Bubbledns_servers", { color: "red", warn: "Startup-Error", level: 3 })
+                process.exit(1)
+            }
+        }
+
+        var routine_synctest_bubbledns_servers = async function () {
+            try {
+                return new Promise(async (resolve, reject) => {
+                    resolve() //Don't wait for test to finish
+                    await addfunctions.waittime(20); //Wait for the whole server to be initialized
+                    for (let i = 0; i < that.routinedata.bubbledns_servers.length; i++) {
+
+                        //Don't test the yourself (to test IPV4 == this server) & Don't test virtual servers
+                        if (!((that.routinedata.bubbledns_servers[i] === that.routinedata.this_server ) || (that.routinedata.bubbledns_servers[i].virtual === 1)))
+                        {
+                            var synctestresult = await classdata.api.admin.bubbledns_servers_synctest({ "id": that.routinedata.bubbledns_servers[i].id })
+                            if (that.config.debug && synctestresult.success === false) {
+                                that.log.addlog(`Synctest ${that.routinedata.bubbledns_servers[i].subdomainname}.${that.routinedata.bubbledns_settings.maindomain} failed with error: ${synctestresult.msg}`, { color: "red", warn: "Routine-Error", level: 3 })
                             }
                         }
-                        return;
-                    })
-                }
-                catch (err) {
-                    that.log.addlog("Error Routine routine_synctest_bubbledns_servers", { color: "red", warn: "Startup-Error", level: 3 })
-                    process.exit(1)
-                }
-
+                    }
+                    return;
+                })
+            }
+            catch (err) {
+                that.log.addlog("Error Routine routine_synctest_bubbledns_servers", { color: "red", warn: "Startup-Error", level: 3 })
+                process.exit(1)
             }
 
-            var routine_fetch_mailserver_settings = async function () {
-                try {
-                    var mailserver_settings = await that.databasequerryhandler_secure("select * from mailserver_settings", []);
-                    that.routinedata.mailserver_settings = mailserver_settings;
-                }
-                catch (err) {
-                    that.log.addlog("Error fetching mailserver_settings", { color: "red", warn: "Startup-Error", level: 3 })
-                    process.exit(1)
-                }
+        }
+
+        var routine_fetch_mailserver_settings = async function () {
+            try {
+                var mailserver_settings = await that.databasequerryhandler_secure("select * from mailserver_settings", []);
+                that.routinedata.mailserver_settings = mailserver_settings;
             }
-
-            var routine_delete_cache_dnsentry = async function () {
-                that.routinecaches.dnsentries = [];
-                return;
+            catch (err) {
+                that.log.addlog("Error fetching mailserver_settings", { color: "red", warn: "Startup-Error", level: 3 })
+                process.exit(1)
             }
+        }
 
-            if (this.routinemanger.listRoutines().length) {
-                throw new Error("Already active!")
-            }
+        var routine_delete_cache_dnsentry = async function () {
+            that.routinecaches.dnsentries = [];
+            return;
+        }
 
-            await this.routinemanger.addRoutine(1, routine_fetch_domains, 30)
-            this.log.addlog("Routine: Fetch_Domains activated", { color: "green", warn: "Startup-Info", level: 3 })
-            await this.routinemanger.addRoutine(2, routine_fetch_bubbledns_settings, 30)
-            this.log.addlog("Routine: Fetch_Bubbledns_settings activated", { color: "green", warn: "Startup-Info", level: 3 })
-            await this.routinemanger.addRoutine(3, routine_fetch_bubbledns_servers, 30)
-            this.log.addlog("Routine: Fetch_Bubbledns_servers activated", { color: "green", warn: "Startup-Info", level: 3 })
-            await this.routinemanger.addRoutine(4, routine_fetch_mailserver_settings, 30)
-            this.log.addlog("Routine: Fetch_mailserver_settings activated", { color: "green", warn: "Startup-Info", level: 3 })
-            await this.routinemanger.addRoutine(5, routine_delete_cache_dnsentry, 10)
-            this.log.addlog("Routine: Delete_cache_dnsentry activated", { color: "green", warn: "Startup-Info", level: 3 })
+        if (this.routinemanger.listRoutines().length) {
+            throw new Error("Already active!")
+        }
+
+        await this.routinemanger.addRoutine(1, routine_fetch_domains, 30)
+        this.log.addlog("Routine: Fetch_Domains activated", { color: "green", warn: "Startup-Info", level: 3 })
+        await this.routinemanger.addRoutine(2, routine_fetch_bubbledns_settings, 30)
+        this.log.addlog("Routine: Fetch_Bubbledns_settings activated", { color: "green", warn: "Startup-Info", level: 3 })
+        await this.routinemanger.addRoutine(3, routine_fetch_bubbledns_servers, 30)
+        this.log.addlog("Routine: Fetch_Bubbledns_servers activated", { color: "green", warn: "Startup-Info", level: 3 })
+        await this.routinemanger.addRoutine(4, routine_fetch_mailserver_settings, 30)
+        this.log.addlog("Routine: Fetch_mailserver_settings activated", { color: "green", warn: "Startup-Info", level: 3 })
+        await this.routinemanger.addRoutine(5, routine_delete_cache_dnsentry, 10)
+        this.log.addlog("Routine: Delete_cache_dnsentry activated", { color: "green", warn: "Startup-Info", level: 3 })
 
 
-            //Only Masternode
-            var ismain = classdata.db.routinedata.bubbledns_servers.filter(function (r) { if (((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip)) && (r.masternode == true)) { return true } })
-            if (ismain.length) {
+        //Only Masternode
+        if (classdata.db.routinedata.this_server?.masternode) {
 
-                await this.routinemanger.addRoutine(6, routine_synctest_bubbledns_servers, 180)
-                this.log.addlog("Routine: Synctest from Masternode to Slaves activated", { color: "green", warn: "Startup-Info", level: 3 })
-                await once_startup_masternode()
-                this.log.addlog("ONCE: Startup-Commands activated", { color: "green", warn: "Startup-Info", level: 3 })
+            await this.routinemanger.addRoutine(6, routine_synctest_bubbledns_servers, 180)
+            this.log.addlog("Routine: Synctest from Masternode to Slaves activated", { color: "green", warn: "Startup-Info", level: 3 })
+            await once_startup_masternode()
+            this.log.addlog("ONCE: Startup-Commands activated", { color: "green", warn: "Startup-Info", level: 3 })
 
-            }
-            return
+        }
+        return
     }
 
 
@@ -399,27 +427,27 @@ class RoutineManager {
      */
     async addRoutine(id, process, interval) {
         var that = this;
-            if (that.routines.has(id)) {
-                throw(`Routine with id "${id}" already exists.`)
-            }
+        if (that.routines.has(id)) {
+            throw (`Routine with id "${id}" already exists.`)
+        }
 
-            const executeRoutine = async function () {
-                try {
-                    await process();
-                    return;
-                } catch (err) {
-                    throw Error(`Error in routine "${id}": ${err.message}`)
-                }
-            };
-
+        const executeRoutine = async function () {
             try {
-                await executeRoutine(); // Execute the routine immediately
-                const timer = setInterval(executeRoutine, interval * 1000); // Schedule subsequent executions
-                this.routines.set(id, { process, interval, timer }); // Save routine metadata
-                return `Routine "${id}" added.`;
+                await process();
+                return;
             } catch (err) {
-                throw new Error(`Failed to add routine "${id}": ${err.message}`);
+                throw Error(`Error in routine "${id}": ${err.message}`)
             }
+        };
+
+        try {
+            await executeRoutine(); // Execute the routine immediately
+            const timer = setInterval(executeRoutine, interval * 1000); // Schedule subsequent executions
+            this.routines.set(id, { process, interval, timer }); // Save routine metadata
+            return `Routine "${id}" added.`;
+        } catch (err) {
+            throw new Error(`Failed to add routine "${id}": ${err.message}`);
+        }
     }
 
     /**

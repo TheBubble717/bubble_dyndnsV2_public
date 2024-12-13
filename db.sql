@@ -94,6 +94,12 @@ create table bubbledns_servers(
 	masternode boolean NOT NULL CHECK (masternode IN (0, 1))
 );
 
+create table bubbledns_servers_virtual(
+	id int NOT NULL,
+	subdomainname varchar(100) NOT NULL,
+	bubblednsserverid int NOT NULL
+);
+
 create table bubbledns_servers_testvalues
 (
 	testvalue varchar(100) NOT NULL
