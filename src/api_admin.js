@@ -132,23 +132,8 @@ class apiclass_admin {
     async bubbledns_servers_list() {
         try {
             var bubbledns_servers_from_db = await classdata.db.databasequerryhandler_secure("select * from bubbledns_servers", []);
-            for (let i = 0; i < bubbledns_servers_from_db.length; i++) {
-                bubbledns_servers_from_db[i].virtual = 0
-            }
-
-            //Add the virtual Servers too
             var bubbledns_servers_from_db_virtual = await classdata.db.databasequerryhandler_secure("select * from bubbledns_servers_virtual", []);
-            bubbledns_servers_from_db_virtual.forEach(virtual_server => {
-                let exists = bubbledns_servers_from_db.filter(r => r.id === virtual_server.bubblednsserverid)
-                if (exists.length) {
-                    delete virtual_server.bubblednsserverid
-                    virtual_server.virtual = 1
-                    bubbledns_servers_from_db.push({ ...exists[0], ...virtual_server })
-                }
-
-            });
-
-            return { success: true, data: bubbledns_servers_from_db };
+            return { success: true, data: [bubbledns_servers_from_db, bubbledns_servers_from_db_virtual] };
         }
         catch (err) {
             throw new Error(err);
@@ -211,7 +196,7 @@ class apiclass_admin {
         }
 
         if (requesteddnsentry.success == true) {
-            synctestresult = requesteddnsentry.data.includes(testdata);
+            synctestresult = requesteddnsentry.data.data.includes(testdata);
         }
 
 
@@ -235,36 +220,70 @@ class apiclass_admin {
     async bubbledns_servers_create(bubblednsserver) {
         var that = this;
 
-        let requiredFields = { "subdomainname": "string", "enabled_dns": ["boolean", "number"], "enabled_web": ["boolean", "number"], "public_ipv4": ["string", "null"], "public_ipv6": ["string", "null"], "internal_ipv4": ["string", "null"], "internal_ipv6": ["string", "null"], "masternode": ["boolean", "number"] };
-        bubblednsserver = addfunctions.objectconverter(bubblednsserver)
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+        if (typeof bubblednsserver === "object" && bubblednsserver !== null && bubblednsserver?.virtual) {
+            var virtual = true;
+        }
+        else {
+            var virtual = false;
         }
 
-        //Public: IPV4 & IPV6 check
-        if (!addfunctions.isIPv4(bubblednsserver.public_ipv4) && !((bubblednsserver.public_ipv4 === null) || (bubblednsserver.public_ipv4 === "null"))) {
-            return ({ "success": false, "msg": "Public_IPV4 Address is neither a IPV4-Address nor 'null'" })
-        }
-        else if (!addfunctions.isIPv6(bubblednsserver.public_ipv6) && !((bubblednsserver.public_ipv6 === null) || (bubblednsserver.public_ipv6 === "null"))) {
-            return ({ "success": false, "msg": "Public_IPV6 Address is neither a IPV6-Address nor 'null'" })
-        }
-        else if (((bubblednsserver.public_ipv4 === null) || (bubblednsserver.public_ipv4 === "null")) && ((bubblednsserver.public_ipv6 === null) || (bubblednsserver.public_ipv6 === "null"))) {
-            return ({ "success": false, "msg": "Public_IPV4 Address or Public_IPV6 Address needs to be used" })
-        }
-        bubblednsserver.public_ipv4 = addfunctions.isIPv4(bubblednsserver.public_ipv4) === true ? bubblednsserver.public_ipv4 : null;
-        bubblednsserver.public_ipv6 = addfunctions.isIPv6(bubblednsserver.public_ipv6) === true ? bubblednsserver.public_ipv6 : null;
+        if (virtual) {
+            let requiredFields = { "subdomainname": "string", "bubblednsserverid": ["string", "number"] };
+            bubblednsserver = addfunctions.objectconverter(bubblednsserver)
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
 
-        //Internal: IPV4 & IPV6 check
-        if (!addfunctions.isIPv4(bubblednsserver.internal_ipv4) && !((bubblednsserver.internal_ipv4 === null) || (bubblednsserver.internal_ipv4 === "null"))) {
-            return ({ "success": false, "msg": "Internal_IPV4 Address is neither a IPV4-Address nor 'null'" })
-        }
-        else if (!addfunctions.isIPv6(bubblednsserver.internal_ipv6) && !((bubblednsserver.internal_ipv6 === null) || (bubblednsserver.internal_ipv6 === "null"))) {
-            return ({ "success": false, "msg": "Internal_IPV6 Address is neither a IPV6-Address nor 'null'" })
-        }
-        bubblednsserver.internal_ipv4 = addfunctions.isIPv4(bubblednsserver.internal_ipv4) === true ? bubblednsserver.internal_ipv4 : null;
-        bubblednsserver.internal_ipv6 = addfunctions.isIPv6(bubblednsserver.internal_ipv6) === true ? bubblednsserver.internal_ipv6 : null;
+            //Check if the Bubbledns Server exists stated in bubblednsserverid
+            try {
+                let doesbubblednsserverexists = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers where id = ?`, [bubblednsserver.bubblednsserverid])
+                if (!doesbubblednsserverexists.length) {
+                    return ({ "success": false, "msg": `BubbleDNS-Server with ID: ${bubblednsserver.bubblednsserverid} doesnt exist` })
+                }
+            }
+            catch (err) {
+                throw new Error(err);
+            }
 
+        }
+        else {
+            let requiredFields = { "subdomainname": "string", "enabled_dns": ["boolean", "number"], "enabled_web": ["boolean", "number"], "public_ipv4": ["string", "null"], "public_ipv6": ["string", "null"], "internal_ipv4": ["string", "null"], "internal_ipv6": ["string", "null"], "masternode": ["boolean", "number"] };
+            bubblednsserver = addfunctions.objectconverter(bubblednsserver)
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
+
+            //Public: IPV4 & IPV6 check
+            if (!addfunctions.isIPv4(bubblednsserver.public_ipv4) && !((bubblednsserver.public_ipv4 === null) || (bubblednsserver.public_ipv4 === "null"))) {
+                return ({ "success": false, "msg": "Public_IPV4 Address is neither a IPV4-Address nor 'null'" })
+            }
+            else if (!addfunctions.isIPv6(bubblednsserver.public_ipv6) && !((bubblednsserver.public_ipv6 === null) || (bubblednsserver.public_ipv6 === "null"))) {
+                return ({ "success": false, "msg": "Public_IPV6 Address is neither a IPV6-Address nor 'null'" })
+            }
+            else if (((bubblednsserver.public_ipv4 === null) || (bubblednsserver.public_ipv4 === "null")) && ((bubblednsserver.public_ipv6 === null) || (bubblednsserver.public_ipv6 === "null"))) {
+                return ({ "success": false, "msg": "Public_IPV4 Address or Public_IPV6 Address needs to be used" })
+            }
+            bubblednsserver.public_ipv4 = addfunctions.isIPv4(bubblednsserver.public_ipv4) === true ? bubblednsserver.public_ipv4 : null;
+            bubblednsserver.public_ipv6 = addfunctions.isIPv6(bubblednsserver.public_ipv6) === true ? bubblednsserver.public_ipv6 : null;
+
+            //Internal: IPV4 & IPV6 check
+            if (!addfunctions.isIPv4(bubblednsserver.internal_ipv4) && !((bubblednsserver.internal_ipv4 === null) || (bubblednsserver.internal_ipv4 === "null"))) {
+                return ({ "success": false, "msg": "Internal_IPV4 Address is neither a IPV4-Address nor 'null'" })
+            }
+            else if (!addfunctions.isIPv6(bubblednsserver.internal_ipv6) && !((bubblednsserver.internal_ipv6 === null) || (bubblednsserver.internal_ipv6 === "null"))) {
+                return ({ "success": false, "msg": "Internal_IPV6 Address is neither a IPV6-Address nor 'null'" })
+            }
+            bubblednsserver.internal_ipv4 = addfunctions.isIPv4(bubblednsserver.internal_ipv4) === true ? bubblednsserver.internal_ipv4 : null;
+            bubblednsserver.internal_ipv6 = addfunctions.isIPv6(bubblednsserver.internal_ipv6) === true ? bubblednsserver.internal_ipv6 : null;
+
+            //enabled_web only available together with masternode
+            if (!bubblednsserver.masternode && bubblednsserver.enabled_web) {
+                return ({ "success": false, "msg": "Enabled_web requires that the server runs as a masternode" })
+            }
+
+        }
 
 
         //Subdomainname always lowercase
@@ -297,7 +316,12 @@ class apiclass_admin {
         }
 
         try {
-            const databaseupdate = await classdata.db.databasequerryhandler_secure(`INSERT into bubbledns_servers values (?,?,?,?,?,?,?,?,0,?)`, [randomid, bubblednsserver.subdomainname, bubblednsserver.enabled_dns, bubblednsserver.enabled_web, bubblednsserver.public_ipv4, bubblednsserver.public_ipv6, bubblednsserver.internal_ipv4, bubblednsserver.internal_ipv6, bubblednsserver.masternode]);
+            if (!virtual) {
+                var databaseupdate = await classdata.db.databasequerryhandler_secure(`INSERT into bubbledns_servers values (?,?,?,?,?,?,?,?,0,?)`, [randomid, bubblednsserver.subdomainname, bubblednsserver.enabled_dns, bubblednsserver.enabled_web, bubblednsserver.public_ipv4, bubblednsserver.public_ipv6, bubblednsserver.internal_ipv4, bubblednsserver.internal_ipv6, bubblednsserver.masternode]);
+            }
+            else {
+                var databaseupdate = await classdata.db.databasequerryhandler_secure(`INSERT into bubbledns_servers_virtual values (?,?,?)`, [randomid, bubblednsserver.subdomainname, bubblednsserver.bubblednsserverid]);
+            }
             if (databaseupdate.affectedRows === 1) {
                 return ({ "success": true, "data": "Done" })
             }
@@ -314,45 +338,77 @@ class apiclass_admin {
     async bubbledns_servers_update(bubblednsserver) {
         var that = this;
 
-        let requiredFields = { "subdomainname": "string", "enabled_dns": ["boolean", "number"], "enabled_web": ["boolean", "number"], "public_ipv4": ["string", "null"], "public_ipv6": ["string", "null"], "internal_ipv4": ["string", "null"], "internal_ipv6": ["string", "null"], "masternode": ["boolean", "number"], "id": "number" };
-        bubblednsserver = addfunctions.objectconverter(bubblednsserver)
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+
+        if (typeof bubblednsserver === "object" && bubblednsserver !== null && bubblednsserver?.virtual) {
+            var virtual = true;
+        }
+        else {
+            var virtual = false;
         }
 
-        //Public: IPV4 & IPV6 check
-        if (!addfunctions.isIPv4(bubblednsserver.public_ipv4) && !((bubblednsserver.public_ipv4 === null) || (bubblednsserver.public_ipv4 === "null"))) {
-            return ({ "success": false, "msg": "Public_IPV4 Address is neither a IPV4-Address nor 'null'" })
-        }
-        else if (!addfunctions.isIPv6(bubblednsserver.public_ipv6) && !((bubblednsserver.public_ipv6 === null) || (bubblednsserver.public_ipv6 === "null"))) {
-            return ({ "success": false, "msg": "Public_IPV6 Address is neither a IPV6-Address nor 'null'" })
-        }
-        else if (((bubblednsserver.public_ipv4 === null) || (bubblednsserver.public_ipv4 === "null")) && ((bubblednsserver.public_ipv6 === null) || (bubblednsserver.public_ipv6 === "null"))) {
-            return ({ "success": false, "msg": "Public_IPV4 Address or Public_IPV6 Address needs to be used" })
-        }
-        bubblednsserver.public_ipv4 = addfunctions.isIPv4(bubblednsserver.public_ipv4) === true ? bubblednsserver.public_ipv4 : null;
-        bubblednsserver.public_ipv6 = addfunctions.isIPv6(bubblednsserver.public_ipv6) === true ? bubblednsserver.public_ipv6 : null;
+        if (virtual) {
+            let requiredFields = { "id": "number", "subdomainname": "string", "bubblednsserverid": ["string", "number"] };
+            bubblednsserver = addfunctions.objectconverter(bubblednsserver)
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
 
-        //Internal: IPV4 & IPV6 check
-        if (!addfunctions.isIPv4(bubblednsserver.internal_ipv4) && !((bubblednsserver.internal_ipv4 === null) || (bubblednsserver.internal_ipv4 === "null"))) {
-            return ({ "success": false, "msg": "Internal_IPV4 Address is neither a IPV4-Address nor 'null'" })
+            //Check if the Bubbledns Server exists stated in bubblednsserverid
+            try {
+                let doesbubblednsserverexists = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers where id = ?`, [bubblednsserver.bubblednsserverid])
+                if (!doesbubblednsserverexists.length) {
+                    return ({ "success": false, "msg": `BubbleDNS-Server with ID: ${bubblednsserver.bubblednsserverid} doesnt exist` })
+                }
+            }
+            catch (err) {
+                throw new Error(err);
+            }
+
         }
-        else if (!addfunctions.isIPv6(bubblednsserver.internal_ipv6) && !((bubblednsserver.internal_ipv6 === null) || (bubblednsserver.internal_ipv6 === "null"))) {
-            return ({ "success": false, "msg": "Internal_IPV6 Address is neither a IPV6-Address nor 'null'" })
-        }
-        bubblednsserver.internal_ipv4 = addfunctions.isIPv4(bubblednsserver.internal_ipv4) === true ? bubblednsserver.internal_ipv4 : null;
-        bubblednsserver.internal_ipv6 = addfunctions.isIPv6(bubblednsserver.internal_ipv6) === true ? bubblednsserver.internal_ipv6 : null;
+        else {
+
+            let requiredFields = { "id": "number", "subdomainname": "string", "enabled_dns": ["boolean", "number"], "enabled_web": ["boolean", "number"], "public_ipv4": ["string", "null"], "public_ipv6": ["string", "null"], "internal_ipv4": ["string", "null"], "internal_ipv6": ["string", "null"], "masternode": ["boolean", "number"] };
+            bubblednsserver = addfunctions.objectconverter(bubblednsserver)
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
 
 
+
+            //Public: IPV4 & IPV6 check
+            if (!addfunctions.isIPv4(bubblednsserver.public_ipv4) && !((bubblednsserver.public_ipv4 === null) || (bubblednsserver.public_ipv4 === "null"))) {
+                return ({ "success": false, "msg": "Public_IPV4 Address is neither a IPV4-Address nor 'null'" })
+            }
+            else if (!addfunctions.isIPv6(bubblednsserver.public_ipv6) && !((bubblednsserver.public_ipv6 === null) || (bubblednsserver.public_ipv6 === "null"))) {
+                return ({ "success": false, "msg": "Public_IPV6 Address is neither a IPV6-Address nor 'null'" })
+            }
+            else if (((bubblednsserver.public_ipv4 === null) || (bubblednsserver.public_ipv4 === "null")) && ((bubblednsserver.public_ipv6 === null) || (bubblednsserver.public_ipv6 === "null"))) {
+                return ({ "success": false, "msg": "Public_IPV4 Address or Public_IPV6 Address needs to be used" })
+            }
+            bubblednsserver.public_ipv4 = addfunctions.isIPv4(bubblednsserver.public_ipv4) === true ? bubblednsserver.public_ipv4 : null;
+            bubblednsserver.public_ipv6 = addfunctions.isIPv6(bubblednsserver.public_ipv6) === true ? bubblednsserver.public_ipv6 : null;
+
+            //Internal: IPV4 & IPV6 check
+            if (!addfunctions.isIPv4(bubblednsserver.internal_ipv4) && !((bubblednsserver.internal_ipv4 === null) || (bubblednsserver.internal_ipv4 === "null"))) {
+                return ({ "success": false, "msg": "Internal_IPV4 Address is neither a IPV4-Address nor 'null'" })
+            }
+            else if (!addfunctions.isIPv6(bubblednsserver.internal_ipv6) && !((bubblednsserver.internal_ipv6 === null) || (bubblednsserver.internal_ipv6 === "null"))) {
+                return ({ "success": false, "msg": "Internal_IPV6 Address is neither a IPV6-Address nor 'null'" })
+            }
+            bubblednsserver.internal_ipv4 = addfunctions.isIPv4(bubblednsserver.internal_ipv4) === true ? bubblednsserver.internal_ipv4 : null;
+            bubblednsserver.internal_ipv6 = addfunctions.isIPv6(bubblednsserver.internal_ipv6) === true ? bubblednsserver.internal_ipv6 : null;
+
+            //enabled_web only available together with masternode
+            if (!bubblednsserver.masternode && bubblednsserver.enabled_web) {
+                return ({ "success": false, "msg": "Enabled_web requires that the server runs as a masternode" })
+            }
+
+        }
 
         //Subdomainname always lowercase
         bubblednsserver.subdomainname = bubblednsserver.subdomainname.toLowerCase()
-
-        //enabled_web only available together with masternode
-        if (!bubblednsserver.masternode && bubblednsserver.enabled_web) {
-            return ({ "success": false, "msg": "Enabled_web requires that the server runs as a masternode" })
-        }
 
         //Check if subdomainname is still free
         try {
@@ -368,7 +424,12 @@ class apiclass_admin {
 
 
         try {
-            const databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers set subdomainname=?,enabled_dns=?,enabled_web=?,public_ipv4=?,public_ipv6=?,internal_ipv4=?,internal_ipv6=?,masternode=? where id =? `, [bubblednsserver.subdomainname, bubblednsserver.enabled_dns, bubblednsserver.enabled_web, bubblednsserver.public_ipv4, bubblednsserver.public_ipv6, bubblednsserver.internal_ipv4, bubblednsserver.internal_ipv6, bubblednsserver.masternode, bubblednsserver.id]);
+            if (!virtual) {
+                var databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers set subdomainname=?,enabled_dns=?,enabled_web=?,public_ipv4=?,public_ipv6=?,internal_ipv4=?,internal_ipv6=?,masternode=? where id =? `, [bubblednsserver.subdomainname, bubblednsserver.enabled_dns, bubblednsserver.enabled_web, bubblednsserver.public_ipv4, bubblednsserver.public_ipv6, bubblednsserver.internal_ipv4, bubblednsserver.internal_ipv6, bubblednsserver.masternode, bubblednsserver.id]);
+            }
+            else {
+                var databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers_virtual set subdomainname=?,bubblednsserverid=? where id=?`, [bubblednsserver.subdomainname, bubblednsserver.bubblednsserverid, bubblednsserver.id]);
+            }
             if (databaseupdate.affectedRows === 1) {
                 return ({ "success": true, "data": "Done" });
             }
@@ -394,8 +455,9 @@ class apiclass_admin {
 
 
         try {
-            const databaseupdate = await classdata.db.databasequerryhandler_secure(`DELETE FROM bubbledns_servers where id =?`, [bubblednsserver.id]);
-            if (databaseupdate.affectedRows === 1) {
+            const databaseupdate1 = await classdata.db.databasequerryhandler_secure(`DELETE FROM bubbledns_servers where id =?`, [bubblednsserver.id]);
+            const databaseupdate2 = await classdata.db.databasequerryhandler_secure(`DELETE FROM bubbledns_servers_virtual where id =?`, [bubblednsserver.id]);
+            if (databaseupdate1.affectedRows === 1 || databaseupdate2.affectedRows === 1) {
                 return ({ "success": true, "data": "Done" });
             }
             else {

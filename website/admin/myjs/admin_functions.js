@@ -409,27 +409,26 @@ async function admin_logsmenu() {
 
 async function admin_bubbledns_serversmenu() {
 
-	var render_items = function (response) {
-		document.getElementById("subbody").innerHTML = ""
-		for (let i = 0; i < response[2].data.length; i++) {
+	var render_items_real = function (response) {
+		for (let i = 0; i < response[2].data[0].length; i++) {
 			let doc = document.implementation.createHTMLDocument();
 			doc.documentElement.innerHTML = response[1];
 
 			//Setting Values
-			doc.getElementById("bubbledns_subdomain").textContent  = response[2].data[i].subdomainname
-			doc.getElementById("bubbledns_public_ipv4").textContent  = response[2].data[i].public_ipv4
-			doc.getElementById("bubbledns_public_ipv6").textContent  = response[2].data[i].public_ipv6
-			doc.getElementById("bubbledns_synctest").textContent  = response[2].data[i].synctest
-			doc.getElementById("bubbledns_masternode").textContent  = response[2].data[i].masternode
+			doc.getElementById("bubbledns_subdomain").textContent  = response[2].data[0][i].subdomainname
+			doc.getElementById("bubbledns_public_ipv4").textContent  = response[2].data[0][i].public_ipv4
+			doc.getElementById("bubbledns_public_ipv6").textContent  = response[2].data[0][i].public_ipv6
+			doc.getElementById("bubbledns_synctest").textContent  = response[2].data[0][i].synctest
+			doc.getElementById("bubbledns_masternode").textContent  = response[2].data[0][i].masternode
 
 
 			//Rewrite IDs to prevent doubles!!!
-			doc.getElementById("bubbledns_subdomain").id = `bubbledns_subdomain${response[2].data[i].id}`
-			doc.getElementById("bubbledns_public_ipv4").id = `bubbledns_public_ipv4${response[2].data[i].id}`
-			doc.getElementById("bubbledns_public_ipv6").id = `bubbledns_public_ipv6${response[2].data[i].id}`
-			doc.getElementById("bubbledns_synctest").id = `bubbledns_synctest${response[2].data[i].id}`
-			doc.getElementById("bubbledns_masternode").id = `bubbledns_masternode${response[2].data[i].id}`
-			doc.getElementById("singlebubblednsserver").id = `singlebubblednsserver${response[2].data[i].id}`
+			doc.getElementById("bubbledns_subdomain").id = `bubbledns_subdomainR${response[2].data[0][i].id}`
+			doc.getElementById("bubbledns_public_ipv4").id = `bubbledns_public_ipv4R${response[2].data[0][i].id}`
+			doc.getElementById("bubbledns_public_ipv6").id = `bubbledns_public_ipv6R${response[2].data[0][i].id}`
+			doc.getElementById("bubbledns_synctest").id = `bubbledns_synctestR${response[2].data[0][i].id}`
+			doc.getElementById("bubbledns_masternode").id = `bubbledns_masternodeR${response[2].data[0][i].id}`
+			doc.getElementById("singlebubblednsserver").id = `singlebubblednsserverR${response[2].data[0][i].id}`
 
 
 
@@ -440,13 +439,13 @@ async function admin_bubbledns_serversmenu() {
 
 			// Add click event listener
 			//Open bubbledns_server editor (admin_user_single_user_menu)
-			doc.querySelector(`#singlebubblednsserver${response[2].data[i].id}`).addEventListener('click', (event) => {
+			doc.querySelector(`#singlebubblednsserverR${response[2].data[0][i].id}`).addEventListener('click', (event) => {
 				event.preventDefault();
-				render_single_menu(response[2].data[i], response[3])
+				render_real_single_menu(response[2].data[0][i], response[3])
 			});
 
 
-			document.getElementById("subbody").appendChild(doc.documentElement)
+			document.getElementById("subbodyR").appendChild(doc.documentElement)
 		}
 
 
@@ -483,14 +482,14 @@ async function admin_bubbledns_serversmenu() {
 		//Open bubbledns_server editor (admin_user_single_user_menu)
 		doc.querySelector(`#singlebubblednsserverNEW`).addEventListener('click', (event) => {
 			event.preventDefault();
-			render_single_menu(bubblednsentry, response[3])
+			render_real_single_menu(bubblednsentry, response[3])
 		});
 
-		document.getElementById("subbody").appendChild(doc.documentElement)
+		document.getElementById("subbodyR").appendChild(doc.documentElement)
 
 	}
 
-	var render_single_menu = function (bubblednsentry, innerHTML) {
+	var render_real_single_menu = function (bubblednsentry, innerHTML) {
 
 		let doc = document.implementation.createHTMLDocument();
 		doc.documentElement.innerHTML = innerHTML;
@@ -544,6 +543,143 @@ async function admin_bubbledns_serversmenu() {
 				"enabled_dns": doc.querySelector("#enableddns").value,
 				"enabled_web": doc.querySelector("#enabledweb").value,
 				"masternode": doc.querySelector("#masternode").value,
+				"virtual": false,
+			}
+			do_save(bubblednsentry)
+		});
+
+		//Open bubbledns_server editor (admin_user_single_user_menu)
+		doc.querySelector(`#deletebtn`).addEventListener('click', (event) => {
+			event.preventDefault();
+			do_delete(bubblednsentry)
+		});
+
+
+		//Exit-Button
+		doc.getElementById(`exitbtn`).setAttribute("onclick", `document.getElementById("draggablecontainer-main").innerHTML = ''`)
+
+
+
+		//
+		//Positioning the window
+		//
+
+		//Find an open window to use the same position before closing the old and opening the new site
+		if (document.querySelector('[id^="draggablecontainer-main"]')) {
+			doc.getElementById(`draggablecontainer-main`).style.top = document.querySelector('[id^="draggablecontainer-main"]').style.top
+			doc.getElementById(`draggablecontainer-main`).style.left = document.querySelector('[id^="draggablecontainer-main"]').style.left
+		}
+		//Now put everything online on the site and make the windows draggable
+		document.getElementById("subbody_popupwindow").innerHTML = ""
+		document.getElementById("subbody_popupwindow").appendChild(doc.documentElement)
+		//Make Div draggable
+		dragElement(document.getElementById(`draggablecontainer-main`));
+
+
+	}
+
+	var render_items_virtual = function (response) {
+		for (let i = 0; i < response[2].data[1].length; i++) {
+			let doc = document.implementation.createHTMLDocument();
+			doc.documentElement.innerHTML = response[4];
+
+
+			//Setting Values
+			doc.getElementById("bubbledns_subdomain").textContent  = response[2].data[1][i].subdomainname
+			doc.getElementById("bubbledns_bubblednsserverid").textContent  = response[2].data[1][i].bubblednsserverid
+
+
+
+			//Rewrite IDs to prevent doubles!!!
+			doc.getElementById("bubbledns_subdomain").id = `bubbledns_subdomainV${response[2].data[1][i].id}`
+			doc.getElementById("bubbledns_bubblednsserverid").id = `bubbledns_bubblednsserveridV${response[2].data[1][i].id}`
+			doc.getElementById("singlebubblednsserver").id = `singlebubblednsserverV${response[2].data[1][i].id}`
+
+
+			//
+			//Write functions of buttons
+			//
+
+
+
+			// Add click event listener
+			//Open bubbledns_server editor (admin_user_single_user_menu)
+			
+			doc.querySelector(`#singlebubblednsserverV${response[2].data[1][i].id}`).addEventListener('click', (event) => {
+				event.preventDefault();
+				render_virtual_single_menu(response[2].data[1][i], response[5])
+			});
+
+
+			document.getElementById("subbodyV").appendChild(doc.documentElement)
+		}
+
+
+		//Create new Bubbledns-Server
+		let doc = document.implementation.createHTMLDocument();
+		doc.documentElement.innerHTML = response[4];
+		let bubblednsentry = {
+			"id": null,
+			"subdomainname": "",
+			"bubblednsserverid": "",
+		}
+		doc.getElementById("bubbledns_subdomain").textContent  = "NEW"
+		doc.getElementById("bubbledns_bubblednsserverid").textContent  = ""
+
+		//Rewrite IDs to prevent doubles!!!
+		doc.getElementById("bubbledns_subdomain").id = `bubbledns_subdomainNEW`
+		doc.getElementById("bubbledns_bubblednsserverid").id = `bubbledns_bubblednsserveridVNEW`
+		doc.getElementById("singlebubblednsserver").id = `singlebubblednsserverVNEW`
+
+
+		//Open bubbledns_server editor (admin_user_single_user_menu)
+		doc.querySelector(`#singlebubblednsserverVNEW`).addEventListener('click', (event) => {
+			event.preventDefault();
+			render_virtual_single_menu(bubblednsentry, response[5])
+		});
+
+		document.getElementById("subbodyV").appendChild(doc.documentElement)
+
+	}
+
+	var render_virtual_single_menu = function (bubblednsentry, innerHTML) {
+
+		let doc = document.implementation.createHTMLDocument();
+		doc.documentElement.innerHTML = innerHTML;
+
+		console.log(bubblednsentry)
+
+
+		//Setting Values
+		if (bubblednsentry.id !== null) {
+			doc.getElementById("headline").textContent  = `Editing existing: ${bubblednsentry.id}`
+		}
+		else {
+			doc.getElementById("headline").textContent  = `Add new Virtual BubbleDNS-Server`
+		}
+		doc.getElementById("id").textContent  = bubblednsentry.id
+		doc.getElementById("subdomainname").setAttribute("value", bubblednsentry.subdomainname)
+		doc.getElementById("bubblednsserverid").setAttribute("value", bubblednsentry.bubblednsserverid)
+
+
+
+
+
+		//
+		//Write functions of buttons
+		//
+
+
+		// Add click event listener
+		//Open bubbledns_server editor (admin_user_single_user_menu)
+		doc.querySelector(`#savebtn`).addEventListener('click', (event) => {
+			event.preventDefault();
+			var doc = document.querySelector('[id^="draggablecontainer-main"]')
+			var bubblednsentry = {
+				"id": doc.querySelector("#id").textContent ,
+				"subdomainname": doc.querySelector('#subdomainname').value,
+				"bubblednsserverid": doc.querySelector('#bubblednsserverid').value,
+				"virtual": true,
 			}
 			do_save(bubblednsentry)
 		});
@@ -619,15 +755,16 @@ async function admin_bubbledns_serversmenu() {
 	}
 
 
-
-
 	const promise1 = websiteloader("/website/admin/admin_bubbledns_servers_main.html");
-	const promise2 = websiteloader("/website/admin/admin_bubbledns_servers_smallmenu.html");
+	const promise2 = websiteloader("/website/admin/admin_bubbledns_servers_real_smallmenu.html");
 	const promise3 = queryhandler({ "task": "bubbledns_servers_list", "apikey": account.api }, "/adminapi/", "POST", true);
-	const promise4 = websiteloader("/website/admin/admin_bubbledns_servers_single_body.html");
-	Promise.all([promise1, promise2, promise3, promise4]).then((response) => {
+	const promise4 = websiteloader("/website/admin/admin_bubbledns_servers_real_single_body.html");
+	const promise5 = websiteloader("/website/admin/admin_bubbledns_servers_virtual_smallmenu.html");
+	const promise6 = websiteloader("/website/admin/admin_bubbledns_servers_virtual_single_body.html");
+	Promise.all([promise1, promise2, promise3, promise4,promise5,promise6]).then((response) => {
 		document.getElementById("mainbody2").innerHTML = response[0];
-		render_items(response)
+		render_items_real(response)
+		render_items_virtual(response)
 
 
 

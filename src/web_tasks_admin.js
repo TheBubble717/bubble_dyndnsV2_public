@@ -301,6 +301,7 @@ var tasks =
                         responseclass.send({ success: false, msg: "Error bubbledns_servers_update, 500 Error" }, { statuscode: 500, err: err })
                     })
                 return;
+
             });
         }
     },
@@ -348,9 +349,9 @@ async function pretask(req, res, callback) {
     var useripv6 = null;
 
     //Check if apikey and task is string
-    let requiredFields = { "apikey": "string","task":"string" };
+    let requiredFields = { "apikey": "string", "task": "string" };
     req.body = addfunctions.objectconverter(req.body)
-    let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, req.body,false)
+    let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, req.body, false)
     if (!check_for_correct_datatype.success) {
         let err = "API doesn't belong to a user or is not an admin"
         if (callback && typeof callback == 'function') {

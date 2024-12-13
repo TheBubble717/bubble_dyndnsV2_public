@@ -1,5 +1,5 @@
 {
-    "public_ip":"23.94.219.10",
+    "public_ip":"<Public_IP_Address>",
     "mysql":
     {
         "debug":true,

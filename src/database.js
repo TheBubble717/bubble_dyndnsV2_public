@@ -351,10 +351,18 @@ class mysqlclass {
                         //Don't test the yourself (to test IPV4 == this server) & Don't test virtual servers
                         if (!((that.routinedata.bubbledns_servers[i] === that.routinedata.this_server ) || (that.routinedata.bubbledns_servers[i].virtual === 1)))
                         {
-                            var synctestresult = await classdata.api.admin.bubbledns_servers_synctest({ "id": that.routinedata.bubbledns_servers[i].id })
-                            if (that.config.debug && synctestresult.success === false) {
-                                that.log.addlog(`Synctest ${that.routinedata.bubbledns_servers[i].subdomainname}.${that.routinedata.bubbledns_settings.maindomain} failed with error: ${synctestresult.msg}`, { color: "red", warn: "Routine-Error", level: 3 })
+                            try
+                            {
+                                var synctestresult = await classdata.api.admin.bubbledns_servers_synctest({ "id": that.routinedata.bubbledns_servers[i].id })
+                                if (that.config.debug && synctestresult.success === false) {
+                                    that.log.addlog(`Synctest ${that.routinedata.bubbledns_servers[i].subdomainname}.${that.routinedata.bubbledns_settings.maindomain} failed with error: ${synctestresult.msg}`, { color: "red", warn: "Routine-Error", level: 3 })
+                                }
                             }
+                            catch(err)
+                            {
+                                that.log.addlog(`Synctest ${that.routinedata.bubbledns_servers[i].subdomainname}.${that.routinedata.bubbledns_settings.maindomain} failed with FATAL ERROR: ${err.message}`, { color: "red", warn: "Routine-Error", level: 3 })
+                            }
+
                         }
                     }
                     return;

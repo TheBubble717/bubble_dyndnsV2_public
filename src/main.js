@@ -142,7 +142,7 @@ async function bubbledns() {
             "ipv4": function () { if (addfunctions.isIPv4(config.public_ip)) { return config.public_ip } else { return null } }(),
             "ipv6": function () { if (addfunctions.isIPv6(config.public_ip)) { return config.public_ip } else { return null } }()
         }
-        let addingbubblednsserver = await classdata.api.admin.bubbledns_servers_create({ "subdomainname": "ns1", "enabled_dns": 1, "enabled_web": 1, "public_ipv4": ip.ipv4, "public_ipv6": ip.ipv6, "internal_ipv4": null, "internal_ipv6": null, "masternode": 1 })
+        let addingbubblednsserver = await classdata.api.admin.bubbledns_servers_create({ "subdomainname": "ns1", "enabled_dns": 1, "enabled_web": 1, "public_ipv4": ip.ipv4, "public_ipv6": ip.ipv6, "internal_ipv4": null, "internal_ipv6": null, "masternode": 1,"virtual":false },)
         if (!addingbubblednsserver.success) {
             let err = `Error creating BubbleDNS_Server: ${addingbubblednsserver.msg}`
             log.addlog(err, { color: "red", warn: "FirstStartup", level: 3 })
