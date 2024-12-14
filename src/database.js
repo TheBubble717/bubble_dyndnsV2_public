@@ -149,7 +149,7 @@ class mysqlclass {
             }
 
             // Create a new lock for this request
-            that.routinecaches.dnsentries_locks[lockKey] = new Promise(async (lockResolve, lockReject) => {
+            const locking_promise = new Promise(async (lockResolve, lockReject) => {
                 try {
                     // Check for exact cached entry
                     const locallysavedexact = that.routinecaches.dnsentries.filter(function (r) {
@@ -167,11 +167,9 @@ class mysqlclass {
                             } else {
                                 lockResolve(locallysavedstar);
                             }
-                            delete that.routinecaches.dnsentries_locks[lockKey];
                             return;
                         } else {
                             lockResolve(locallysavedexact);
-                            delete that.routinecaches.dnsentries_locks[lockKey];
                             return;
                         }
                     }
@@ -190,7 +188,6 @@ class mysqlclass {
                             that.routinecaches.dnsentries.push({ entryname, entrytype, domainid, noData: true });
                             lockReject("No Data found! (Requested)");
                         }
-                        delete that.routinecaches.dnsentries_locks[lockKey];
                         return;
                     }
 
@@ -209,6 +206,7 @@ class mysqlclass {
                     if (exactResponse.length) {
                         that.routinecaches.dnsentries = that.routinecaches.dnsentries.concat(exactResponse);
                         lockResolve(exactResponse);
+                        return;
                     } else {
                         that.routinecaches.dnsentries.push({ entryname, entrytype, domainid, noData: true });
                     }
@@ -221,6 +219,7 @@ class mysqlclass {
                             that.routinecaches.dnsentries = that.routinecaches.dnsentries.concat(wildcardResponse);
                         }
                         lockResolve(wildcardResponse);
+                        return;
                     } else {
                         const existingWildcard = that.routinecaches.dnsentries.filter(function (r) {
                             return r.entryname === "*" && r.entrytype === entrytype && r.domainid === domainid;
@@ -231,15 +230,16 @@ class mysqlclass {
                     }
 
                     lockReject("No Data found! (Requested)");
-                    delete that.routinecaches.dnsentries_locks[lockKey];
                 } catch (err) {
                     lockReject(err);
-                    delete that.routinecaches.dnsentries_locks[lockKey];
                 }
             });
 
+            that.routinecaches.dnsentries_locks[lockKey] = locking_promise;
             // Wait for the lock's result
-            that.routinecaches.dnsentries_locks[lockKey].then(resolve).catch(reject);
+            await that.routinecaches.dnsentries_locks[lockKey].then(resolve).catch(reject);
+            delete that.routinecaches.dnsentries_locks[lockKey];
+
         });
     }
 
