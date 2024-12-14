@@ -647,8 +647,6 @@ async function admin_bubbledns_serversmenu() {
 		let doc = document.implementation.createHTMLDocument();
 		doc.documentElement.innerHTML = innerHTML;
 
-		console.log(bubblednsentry)
-
 
 		//Setting Values
 		if (bubblednsentry.id !== null) {

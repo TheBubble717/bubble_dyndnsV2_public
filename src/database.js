@@ -12,7 +12,6 @@ class mysqlclass {
 
         this.routinedata = {
             "domains": [],
-            "dnsentries": [],
             "bubbledns_settings": [],
             "bubbledns_servers": [],
             "this_server":null,

@@ -22,7 +22,7 @@ class apiclass_acc {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
     }
 
@@ -38,7 +38,7 @@ class apiclass_acc {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
     }
 
@@ -98,7 +98,7 @@ class apiclass_acc {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         //Get free Cookie for user
@@ -111,7 +111,7 @@ class apiclass_acc {
 
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         //Get free id for the session
@@ -124,7 +124,7 @@ class apiclass_acc {
 
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         if (!user[0].confirmedmail) {
@@ -153,7 +153,7 @@ class apiclass_acc {
         }
         catch(err)
         {
-            throw new Error(err);
+            throw err;
         }
     }
 
@@ -187,7 +187,7 @@ class apiclass_acc {
 
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
 
         }
 
@@ -202,7 +202,7 @@ class apiclass_acc {
 
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
 
@@ -216,7 +216,7 @@ class apiclass_acc {
 
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
 
@@ -230,7 +230,7 @@ class apiclass_acc {
 
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         //Check if mailaddress is still free
@@ -260,7 +260,7 @@ class apiclass_acc {
         }
         catch(err)
         {
-            throw new Error(err);
+            throw err;
         }
 
     }
@@ -312,7 +312,7 @@ class apiclass_acc {
             return ({ "success": true, "data": users })
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
     }
 
@@ -350,7 +350,7 @@ class apiclass_acc {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
 

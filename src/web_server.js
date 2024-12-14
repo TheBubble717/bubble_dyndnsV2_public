@@ -399,6 +399,7 @@ class api_responseclass {
             classdata.webserver.log.addlog(`api_responseclass wanted to write to res altough it is already sent!`, { color: "red", "warn": "Webserver-Error", level: 3 });
             return;
         }
+        this.alreadysent = true
 
         this.res.writeHead(statuscode, statusmessage);
         if (filteredanswer !== null) {
@@ -425,7 +426,6 @@ class api_responseclass {
         }
 
         this.res.end();
-        this.alreadysent = true
         return;
 
     }

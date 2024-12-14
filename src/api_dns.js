@@ -32,7 +32,7 @@ class apiclass_dns {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         //Check if DNS-Entry is free
@@ -43,7 +43,7 @@ class apiclass_dns {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
 
@@ -65,7 +65,7 @@ class apiclass_dns {
 
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         //Check if dnsentry.entryname is at least 4 characters long
@@ -102,7 +102,7 @@ class apiclass_dns {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         let time = addfunctions.current_time()
@@ -118,7 +118,7 @@ class apiclass_dns {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
     }
 
@@ -144,7 +144,7 @@ class apiclass_dns {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
     }
 
@@ -158,7 +158,7 @@ class apiclass_dns {
                 return { "success": true, "data": databaseupdate }
             }
             catch (err) {
-                throw new Error(err);
+                throw err;
             }
         }
         else {
@@ -176,7 +176,7 @@ class apiclass_dns {
                 return { "success": true, "data": databaseupdate }
             }
             catch (err) {
-                throw new Error(err);
+                throw err;
             }
         }
     }
@@ -207,7 +207,7 @@ class apiclass_dns {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
 
@@ -219,7 +219,7 @@ class apiclass_dns {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
 
@@ -231,7 +231,7 @@ class apiclass_dns {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         //Check if DNS-Entry is in banned
@@ -252,7 +252,7 @@ class apiclass_dns {
 
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         //Check if dnsentry.entryname is at least 4 characters long
@@ -290,7 +290,7 @@ class apiclass_dns {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
 
@@ -304,7 +304,7 @@ class apiclass_dns {
 
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         //Add
@@ -317,7 +317,7 @@ class apiclass_dns {
             return ({ "success": true, "data": "Done" })
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
     }
@@ -438,7 +438,7 @@ class apiclass_dns {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         if (!reregistering) {
@@ -451,7 +451,7 @@ class apiclass_dns {
                 }
             }
             catch (err) {
-                throw new Error(err);
+                throw err;
             }
 
             //Find free id for the domain
@@ -464,7 +464,7 @@ class apiclass_dns {
 
             }
             catch (err) {
-                throw new Error(err);
+                throw err;
             }
 
             //Add
@@ -474,7 +474,7 @@ class apiclass_dns {
                 return ({ "success": true, "data": domaindata })
             }
             catch (err) {
-                throw new Error(err);
+                throw err;
             }
         }
         else {
@@ -492,7 +492,7 @@ class apiclass_dns {
                 }
             }
             catch (err) {
-                throw new Error(err);
+                throw err;
             }
         }
 
@@ -613,7 +613,7 @@ class apiclass_dns {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
     }
@@ -636,7 +636,7 @@ class apiclass_dns {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
 
@@ -649,7 +649,7 @@ class apiclass_dns {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
 
@@ -661,7 +661,7 @@ class apiclass_dns {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         //Check if toadduser is the owner of the domain
@@ -674,7 +674,7 @@ class apiclass_dns {
             return { "success": true, "data": "Done" }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
     }
 

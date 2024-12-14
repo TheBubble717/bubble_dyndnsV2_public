@@ -16,7 +16,7 @@ class apiclass_admin {
             return { success: true, data: result };
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
     }
@@ -42,7 +42,7 @@ class apiclass_admin {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
 
@@ -69,7 +69,7 @@ class apiclass_admin {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
     }
@@ -99,7 +99,7 @@ class apiclass_admin {
 
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         //Check if Upstreamserver with that IP allready exists
@@ -110,7 +110,7 @@ class apiclass_admin {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         try {
@@ -123,7 +123,7 @@ class apiclass_admin {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
     }
@@ -136,7 +136,7 @@ class apiclass_admin {
             return { success: true, data: [bubbledns_servers_from_db, bubbledns_servers_from_db_virtual] };
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
     }
 
@@ -168,10 +168,10 @@ class apiclass_admin {
             //Should be looked in the future with multiple Masternodes
             try {
                 let forcesynctesttruequery = await classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers set synctest=1 where id=?`, [bubblednsservertotest.id])
-                return ({ "success": false, "msg": "Server can't check itself, forcing Synctest=1!" })
+                return ({ "success": false, "msg": "Server can't check itself, forcing Synctest=1" })
             }
             catch (err) {
-                throw new Error(err);
+                throw err;
             }
         }
 
@@ -192,7 +192,7 @@ class apiclass_admin {
 
         }
         catch (err) {
-            throw new Error(err)
+            throw err;
         }
 
         if (requesteddnsentry.success == true) {
@@ -212,7 +212,7 @@ class apiclass_admin {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
     }
 
@@ -243,7 +243,7 @@ class apiclass_admin {
                 }
             }
             catch (err) {
-                throw new Error(err);
+                throw err;
             }
 
         }
@@ -300,7 +300,7 @@ class apiclass_admin {
 
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         //Check if subdomainname is still free
@@ -312,7 +312,7 @@ class apiclass_admin {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
         try {
@@ -330,7 +330,7 @@ class apiclass_admin {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
     }
 
@@ -362,7 +362,7 @@ class apiclass_admin {
                 }
             }
             catch (err) {
-                throw new Error(err);
+                throw err;
             }
 
         }
@@ -419,7 +419,7 @@ class apiclass_admin {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
 
@@ -438,7 +438,7 @@ class apiclass_admin {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
     }
 
@@ -465,7 +465,7 @@ class apiclass_admin {
             }
         }
         catch (err) {
-            throw new Error(err);
+            throw err;
         }
     }
 
