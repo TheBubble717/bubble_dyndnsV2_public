@@ -1,6 +1,6 @@
 Port Forwarding:
 
-It is recommended to install bubbledns under it's own username without giving root rights. Therefore it can not open port under 1024.
+It is recommended to install bubbledns under it's own username without giving root rights. Therefore it can not open ports under 1024.
 It might not be the best way, but I just routed port 53 to port 5300 and let the server listen on that port.
 
 To do this:

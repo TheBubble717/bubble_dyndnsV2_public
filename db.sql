@@ -1,5 +1,5 @@
-DROP DATABASE bubbledns;
-DROP USER 'bubblednsuser'@'%';
+DROP DATABASE IF EXISTS bubbledns;
+DROP USER IF EXISTS 'bubblednsuser'@'%';
 CREATE DATABASE bubbledns;
 CREATE USER 'bubblednsuser'@'%' IDENTIFIED BY '<YourPassword>';
 GRANT ALL ON bubbledns.* TO 'bubblednsuser'@'%' IDENTIFIED BY '<YourPassword>' WITH GRANT OPTION;
@@ -168,6 +168,6 @@ insert into bubbledns_settings values("newServer","true");
 
 
 
-//ONLY MASTER
-CREATE USER 'replication_user'@'%' IDENTIFIED BY '<YourReplicationPassword>';
-GRANT REPLICATION SLAVE ON *.* TO 'replication_user'@'%';
+#//ONLY MASTER
+#CREATE USER 'replication_user'@'%' IDENTIFIED BY '<YourReplicationPassword>';
+#GRANT REPLICATION SLAVE ON *.* TO 'replication_user'@'%';
