@@ -39,7 +39,7 @@ This server gets also registered as `"ns1"."maindomain"` as an `masternode`. Onl
 Last but not least, the domain `maindomain` gets also registered under the administrator account and becomes a so called `builtin` domain.
 Built in Domains can be used by every useraccount. After that, the server kills itself.
 
-The Webserver should be available under https://127.0.0.1:12512, you can add an Apache Reverse Proxy (an example is under `InstallData/apacheconfig.conf`)
+The Webserver should be available under https://127.0.0.1:12512, you can add an Apache Reverse Proxy (an example is under `InstallData/apacheconfig.conf`).
 You can directly access the webserver with the configfile: `webserver.hostname = "0.0.0.0"`, but I would recommend generating a new ssl certificate!
 
 ## Keeping the Server Running - NodeJS and Mariadb
@@ -99,7 +99,7 @@ Don't add multiple Mailservers, only the first one will be used.
 
 ## Fine-Tuning the Server #3 - Multiple Servers - NodeJS and Mariadb
 Multiple servers with linked databases are supported.
-On my current setup, I use a Master-Slave Replication. It is also possible to use a Master-Master Replication and add the other server also as an `masternodes` in the Webinterface
+On my current setup, I use a Master-Slave Replication. It is also possible to use a Master-Master Replication and add the other server also as an `masternodes` in the Webinterface.
 
 Master-Slave-Installation
 Great tutorial under: https://mariadb.com/kb/en/setting-up-replication/
