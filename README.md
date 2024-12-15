@@ -31,12 +31,16 @@ nano config.json --- Change the <YourPassword> to the same password and under "p
 npm i
 node server.js
 ```
+
 If you are running the server as a non-sudo user, you may not be able to use port 53/udp directly. I added a small guide under `InstallData/Installation.txt`
 
 During the firt startup, a User with the Username `bubbledns@"maindomain"` is registered and becomes an administrator. The console will post the random generated password to login.
 This server gets also registered as `"ns1"."maindomain"` as an `masternode`. Only `masternodes` can make changes to the database.
 Last but not least, the domain `maindomain` gets also registered under the administrator account and becomes a so called `builtin` domain.
 Built in Domains can be used by every useraccount. After that, the server kills itself.
+
+The Webserver should be available under https://127.0.0.1:12512, you can add an Apache Reverse Proxy (an example is under `InstallData/apacheconfig.conf`)
+You can directly access the webserver with the configfile: `webserver.hostname = "0.0.0.0"`, but I would recommend generating a new ssl certificate!
 
 ## Keeping the Server Running - NodeJS and Mariadb
 
@@ -48,7 +52,10 @@ pm2 start server.js
 ```
 If the DNS server settings are changed, for example via the web interface, the server may restart automatically.
 
+
 ## Fine-Tuning the Server #1 - Settings - NodeJS and Mariadb
+
+### Database-Settings - NodeJS and Mariadb
 Most of the fundamental changes can be made in the database, so that every change gets replicated to the rest of the servers
 Please don't change those values before first starting up the server.
 ```
@@ -74,6 +81,14 @@ insert into bubbledns_settings values("allowed_dnstype_entries_builtin","[`A`,`A
 --- Set which dnstypes the owner(or share) is allowed to set on an "custom" domain (Domain added by an user)
 insert into bubbledns_settings values("allowed_dnstype_entries_custom","[`A`,`AAAA`,`CNAME`,`MX`,`TXT`]");
 ```
+
+### Server-Settings - NodeJS and Mariadb
+Inside config.json, some compartments have the items `screenLogLevel`, `fileLogLevel` and `debug`.
+* `screenLogLevel`: Only show Logs higher or same level on the screen (1 = Logs, 2 = Warning, 3 = Errors)
+* `fileLogLevel`: Only write Logs higher or same level to the Log-File (1 = Logs, 2 = Warning, 3 = Errors)
+* `debug`: Adds the File & Line from which the log was added.
+Logging everything can decrease performance, so I would recommend only logging warnings.
+
 
 ## Fine-Tuning the Server #2 - Mailserver - NodeJS and Mariadb
 Some Elements on the Frontend like the Mailserver Configuration can only be done in the mysql server directly:
