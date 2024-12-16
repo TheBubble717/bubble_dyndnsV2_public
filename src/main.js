@@ -13,7 +13,6 @@ import { apiclass_dns } from "./api_dns.js"
 import { apiclass_acc } from "./api_acc.js"
 import { apiclass_admin } from "./api_admin.js"
 import { userclass } from "./classes.js"
-import packageJson from '../package.json' assert { type: 'json' };
 
 var log = mainlog({ screenLogLevel: 1, addcallerlocation: true })
 var alllogs = {"mainlog":log}
@@ -29,6 +28,10 @@ classdata.classes = {
 
 
 async function bubbledns() {
+
+    //Loading PackageJson
+    let rawpackageJson = fs.readFileSync(`./package.json`);
+    let packageJson = JSON.parse(rawpackageJson)
 
 
     //Load configs,logs,...

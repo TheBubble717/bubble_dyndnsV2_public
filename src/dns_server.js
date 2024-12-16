@@ -180,7 +180,7 @@ class dnsclass extends EventEmitter {
                         await classdata.db.dns_lookup(requested_domain.subdomain, question.type, domain_verified[0].id)
                             .then(function (res) {
                                 let data = {}
-                                if (question.type == "MX") {
+                                if (res[0].entrytype == "MX") {
                                     data = res.map(function (r) { return { "exchange": r.entryvalue, "priority": 1 } })
                                 }
                                 else {
@@ -196,7 +196,6 @@ class dnsclass extends EventEmitter {
 
                 //Not one of my Domains
                 else {
-
                     //Fetch DNS-Entry from Upstream_Servers if allowed
                     if (classdata.db.routinedata.bubbledns_settings.allowuseageasrealproxy) {
 
@@ -242,7 +241,7 @@ class dnsclass extends EventEmitter {
                 var formattingofresponse = response.data.toString()
             }
             timetocomplete.stop = new Date().getTime();
-            that.log.addlog(`Who:${responseclass.rinfo.address} Sel.Server:${response.server} ----- Domain:${question.name}  ----- Flags:${response.dnsflags}   ----- Performance: ${timetocomplete.stop - timetocomplete.start}ms  ----- Type:${question.type} --> ${formattingofresponse}`, { color: "white", warn: "DNS-Log", level: 1 })
+            that.log.addlog(`Who:${responseclass.rinfo.address} Sel.Server:${response.server} ----- Domain:${question.name}  ----- Flags:${response.dnsflags}   ----- Performance: ${timetocomplete.stop - timetocomplete.start}ms  ----- Type:(${question.type}->${response.type}) --> ${formattingofresponse}`, { color: "white", warn: "DNS-Log", level: 1 })
 
         }
         catch (err) {
@@ -423,9 +422,6 @@ class dnsclass extends EventEmitter {
 
     }
 }
-
-
-
 
 
 
