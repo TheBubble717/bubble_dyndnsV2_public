@@ -186,7 +186,7 @@ class dnsclass extends EventEmitter {
                                 else {
                                     data = res.map(function (item) { return item.entryvalue })
                                 }
-                                response = { "type": question.type, "data": data, "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER }
+                                response = { "type": res[0].entrytype, "data": data, "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER }
                             })
                             .catch(function (err) {
                                 response = { "type": question.type, "data": [], "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER | 3 } //DNSentry not found

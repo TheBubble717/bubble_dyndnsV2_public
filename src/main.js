@@ -13,6 +13,7 @@ import { apiclass_dns } from "./api_dns.js"
 import { apiclass_acc } from "./api_acc.js"
 import { apiclass_admin } from "./api_admin.js"
 import { userclass } from "./classes.js"
+import packageJson from '../package.json' assert { type: 'json' };
 
 var log = mainlog({ screenLogLevel: 1, addcallerlocation: true })
 var alllogs = {"mainlog":log}
@@ -43,7 +44,7 @@ async function bubbledns() {
     log.addlog("Activating Mysql-Connection", { color: "green", warn: "Startup-Info", level: 3 })
     alllogs.dblog = new logclass({ screenLogLevel: config.mysql.screenLogLevel, fileLogLevel: config.mysql.fileLogLevel, addcallerlocation: config.mysql.debug })
     await alllogs.dblog.activatestream("log/", addfunctions.unixtime_to_local() + " - Database.log")
-    classdata.db = new mysqlclass({ ...config.mysql, public_ip: config.public_ip }, alllogs.dblog)
+    classdata.db = new mysqlclass({ ...config.mysql, public_ip: config.public_ip }, alllogs.dblog,packageJson)
     await classdata.db.connect(async function (err, res) {
         if (err) {
             log.addlog(err, { color: "red", warn: "Startup-Error", level: 3 });

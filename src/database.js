@@ -2,13 +2,15 @@
 import { addfunctions } from "./addfunctions.js";
 import { objectsanitizer } from "./bubble_expressescape_library.js"
 import { classdata } from './main.js';
+import https from 'node:https'
 import * as mysql from "mysql"
 
 class mysqlclass {
-    constructor(config, log) {
+    constructor(config, log,packageJson) {
         this.config = config;
         this.pool = null;
         this.log = log;
+        this.packageJson = packageJson;
 
         this.routinedata = {
             "domains": [],
@@ -131,6 +133,7 @@ class mysqlclass {
         }
     }
 
+    
     dns_lookup(entryname, entrytype, domainid) {
         var that = this;
 
@@ -390,6 +393,58 @@ class mysqlclass {
             return;
         }
 
+        var routine_check_updates = async function () {
+            return new Promise((resolve) => {
+                
+                var url = "https://version.bubbledns.com/version.json"
+                let data = '';
+
+                https.get(url, (response) => {
+                  if (response.statusCode !== 200) {
+                    that.log.addlog(`Failed to check for Updates! Status code: ${response.statusCode}`, { color: "red", warn: "Updatecheck-Error", level: 3 })
+                    resolve()
+                    return;
+                  }
+
+                  response.setEncoding('utf8');
+            
+                  response.on('data', (chunk) => {
+                    data += chunk;
+                  });
+            
+                  response.on('end', () => {
+                    try {
+                      const json = JSON.parse(data);
+                      if(json.version.localeCompare(that.packageJson.version, undefined, { numeric: true } ) === 1)
+                      {
+                        that.log.addlog(`New Version available! Please download ${json.version} from Github.`, { color: "yellow", warn: "Updatecheck-Info", level: 2 })
+                        resolve()
+                      }
+                      else
+                      {
+                        resolve()
+                      }
+                      return;
+                    } catch (err) {
+                        that.log.addlog(`Failed to parse JSON: ${err.message}!`, { color: "red", warn: "Updatecheck-Error", level: 3 })
+                        resolve()
+                        return;
+                    }
+                  });
+            
+                  response.on('error', (err) => {
+                    that.log.addlog(`Failed to check for Updates!`, { color: "red", warn: "Updatecheck-Error", level: 3 })
+                    resolve()
+                    return;
+                  });
+                }).on('error', (err) => {
+                    that.log.addlog(`Failed to check for Updates!`, { color: "red", warn: "Updatecheck-Error", level: 3 })
+                    resolve()
+                    return;
+                });
+              });
+        }
+
         if (this.routinemanger.listRoutines().length) {
             throw new Error("Already active!")
         }
@@ -404,12 +459,14 @@ class mysqlclass {
         this.log.addlog("Routine: Fetch_mailserver_settings activated", { color: "green", warn: "Startup-Info", level: 3 })
         await this.routinemanger.addRoutine(5, routine_delete_cache_dnsentry, 10)
         this.log.addlog("Routine: Delete_cache_dnsentry activated", { color: "green", warn: "Startup-Info", level: 3 })
+        await this.routinemanger.addRoutine(6, routine_check_updates, 86400 )
+        this.log.addlog("Routine: routine_check_updates activated", { color: "green", warn: "Startup-Info", level: 3 })
 
 
         //Only Masternode
         if (classdata.db.routinedata.this_server?.masternode) {
 
-            await this.routinemanger.addRoutine(6, routine_synctest_bubbledns_servers, 180)
+            await this.routinemanger.addRoutine(7, routine_synctest_bubbledns_servers, 180)
             this.log.addlog("Routine: Synctest from Masternode to Slaves activated", { color: "green", warn: "Startup-Info", level: 3 })
             await once_startup_masternode()
             this.log.addlog("ONCE: Startup-Commands activated", { color: "green", warn: "Startup-Info", level: 3 })

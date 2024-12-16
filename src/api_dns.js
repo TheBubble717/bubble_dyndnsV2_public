@@ -46,6 +46,17 @@ class apiclass_dns {
             throw err;
         }
 
+        //Check if there is already a CNAME Entry for the same dnsentry with a different id
+        try {
+            let testvalue = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where entryname = ? and entrytype=? and domainid = ? and id != ?`, [dnsentry.entryname,"CNAME", dnsentry.domainid, dnsentry.id]);
+            if (testvalue.length) {
+                return ({ "success": false, "msg": "A DNS-Entry already exists for this subdomain with a CNAME record!" })
+            }
+        }
+        catch (err) {
+            throw err;
+        }
+
 
         //Check if DNS-Entry is in banned
         try {
@@ -131,7 +142,7 @@ class apiclass_dns {
         dnsentry = addfunctions.objectconverter(dnsentry)
         let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsentry)
         if (!check_for_correct_datatype.success) {
-            return({ "success": false, "msg": check_for_correct_datatype.msg })
+            return ({ "success": false, "msg": check_for_correct_datatype.msg })
         }
 
         try {
@@ -168,7 +179,7 @@ class apiclass_dns {
             dnsentry = addfunctions.objectconverter(dnsentry)
             let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsentry)
             if (!check_for_correct_datatype.success) {
-                return({ "success": false, "msg": check_for_correct_datatype.msg })
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
             }
 
             try {
@@ -216,6 +227,17 @@ class apiclass_dns {
             let testvalue = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where entryname = ? and domainid = ? and ownerid != ?`, [dnsentry.entryname, dnsentry.domainid, user.get_user_public().id]);
             if (testvalue.length) {
                 return ({ "success": false, "msg": "DNS-Entry is already in use by a user" })
+            }
+        }
+        catch (err) {
+            throw err;
+        }
+
+        //Check if there is already a CNAME Entry for the same dnsentry
+        try {
+            let testvalue = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where entryname = ? and entrytype=? and domainid = ?`, [dnsentry.entryname,"CNAME", dnsentry.domainid]);
+            if (testvalue.length) {
+                return ({ "success": false, "msg": "A DNS-Entry already exists for this subdomain with a CNAME record!" })
             }
         }
         catch (err) {
@@ -390,7 +412,7 @@ class apiclass_dns {
             domain = addfunctions.objectconverter(domain)
             let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, domain)
             if (!check_for_correct_datatype.success) {
-                return({ "success": false, "msg": check_for_correct_datatype.msg })
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
             }
 
             var promise1 = classdata.db.databasequerryhandler_secure(`select domains.* from domains INNER JOIN domains_share on domains_share.domainid = domains.id where domains_share.userid=? AND domains.isregistered=?`, [user.get_user_public().id, domain.id, true])
@@ -506,7 +528,7 @@ class apiclass_dns {
         domaintodelete = addfunctions.objectconverter(domaintodelete)
         let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, domaintodelete)
         if (!check_for_correct_datatype.success) {
-            return({ "success": false, "msg": check_for_correct_datatype.msg })
+            return ({ "success": false, "msg": check_for_correct_datatype.msg })
         }
 
         var domainfromdbtodelete = await classdata.db.databasequerryhandler_secure(`select * from domains where ownerid = ? and id = ?`, [user.get_user_public().id, domaintodelete.id]);
@@ -528,7 +550,7 @@ class apiclass_dns {
         domaintoverify = addfunctions.objectconverter(domaintoverify)
         let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, domaintoverify)
         if (!check_for_correct_datatype.success) {
-            return({ "success": false, "msg": check_for_correct_datatype.msg })
+            return ({ "success": false, "msg": check_for_correct_datatype.msg })
         }
 
         //Check if specific domain exists, user is the owner and the domain is currently registered -> Get the data of it.

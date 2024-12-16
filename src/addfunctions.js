@@ -118,7 +118,7 @@ var addfunctions = {
 
     //Rewritten+
     isDomain: function (str) {
-        const domainRegex = /^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z]{2,})+$/;
+        const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/;
         return domainRegex.test(str);
     },
 
