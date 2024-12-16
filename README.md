@@ -80,16 +80,17 @@ BubbleDNS is a self-hosted Dynamic DNS (DDNS) service similar to DynDNS or NO-IP
     pm2 start server.js
     ```
 
-    The internal Webserver should be available under https://127.0.0.1:12512 from the localhost.
-    You can add an Apache Reverse Proxy (an example is under `InstallData/apacheconfig.conf`) to make it available under Port 80 & 443.
-    You can also directly access the internal Webserver by changing the config file : `webserver.hostname = "0.0.0.0"`, but I would recommend generating a new ssl certificate!
+    The internal Webserver should be available under https://127.0.0.1:12512 from the localhost. <br />
+    You can add an Apache Reverse Proxy (an example is under `InstallData/apacheconfig.conf`) to make it available under Port 80 & 443.<br />
+    You can also directly access the internal Webserver by changing the config file : `webserver.hostname = "0.0.0.0"`, but I would recommend generating a new ssl certificate!<br />
 
+## Configuration 
 
-## Fine-Tuning the Server #1 - Settings - NodeJS and Mariadb
+### Database-Settings
+Most of the fundamental changes can only be made in the database for, so that every change gets replicated to the rest of the servers<br />
+It will be possible to change settings in the webinterface directly in a later version<br />
+⚠️Please don't change those values before first starting up the server.⚠️
 
-### Database-Settings - NodeJS and Mariadb
-Most of the fundamental changes can be made in the database, so that every change gets replicated to the rest of the servers
-Please don't change those values before first starting up the server.
 ```
 --- Amount of dns_entries a newly created user can create
 insert into bubbledns_settings values("standardmaxentries","5");  
@@ -113,28 +114,35 @@ insert into bubbledns_settings values("allowed_dnstype_entries_builtin","[`A`,`A
 --- Set which dnstypes the owner(or share) is allowed to set on an "custom" domain (Domain added by an user)
 insert into bubbledns_settings values("allowed_dnstype_entries_custom","[`A`,`AAAA`,`CNAME`,`MX`,`TXT`]");
 ```
-
-### Server-Settings - NodeJS and Mariadb
-Inside config.json, some compartments have the items `screenLogLevel`, `fileLogLevel` and `debug`.
-* `screenLogLevel`: Only show Logs higher or same level on the screen (1 = Logs, 2 = Warning, 3 = Errors)
-* `fileLogLevel`: Only write Logs higher or same level to the Log-File (1 = Logs, 2 = Warning, 3 = Errors)
-* `debug`: Adds the File & Line from which the log was added.
-Logging everything can decrease performance, so I would recommend only logging warnings.
-
-
-## Fine-Tuning the Server #2 - Mailserver - NodeJS and Mariadb
-Some Elements on the Frontend like the Mailserver Configuration can only be done in the mysql server directly:
+### Adding a Mailserver
+Like the database settings, you will be able to add a mail server from the frontend<br>
 ```
 Insert into mailserver_settings values ("Host","Port","true/false for SSL/no SSL","Username","Password")
 ```
 Don't add multiple Mailservers, only the first one will be used.
 
-## Fine-Tuning the Server #3 - Multiple Servers - NodeJS and Mariadb
-Multiple servers with linked databases are supported.
-On my current setup, I use a Master-Slave Replication. It is also possible to use a Master-Master Replication and add the other server also as an `masternodes` in the Webinterface.
+
+### Config-Settings
+1. **Enable/Disable Logging** <br />
+    Inside config.json, some compartments have the items `screenLogLevel`, `fileLogLevel` and `debug`.
+    * `screenLogLevel`: Only show Logs higher or same level on the screen (1 = Logs, 2 = Warning, 3 = Errors)
+    * `fileLogLevel`: Only write Logs higher or same level to the Log-File (1 = Logs, 2 = Warning, 3 = Errors)
+    * `debug`: Adds the File & Line from which the log was added.
+    Logging everything can decrease performance, so I would recommend only logging warnings.
+
+2. **Rest of the config.json** <br />
+    The rest should be self explaining, if you have any questions don't hesitate to contact me.
+
+
+
+## Multiple Servers
+BubbleDNS `debug` supports multiple servers with linked databases. <br />
+On my running server `bubbledns.com`, I use a Master-Slave Replication. In this setup, the other servers need to have the variable `masternode`=0 <br />
+If you have set up a master-master Replication, you need to set `masternode`=1. In this case the DNS Resolve of `A` at `maindomain` will have both servers in it.
 
 Master-Slave-Installation
 Great tutorial under: https://mariadb.com/kb/en/setting-up-replication/
 
 ## Final Words
-The Front-End is a little bit of a mess and requires a complete overhaul. The Project is a One-Man-Show and it takes some time to add everything. If you find any Bugs, Errors or Vulnerabilities, please let me know!
+The Front-End is a little bit of a mess and requires a complete overhaul. It takes time to create new features and kill (hopefully) all the bugs.<br /> 
+If you find any Bugs, Errors or Vulnerabilities, please let me know!
