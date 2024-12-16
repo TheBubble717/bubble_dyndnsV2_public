@@ -13,44 +13,75 @@ BubbleDNS is a self-hosted Dynamic DNS (DDNS) service similar to DynDNS or NO-IP
 ## Getting Started
 ### Requirements
 * A domain where the Registrar allows setting the NS Records (Like Namcheap).
-* A server with (Nodejs, Mariadb and Apache/Ngnix) OR (~~~Docker~~~ coming soon).
+* A server with (Nodejs, Mariadb and Apache) OR (~Docker~ coming soon). The following installation refers to Debian / Ubuntu.
 * Open the following ports:
     * 53/udp
     * 80/tcp
     * 443/tcp
 
 
-## Installation - NodeJS and Mariadb
+## Installation using Nodejs, Mariadb and Apache
 
-```
-git clone git@github.com:TheBubble717/bubble_dyndnsV2.git
-cd bubble_dyndnsV2
-nano db.sql --- Change the <YourPassword> to a secure password and under "maindomain", write the maindomain under which everything runs
-mysql < db.sql
-nano config.json --- Change the <YourPassword> to the same password and under "public_ip" the ip the server will be avaiable under.
-npm i
-node server.js
-```
+### Installation of the Requirements
+1. Go to https://nodejs.org/en/download/package-manager/all to downloaded and install NodeJS for your operating system
+2. **Install Mariadb and Apache and Git with sudo**
+   ```sh
+   sudo apt install mariadb-server apache2 git
+   ```
 
-If you are running the server as a non-sudo user, you may not be able to use port 53/udp directly. I added a small guide under `InstallData/Installation.txt`
+### Installation of BubbleDNS
+1. **Download BubbleDNS from Github using Git**
+   ```sh
+   git clone https://github.com/TheBubble717/bubble_dyndnsV2.git
+   ```
+2. **Enter the Directory**
+   ```sh
+   cd bubble_dyndnsV2
+   ```
+3. **Edit the file db.sql**
+   ```sh
+   nano db.sql
+   ```
+    **3.1 Change the <YourPassword> to a secure password**
+    **3.1 Change the <Main_Domain> to a TLD on which the Server will be available at, e.g. Bubbledns.com**
 
-During the firt startup, a User with the Username `bubbledns@"maindomain"` is registered and becomes an administrator. The console will post the random generated password to login.
-This server gets also registered as `"ns1"."maindomain"` as an `masternode`. Only `masternodes` can make changes to the database.
-Last but not least, the domain `maindomain` gets also registered under the administrator account and becomes a so called `builtin` domain.
-Built in Domains can be used by every useraccount. After that, the server kills itself.
+4. **Execute the db.sql inside the Mariadb-Sever**
+   ```sh
+   sudo mysql < db.sql
+   ```
+5. **Edit the file config.json**
+   ```sh
+   nano config.json
+   ```
+    **3.1 Change the <YourPassword> to the same password**
+    **3.1 Change the <Public_IP_Address> to the Public IP the Server will be available at**
+6. **Install the Dependencies**
+   ```sh
+   npm i
+   ```
+7. **First Startup of the Server**
+   ```sh
+   node server.js
+   ```
+    If you are running the server as a non-sudo user, you may not be able to use port 53/udp directly. I added a small guide under `InstallData/Installation.txt`
 
-The Webserver should be available under https://127.0.0.1:12512, you can add an Apache Reverse Proxy (an example is under `InstallData/apacheconfig.conf`).
-You can directly access the webserver with the configfile: `webserver.hostname = "0.0.0.0"`, but I would recommend generating a new ssl certificate!
+    During the first startup, a User with the Username `bubbledns@"maindomain"` is registered and becomes an administrator. The console will post the random generated password to login.
+    This server gets also registered as `"ns1"."maindomain"` as an `masternode`. Only `masternodes` can write changes to the database.
+    Last but not least, the domain `maindomain` gets also registered under the administrator account and becomes a so called `builtin` domain.
+    `builtin` Domains can be used by every useraccount. After that, the server kills itself.
 
-## Keeping the Server Running - NodeJS and Mariadb
+8. **Keeping the Server running using pm2**
+    There are different solution for restarting a program when it crashes (sometimes intentional). 
+    If the DNS server settings are changed in the database, for example via the web interface, the server may restart automatically.
+    Pm2 is quite good (https://github.com/Unitech/pm2)
+    ```
+    sudo npm i -g pm2
+    pm2 start server.js
+    ```
 
-I prefer using pm2, which you can install and run the server.js with:
-
-```
-npm i -g pm2
-pm2 start server.js
-```
-If the DNS server settings are changed, for example via the web interface, the server may restart automatically.
+    The internal Webserver should be available under https://127.0.0.1:12512 from the localhost.
+    You can add an Apache Reverse Proxy (an example is under `InstallData/apacheconfig.conf`) to make it available under Port 80 & 443.
+    You can also directly access the internal Webserver by changing the config file : `webserver.hostname = "0.0.0.0"`, but I would recommend generating a new ssl certificate!
 
 
 ## Fine-Tuning the Server #1 - Settings - NodeJS and Mariadb

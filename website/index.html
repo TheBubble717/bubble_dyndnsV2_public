@@ -218,7 +218,14 @@
 	{
 		let site = window.location.pathname.trim().split(/ +/g)[0];
 		if (site == "/") {
-			homemenu();
+			if(account)
+			{
+				dnsmenu();
+			}
+			else
+			{
+				registermenu();
+			}
 		}
 		else if (site == "/home") {
 			homemenu();

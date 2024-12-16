@@ -155,7 +155,7 @@ insert into bubbledns_settings values("standardmaxentries","5");
 insert into bubbledns_settings values("standardmaxdomains","2");
 insert into bubbledns_settings values("enable_passwordreset",true);
 insert into bubbledns_settings values("enable_register",true);
-insert into bubbledns_settings values("maindomain","bubbledns.com");
+insert into bubbledns_settings values("maindomain","<Main_Domain>");
 insert into bubbledns_settings values("allowuseageasrealproxy","false");
 insert into bubbledns_settings values("realdns_bantime","43200");
 insert into bubbledns_settings values("allowed_dnstype_questions","[`A`,`AAAA`,`CNAME`,`MX`,`NS`,`PTR`,`SRV`,`SOA`,`CAA`,`TXT`]");
