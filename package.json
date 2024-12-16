@@ -1,6 +1,6 @@
 {
   "name": "bubble_dyndnsv2",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "description": "",
   "main": "server.js",
   "scripts": {

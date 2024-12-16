@@ -424,6 +424,7 @@ dns_lookup(entryname, entrytype, domainid) {
                 if (that.routinedata.bubbledns_servers.length) //Ignore if empty
                 {
                     let thisserver_old = [that.routinedata.this_server]
+                    if(thisserver_old[0] == null){thisserver_old=[]}
                     let thisserver_new = bubbledns_servers_from_db.filter(function (r) { if (((r.public_ipv4 == that.config.public_ip) || (r.public_ipv6 == that.config.public_ip)) && r.virtual == 0) { return true } })
                     if (JSON.stringify(thisserver_old) != JSON.stringify(thisserver_new)) {
                         that.log.addlog("SERVER UPDATE DETECTED, KILLING PROGRAM", { color: "red", warn: "Startup-Error", level: 3 })
@@ -570,7 +571,7 @@ dns_lookup(entryname, entrytype, domainid) {
         this.log.addlog("Routine: Fetch_Bubbledns_servers activated", { color: "green", warn: "Startup-Info", level: 3 })
         await this.routinemanger.addRoutine(4, routine_fetch_mailserver_settings, 30)
         this.log.addlog("Routine: Fetch_mailserver_settings activated", { color: "green", warn: "Startup-Info", level: 3 })
-        //await this.routinemanger.addRoutine(5, routine_delete_cache_dnsentry, 10)
+        await this.routinemanger.addRoutine(5, routine_delete_cache_dnsentry, 10)
         this.log.addlog("Routine: Delete_cache_dnsentry activated", { color: "green", warn: "Startup-Info", level: 3 })
         await this.routinemanger.addRoutine(6, routine_check_updates, 86400)
         this.log.addlog("Routine: routine_check_updates activated", { color: "green", warn: "Startup-Info", level: 3 })
