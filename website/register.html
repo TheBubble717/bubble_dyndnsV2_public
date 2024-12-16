@@ -14,7 +14,7 @@
             let password2 = document.getElementById("password2").value; 
             register(mailaddress,password1,password2,async function(err,res) {
                 if(err){
-                    document.getElementById("loginerror").innerHTML = err.msg
+                    document.getElementById("loginerror").textContent  = `Error during operation: ${err.msg}`
                 }
                 else
                 {

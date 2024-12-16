@@ -11,7 +11,7 @@
             let password = document.getElementById("password").value; 
             login(mailaddress,password,async function(err,res) {
                 if(err){
-                    document.getElementById("loginerror").innerHTML = err.msg
+                    document.getElementById("loginerror").textContent  = `Error during operation: ${err.msg}`
                 }
                 else
                 {
@@ -26,11 +26,11 @@
             let mailaddresspswdreset = document.getElementById("mailaddress").value; 
             req_passwordreset(mailaddresspswdreset,async function(err,res) {
                 if(err){
-                    document.getElementById("loginerror").innerHTML = err.msg
+                    document.getElementById("loginerror").textContent  = `Error during operation: ${err.msg}`
                 }
                 else
                 {
-                    document.getElementById("loginerror").innerHTML = res.data
+                    document.getElementById("loginerror").textContent = res.data
                 }
             })'>Forgot Password</a>  
 </div>

@@ -9,7 +9,7 @@
             "host":"127.0.0.1",
             "port":3306,
             "user":"bubblednsuser",
-            "password":"TESTDATABASE1",
+            "password":"<Your_Password>",
             "database":"bubbledns",
             "connectionLimit": 20
         }

@@ -1,8 +1,8 @@
 DROP DATABASE IF EXISTS bubbledns;
 DROP USER IF EXISTS 'bubblednsuser'@'%';
 CREATE DATABASE bubbledns;
-CREATE USER 'bubblednsuser'@'%' IDENTIFIED BY '<YourPassword>';
-GRANT ALL ON bubbledns.* TO 'bubblednsuser'@'%' IDENTIFIED BY '<YourPassword>' WITH GRANT OPTION;
+CREATE USER 'bubblednsuser'@'%' IDENTIFIED BY '<Your_Password>';
+GRANT ALL ON bubbledns.* TO 'bubblednsuser'@'%' IDENTIFIED BY '<Your_Password>' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 ##############################################
 use bubbledns;

@@ -93,7 +93,7 @@ class webclass extends EventEmitter {
             that.expressserver.use(cookieParser())
             that.expressserver.use(expressescape)
 
-            that.expressserver.use('/website/admin', async function (req, res, next) {
+            that.expressserver.use('/website/admin', apilimiter, async function (req, res, next) {
                 let isadmin = await classdata.api.account.auth_isadmin_cookie(req.cookies.cookie)
                 if (isadmin) {
                     next();

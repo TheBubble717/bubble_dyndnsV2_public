@@ -42,8 +42,8 @@ BubbleDNS is a self-hosted Dynamic DNS (DDNS) service similar to DynDNS or NO-IP
    ```sh
    nano db.sql
    ```
-    **3.1 Change the <YourPassword> to a secure password**<br />
-    **3.1 Change the <Main_Domain> to a TLD on which the Server will be available at, e.g. Bubbledns.com**<br />
+    **3.1 Change the <Your_Password> to a secure password**<br />
+    **3.2 Change the <Main_Domain> to a TLD on which the Server will be available at, e.g. Bubbledns.com**<br />
 
 4. **Execute the db.sql inside the Mariadb-Sever**
    ```sh
@@ -53,8 +53,8 @@ BubbleDNS is a self-hosted Dynamic DNS (DDNS) service similar to DynDNS or NO-IP
    ```sh
    nano config.json
    ```
-    **5.1 Change the <YourPassword> to the same password**<br />
-    **5.1 Change the <Public_IP_Address> to the Public IP the Server will be available at**<br />
+    **5.1 Change the <Your_Password> to the same password**<br />
+    **5.2 Change the <Public_IP_Address> to the Public IP the Server will be available at**<br />
 6. **Install the Dependencies**
    ```sh
    npm i
