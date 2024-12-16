@@ -53,8 +53,8 @@ BubbleDNS is a self-hosted Dynamic DNS (DDNS) service similar to DynDNS or NO-IP
    ```sh
    nano config.json
    ```
-    **3.1 Change the <YourPassword> to the same password**<br />
-    **3.1 Change the <Public_IP_Address> to the Public IP the Server will be available at**<br />
+    **5.1 Change the <YourPassword> to the same password**<br />
+    **5.1 Change the <Public_IP_Address> to the Public IP the Server will be available at**<br />
 6. **Install the Dependencies**
    ```sh
    npm i
@@ -65,14 +65,15 @@ BubbleDNS is a self-hosted Dynamic DNS (DDNS) service similar to DynDNS or NO-IP
    ```
     If you are running the server as a non-sudo user, you may not be able to use port 53/udp directly. I added a small guide under `InstallData/Installation.txt`
 
-    During the first startup, a User with the Username `bubbledns@"maindomain"` is registered and becomes an administrator. The console will post the random generated password to login.
-    This server gets also registered as `"ns1"."maindomain"` as an `masternode`. Only `masternodes` can write changes to the database.
-    Last but not least, the domain `maindomain` gets also registered under the administrator account and becomes a so called `builtin` domain.
-    `builtin` Domains can be used by every useraccount. After that, the server kills itself.
+    During the first startup, a User with the Username `bubbledns@"maindomain"` is registered and becomes an administrator. The console will post the random generated password to login.<br />
+    This server gets also registered as `"ns1"."maindomain"` as an `masternode`. Only `masternodes` can write changes to the database.<br />
+    Last but not least, the domain `maindomain` gets also registered under the administrator account and becomes a so called `builtin` domain. `builtin` Domains can be used by every useraccount. 
+    After that, the serve kills itself.<br />
 
-8. **Keeping the Server running using pm2**
-    There are different solution for restarting a program when it crashes (sometimes intentional). 
-    If the DNS server settings are changed in the database, for example via the web interface, the server may restart automatically.
+8. **Keeping the Server running using pm2**<br />
+
+    There are different solution for restarting a program when it crashes (sometimes intentional). <br />
+    If the DNS server settings are changed in the database, for example via the web interface, the server may restart automatically.<br />
     Pm2 is quite good (https://github.com/Unitech/pm2)
     ```
     sudo npm i -g pm2
