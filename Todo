@@ -1,5 +1,6 @@
 -- Complete Remake of the Front-End
 -- Better API Returns (adding e.g. internal messages!)
+-- Automatic Check for Updates
 
 Problems
 ---mx records no priority possible

@@ -90,7 +90,23 @@ class apiclass_acc {
             return (checkeduserdata)
         }
 
-        var passwordhash = auth_getpwhash(logindata.password, logindata.mailaddress)
+        try
+        {
+            let getsaltfromdb = await classdata.db.databasequerryhandler_secure(`select passwordsalt from users where mailaddress= ?`, [logindata.mailaddress]);
+            if(getsaltfromdb.length)
+            {
+                var passwordsalt = getsaltfromdb[0].passwordsalt
+            }
+            else
+            {
+                return ({ "success": false, "msg": "Password or mailaddress wrong!" })
+            }
+        }
+        catch (err) {
+            throw err;
+        }
+
+        var passwordhash = await auth_getpwhash(passwordsalt,logindata.password, logindata.mailaddress)
         try {
             var user = await classdata.db.databasequerryhandler_secure(`select * from users where mailaddress = ? AND passwordhash = ? AND isactive = ?`, [logindata.mailaddress, passwordhash, true]);
             if (!user.length) {
@@ -247,12 +263,12 @@ class apiclass_acc {
 
         let currenttime = addfunctions.unixtime_to_local()
 
-
-        let user = { "id": randomid, "sessionid": randomsessionid, "mailaddress": registerdata.mailaddress, "passwordhash": auth_getpwhash(registerdata.password1, registerdata.mailaddress), "cookie": randomcookie, "api": randomapi, "ipv4": registerdata.useripv4, "ipv6": registerdata.useripv6, "isadmin": false, "isactive": true, "maxentries": classdata.db.routinedata.bubbledns_settings.standardmaxentries, "maxdomains": classdata.db.routinedata.bubbledns_settings.standardmaxdomains, "active_until": addfunctions.unixtime_to_local(new Date().valueOf() + 30 * 24 * 60 * 60 * 1000), "logintime": currenttime, "confirmedmail": false, "registrationdate": currenttime }
+        let randomsalt = auth_getrandomsalt();
+        let user = { "id": randomid, "sessionid": randomsessionid, "mailaddress": registerdata.mailaddress,"passwordsalt": randomsalt, "passwordhash": await auth_getpwhash(randomsalt,registerdata.password1, registerdata.mailaddress), "cookie": randomcookie, "api": randomapi, "ipv4": registerdata.useripv4, "ipv6": registerdata.useripv6, "isadmin": false, "isactive": true, "maxentries": classdata.db.routinedata.bubbledns_settings.standardmaxentries, "maxdomains": classdata.db.routinedata.bubbledns_settings.standardmaxdomains, "active_until": addfunctions.unixtime_to_local(new Date().valueOf() + 30 * 24 * 60 * 60 * 1000), "logintime": currenttime, "confirmedmail": false, "registrationdate": currenttime }
 
         try
         {
-            var promise1 = classdata.db.databasequerryhandler_secure("INSERT INTO users values (?,?,?,?,?,?,?,?,?,?)", [user.id, user.mailaddress, auth_getpwhash(registerdata.password1, registerdata.mailaddress), user.api, user.isadmin, user.isactive, user.maxentries, user.maxdomains, user.confirmedmail, user.registrationdate]);
+            var promise1 = classdata.db.databasequerryhandler_secure("INSERT INTO users values (?,?,?,?,?,?,?,?,?,?,?)", [user.id, user.mailaddress, user.passwordhash,user.passwordsalt, user.api, user.isadmin, user.isactive, user.maxentries, user.maxdomains, user.confirmedmail, user.registrationdate]);
             var promise2 = classdata.db.databasequerryhandler_secure("INSERT INTO users_sessions values (?,?,?,?,?,?,?);", [user.sessionid, user.id, user.cookie, user.ipv4, user.ipv6, user.active_until, user.logintime]);
             const databaseupdate = await Promise.all([promise1, promise2])
             classdata.mail.mailconfirmation_create({ "keytype": 2, "userid": user.id })
@@ -335,8 +351,17 @@ class apiclass_acc {
                 if (!checkeduserdata.success) {
                     return (checkeduserdata)
                 }
+                var getsaltfromdb = await classdata.db.databasequerryhandler_secure(`select passwordsalt from users where id= ?`, [data.id]);
+                if(getsaltfromdb.length)
+                {
+                    var databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE users SET mailaddress = ?, passwordhash =?,isadmin = ?,confirmedmail = ?, isactive=?, maxentries =?, maxdomains =? where id= ?`, [data.mailaddress, await auth_getpwhash(getsaltfromdb[0].passwordsalt,data.password, data.mailaddress), data.isadmin, data.confirmedmail, data.isactive, data.maxentries, data.maxdomains, data.id]);
+                }
+                else
+                {
+                    return ({ "success": false, "msg": "Databaseupdate failed" })
+                }
 
-                var databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE users SET mailaddress = ?, passwordhash =?,isadmin = ?,confirmedmail = ?, isactive=?, maxentries =?, maxdomains =? where id= ?`, [data.mailaddress, auth_getpwhash(data.password, data.mailaddress), data.isadmin, data.confirmedmail, data.isactive, data.maxentries, data.maxdomains, data.id]);
+
             }
             else {
                 var databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE users SET mailaddress = ?,isadmin = ?,confirmedmail = ?, isactive=?, maxentries =?, maxdomains =? where id= ?`, [data.mailaddress, data.isadmin, data.confirmedmail, data.isactive, data.maxentries, data.maxdomains, data.id]);
@@ -352,8 +377,6 @@ class apiclass_acc {
         catch (err) {
             throw err;
         }
-
-
     }
 
 }
@@ -361,13 +384,22 @@ class apiclass_acc {
 export { apiclass_acc }
 
 
-function auth_getpwhash(password, mailaddress) {
-    var hash = crypto.createHash('sha256').update(password + mailaddress).digest('base64');
-    //Replate "/" with "+" to prevent problems with Escaping
-    hash = hash.replace(/\//g, '+');
-    return hash;
+function auth_getpwhash(salt,password, mailaddress) {
+    let iterations = 10000;
+    let keyLength = 49;
+    let digest = "sha256"
+
+
+    return new Promise((resolve, reject) => {
+        crypto.pbkdf2(password+mailaddress, salt, iterations, keyLength, digest, (err, derivedKey) => {
+            if (err) return reject(err);
+            resolve(derivedKey.toString('hex'));
+        });
+    });
 }
 
-
+function auth_getrandomsalt(length = 16) {
+    return crypto.randomBytes(length).toString('hex');
+}
 
 
