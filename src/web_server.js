@@ -358,10 +358,12 @@ class api_responseclass {
         var filteredanswer = function () {
             if (typeof unfilteredanswer === "object" && unfilteredanswer !== null) {
                 if (unfilteredanswer.success === true) {
-                    return { success: unfilteredanswer.success, data: unfilteredanswer.data }
+                    let sanitizeddata = objectsanitizer(unfilteredanswer.data);
+                    return { success: unfilteredanswer.success, data: sanitizeddata }
                 }
                 else {
-                    return { success: unfilteredanswer.success, msg: unfilteredanswer.msg }
+                    let sanitizedmsg = objectsanitizer(unfilteredanswer.msg);
+                    return { success: unfilteredanswer.success, msg: sanitizedmsg }
                 }
             }
             return null;

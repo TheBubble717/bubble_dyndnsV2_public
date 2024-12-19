@@ -343,13 +343,19 @@ class apiclass_acc {
             return ({ "success": false, "msg": check_for_correct_datatype.msg })
         }
 
+        //Mailaddress & Password check
+        let checkeduserdata1 = await addfunctions.check_for_valid_user_entries({ "mailaddress": data.mailaddress})
+        if (!checkeduserdata1.success) {
+           return (checkeduserdata1)
+        }
+
         try {
             if (data.newpassword) {
 
                 //Password check
-                let checkeduserdata = await addfunctions.check_for_valid_user_entries({ "password1": data.password })
-                if (!checkeduserdata.success) {
-                    return (checkeduserdata)
+                let checkeduserdata2 = await addfunctions.check_for_valid_user_entries({ "password1": data.password })
+                if (!checkeduserdata2.success) {
+                    return (checkeduserdata2)
                 }
                 var getsaltfromdb = await classdata.db.databasequerryhandler_secure(`select passwordsalt from users where id= ?`, [data.id]);
                 if(getsaltfromdb.length)

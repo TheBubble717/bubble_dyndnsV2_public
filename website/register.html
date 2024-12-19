@@ -20,7 +20,7 @@
                 {
                     console.log("Registration successfull")
                     document.cookie = `cookie=${res.data.cookie}; max-age=${30*24*60*60}; path=/;";`;
-                    document.getElementById("loginerror").innerHTML = "Please confirm your E-Mail to activate your account!"
+                    document.getElementById("loginerror").textContent = "Please confirm your E-Mail to activate your account!"
                 }
             });'  value="Register">  
     

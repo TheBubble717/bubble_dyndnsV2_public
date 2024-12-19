@@ -1,6 +1,11 @@
 "use strict";
 import { addfunctions } from "./addfunctions.js"
 import { mainlog } from "bubble_log_library"
+import { JSDOM } from 'jsdom';
+import DOMPurify from 'dompurify';
+
+const window = new JSDOM('').window;
+const purify = DOMPurify(window);
 var log = mainlog()
 
 //+++++++++++++
@@ -46,7 +51,7 @@ var escape = function (req, res, next) {
 
 
 
-        log.addlog(`User with IP=${addfunctions.getclientipv4(req)} tried to use special characters! Message: ${JSON.stringify(messagedata)}`, { colour: "red", warn: "ExpressEscape-Error", level: 3 })
+        log.addlog(`User with IP=${addfunctions.getclientipv4(req)} tried to use special characters! Message: ${JSON.stringify(messagedata)}`, { color: "red", warn: "ExpressEscape-Error", level: 3 })
         res.writeHead(403, { 'Content-Type': 'text/html' });
         res.write(JSON.stringify({ "success": false, "msg": "Unknown Error" }))
         res.end();
@@ -73,14 +78,13 @@ function objectsanitizer(obj) {
             else if ((typeof arrofobj[i][1] == "number") || typeof arrofobj[i][1] == "boolean" || arrofobj[i][1] == null) {
                 newobj[arrofobj[i][0]] = arrofobj[i][1];
             } else {
-                // newobj[arrofobj[i][0]] = validator.blacklist(validator.escape(arrofobj[i][1]), blacklist)
-                newobj[arrofobj[i][0]] = arrofobj[i][1].replace(/\&/g, '&amp;').replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace(/\"/g, '&quot;').replace(/\'/g, '&#x27;').replace(/\//g, '&#x2F;');
+                newobj[arrofobj[i][0]] = purify.sanitize(arrofobj[i][1]);
             }
         }
         return newobj;
     } else if (typeof obj == "string") {
-        // return validator.blacklist(validator.escape(obj), blacklist)
-        return obj.replace(/\&/g, '&amp;').replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace(/\"/g, '&quot;').replace(/\'/g, '&#x27;').replace(/\//g, '&#x2F;');
+        let sanitizedstring = purify.sanitize(obj);
+        return sanitizedstring;
     } else {
         return obj;
     }

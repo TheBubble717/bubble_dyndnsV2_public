@@ -93,9 +93,9 @@ class apiclass_dns {
             return ({ "success": false, "msg": "DNS-Entry-Name contains unallowed characters" });
         }
 
-        //Check if dnsentry.entryvalue is max 49 characters long
-        if (dnsentry.entryvalue.length > 50) {
-            return ({ "success": false, "msg": "DNS-Entry-Value is too long (50 is max)" })
+        //Check if dnsentry.entryvalue is max 494 characters long
+        if (dnsentry.entryvalue.length > 495) {
+            return ({ "success": false, "msg": "DNS-Entry-Value is too long (495 is max)" })
         }
 
         if (!addfunctions.check_dns_entry_validation(dnsentry.entrytype, dnsentry.entryvalue)) {
@@ -291,9 +291,9 @@ class apiclass_dns {
             return ({ "success": false, "msg": "DNS-Entry-Name contains unallowed characters" });
         }
 
-        //Check if dnsentry.entryvalue is max 49 characters long
-        if (dnsentry.entryvalue.length > 50) {
-            return ({ "success": false, "msg": "DNS-Entry-Value is too long (50 is max)" })
+        //Check if dnsentry.entryvalue is max 494 characters long
+        if (dnsentry.entryvalue.length > 495) {
+            return ({ "success": false, "msg": "DNS-Entry-Value is too long (495 is max)" })
         }
 
         if (!addfunctions.check_dns_entry_validation(dnsentry.entrytype, dnsentry.entryvalue)) {

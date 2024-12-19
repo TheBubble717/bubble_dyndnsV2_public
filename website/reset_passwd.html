@@ -10,10 +10,9 @@
             let password1 = document.getElementById("password1").value; 
             let password2 = document.getElementById("password2").value; 
             resetpasswd(password1,password2,async function(err,res) {
-                console.log("halooooo")
                 if(err){
                     console.log(err)
-                    document.getElementById("reseterror").innerHTML = err.msg
+                    document.getElementById("reseterror").textContent = err.msg
                 }
                 else
                 {

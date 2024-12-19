@@ -62,25 +62,15 @@ async function admin_dnsupstreammenu() {
 
 			//Enabled-Button
 			var button_element = doc.getElementById(`enabledbtn${i}`)
-			var onclick = button_element.getAttribute("onclick");
-			if (typeof (onclick) != "function") {
-				button_element.setAttribute('onclick', `admin_dns_upstream_changer(${i},"dns_upstream_servers_enabledisable")`);
-			} else {
-				button_element.onclick = function () {
-					dns_changer(i, "dns_upstream_servers_enabledisable")
-				};
-			}
+			button_element.addEventListener("click", function() {
+				admin_dns_upstream_changer(i, "dns_upstream_servers_enabledisable")
+			});
 
 			//Deletebutton
 			var button_element = doc.getElementById(`deletedomainbtn${i}`)
-			var onclick = button_element.getAttribute("onclick");
-			if (typeof (onclick) != "function") {
-				button_element.setAttribute('onclick', `admin_dns_upstream_changer(${i},"dns_upstream_servers_delete")`);
-			} else {
-				button_element.onclick = function () {
-					dns_changer(i, "dns_upstream_servers_delete")
-				};
-			}
+			button_element.addEventListener("click", function() {
+				admin_dns_upstream_changer(i, "dns_upstream_servers_delete")
+			});
 
 			document.getElementById("subbody").append(doc.documentElement)
 		}
@@ -257,24 +247,19 @@ async function admin_usermenu() {
 
 			//Open profile editor (admin_user_single_user_menu)
 			var button_element = doc.getElementById(`singleusermenuM${response[2].data[i].id}`)
-			var onclick = button_element.getAttribute("onclick");
-			if (typeof (onclick) != "function") {
-				button_element.setAttribute('onclick', `admin_user_single_user_menu(${response[2].data[i].id})`);
-			} else {
-				button_element.onclick = function () {
-					admin_user_single_user_menu(response[2].data[i])
-				};
-			}
+			button_element.addEventListener("click", function() {
+				admin_user_single_user_menu(response[2].data[i].id);
+			});
+
 
 
 			//Inactive Accounts to the back of the site
 			if (!response[2].data[i].isactive) {
-				document.getElementById("subbody").innerHTML = document.getElementById("subbody").innerHTML + doc.documentElement.innerHTML;
+				document.getElementById("subbody").appendChild(doc.documentElement)
 			}
 			else {
-				document.getElementById("subbody").innerHTML = doc.documentElement.innerHTML + document.getElementById("subbody").innerHTML
+				document.getElementById("subbody").insertBefore(doc.documentElement,document.getElementById("subbody").firstChild)
 			}
-
 
 		}
 	});

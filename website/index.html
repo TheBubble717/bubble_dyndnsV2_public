@@ -5,10 +5,12 @@
 	<link rel="stylesheet" href="/website/css/app.css">
 	<link rel="icon" href="/website/favicon.ico" type="image/x-icon" />
 
+	<script type="text/javascript" src="/website/js/myjs/purify.js"></script>
 	<script src="/website/js/myjs/functions.js"></script>
 	<script src="/website/admin/myjs/admin_functions.js"></script>
 	<script src="/website/js/myjs/draggable_div.js"></script>
-	<meta name="description" content="BubbleDNS - Open Source DynDNS Service for selfhosting or using bubbledns.com as a completly free alternative!">
+	<meta name="description"
+		content="BubbleDNS - Open Source DynDNS Service for selfhosting or using bubbledns.com as a completly free alternative!">
 	<title>BubbleDNS</title>
 </head>
 
@@ -57,12 +59,12 @@
 						</div>
 					</button>
 				</div>
-				
+
 			</div>
 		</div>
 
-		<div id="mainbody" >
-			
+		<div id="mainbody">
+
 		</div>
 
 	</div>
@@ -78,21 +80,49 @@
 		return new Promise(async (resolve, reject) => {
 
 			await loginwithcookie(function (err, res) {
-				if (err) {
-					console.log(err)
-					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="loginmenu()"><img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Login</a>`
-					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="registermenu()"><img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Register</a>`
-				}
-				else {
-					account = res
-					if(account.isadmin)
-					{
-						document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="adminmenu()"><img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Admin-Menu</a>`
-					}
-					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a style='height:unset'>Logged in as ${account.mailaddress}</a>`
-					document.getElementById("head-account").innerHTML = document.getElementById("head-account").innerHTML + `<a onclick="logout()"><img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Logout</a>`
-					document.getElementById("head-dns").innerHTML = document.getElementById("head-dns").innerHTML + `<a onclick="dnsdomainsmenu()"><img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Domains</a>`
+				const headAccount = document.getElementById("head-account");
+				const headDns = document.getElementById("head-dns");
 
+				if (err) {
+					// Create and append "Login" link
+					const loginLink = document.createElement("a");
+					loginLink.onclick = loginmenu;
+					loginLink.innerHTML = `<img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Login`;
+					headAccount.appendChild(loginLink);
+
+					// Create and append "Register" link
+					const registerLink = document.createElement("a");
+					registerLink.onclick = registermenu;
+					registerLink.innerHTML = `<img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Register`;
+					headAccount.appendChild(registerLink);
+				} else {
+					account = res;
+
+					// If the user is an admin, append the "Admin-Menu" link
+					if (account.isadmin) {
+						const adminLink = document.createElement("a");
+						adminLink.onclick = adminmenu;
+						adminLink.innerHTML = `<img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Admin-Menu`;
+						headAccount.appendChild(adminLink);
+					}
+
+					// Create and append "Logged in as" link
+					const loggedInLink = document.createElement("a");
+					loggedInLink.style.height = "unset"; // Applied style directly
+					loggedInLink.textContent = `Logged in as ${account.mailaddress}`; // Avoid innerHTML to prevent XSS
+					headAccount.appendChild(loggedInLink);
+
+					// Create and append "Logout" link
+					const logoutLink = document.createElement("a");
+					logoutLink.onclick = logout;
+					logoutLink.innerHTML = `<img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Logout`;
+					headAccount.appendChild(logoutLink);
+
+					// Create and append "Domains" link
+					const domainsLink = document.createElement("a");
+					domainsLink.onclick = dnsdomainsmenu;
+					domainsLink.innerHTML = `<img class="dropdown-content-image" src="/website/images/account_small.png" alt="Logo1">Domains`;
+					headDns.appendChild(domainsLink);
 				}
 			});
 			resolve()
@@ -101,31 +131,55 @@
 
 	function queryhandler(data, url, routing, isjson) //Fertig
 	{
+		function sanitizeObjectRecursive(obj) {
+			// If the object is an array, sanitize each element
+			if (Array.isArray(obj)) {
+				return obj.map(item => sanitizeObjectRecursive(item)); // Recursively sanitize each array element
+			}
+			// If it's an object, recursively sanitize each property
+			else if (typeof obj === 'object' && obj !== null) {
+				let sanitizedObj = {};
+				for (let key in obj) {
+					if (obj.hasOwnProperty(key)) {
+						sanitizedObj[key] = sanitizeObjectRecursive(obj[key]); // Recursively sanitize object properties
+					}
+				}
+				return sanitizedObj;
+			}
+			// If it's a string, sanitize it
+			else if (typeof obj === 'string') {
+				return DOMPurify.sanitize(obj); // Sanitize the string content
+			}
+			// Return non-string, non-object values as they are (e.g., numbers, booleans)
+			return obj;
+		}
+
+
+
+
 		return new Promise((resolve, reject) => {
 			var xhr = new XMLHttpRequest();
 			if (routing == "POST") {
 				xhr.onload = function () {
 					if (isjson) {
-						var answer = JSON.parse(xhr.responseText);
-						if(answer.success === undefined )
-						{
+						var unsinizedanswer = JSON.parse(xhr.responseText);
+						var answer = sanitizeObjectRecursive(unsinizedanswer)
+						if (answer.success === undefined) {
 							resolve(answer)
 							return;
 						}
-						else
-						{
-							if (answer.success === true) {
-							resolve(answer);
-						}
 						else {
-							reject(answer);
-						}
-						return;
+							if (answer.success === true) {
+								resolve(answer);
+							}
+							else {
+								reject(answer);
+							}
+							return;
 						}
 
 					}
-					else
-					{
+					else {
 						resolve(xhr.responseText)
 					}
 				}
@@ -140,26 +194,25 @@
 			else if (routing == "GET") {
 				xhr.onload = function () {
 					if (isjson) {
-						var answer = JSON.parse(xhr.responseText);
-						if(answer.success === undefined )
-						{
+						var unsinizedanswer = JSON.parse(xhr.responseText);
+						var answer = sanitizeObjectRecursive(unsinizedanswer)
+
+						if (answer.success === undefined) {
 							resolve(answer)
 							return;
 						}
-						else
-						{
-							if (answer.success === true) {
-							resolve(answer);
-						}
 						else {
-							reject(answer);
-						}
-						return;
+							if (answer.success === true) {
+								resolve(answer);
+							}
+							else {
+								reject(answer);
+							}
+							return;
 						}
 
 					}
-					else
-					{
+					else {
 						resolve(xhr.responseText)
 					}
 				}
@@ -173,10 +226,10 @@
 				var realurl = url + '?';
 				var notFirst = false;
 				for (var key in data) {
-				if (data.hasOwnProperty(key)) {
-					realurl += (notFirst ? '&' : '') + key + "=" + data[key];
-				}
-				notFirst = true;
+					if (data.hasOwnProperty(key)) {
+						realurl += (notFirst ? '&' : '') + key + "=" + data[key];
+					}
+					notFirst = true;
 				}
 				console.log(realurl)
 				xhr.open(routing, realurl, true);
@@ -209,21 +262,18 @@
 
 
 	async function start() //Fertig
-	{	
+	{
 		await head()
 		load_site()
 	}
 
-	function load_site()
-	{
+	function load_site() {
 		let site = window.location.pathname.trim().split(/ +/g)[0];
 		if (site == "/") {
-			if(account)
-			{
+			if (account) {
 				dnsmenu();
 			}
-			else
-			{
+			else {
 				registermenu();
 			}
 		}
@@ -257,7 +307,7 @@
 		else if (site == "/admin") {
 			adminmenu();
 		}
-		
+
 		else {
 			notfoundmenu();
 		}

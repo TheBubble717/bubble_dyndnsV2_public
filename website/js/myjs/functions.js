@@ -440,16 +440,27 @@ function dnsdomainsmenu() { //FERTIG
 
 				// Loop through response data
 				for (let i = 0; i < responseArray.length; i++) {
+					// Create the <li> element
 					let newdata = document.createElement('li');
-					newdata.innerHTML = `<a class="head1" id="dnsdomainsmenu_editmenu${responseArray[i].id}">dasd</a>`;
-					newdata.querySelector(`#dnsdomainsmenu_editmenu${responseArray[i].id}`).textContent = responseArray[i].domainname
-
+					
+					// Create the <a> element
+					let link = document.createElement('a');
+					link.classList.add('head1');  // Add the 'head1' class
+					link.id = `dnsdomainsmenu_editmenu${responseArray[i].id}`;  // Set the dynamic ID
+				
+					// Set the text content safely
+					link.textContent = responseArray[i].domainname; // Use textContent to insert domainname securely
+				
 					// Add click event listener
-					newdata.querySelector(`#dnsdomainsmenu_editmenu${responseArray[i].id}`).addEventListener('click', (event) => {
+					link.addEventListener('click', (event) => {
 						event.preventDefault();
-						dnsdomainsmenu_editmenu(isowner, responseArray[i])
+						dnsdomainsmenu_editmenu(isowner, responseArray[i]); // Call the edit menu function
 					});
-
+				
+					// Append the link to the <li> element
+					newdata.appendChild(link);
+				
+					// Append the <li> to the parent <ul> element
 					ulElement.appendChild(newdata);
 				}
 
@@ -580,18 +591,30 @@ function dnsdomainsmenu_editmenu(isowner, domain) {
 
 					let ulElement = document.createElement('ul');
 					// Loop through response data
-					for (let i = 0; i < responseArray.shared_list.length; i++) {
-						let newdata = document.createElement('li');
-						newdata.innerHTML = `<a class="head1" id="dnsdomainsmenu_delshareduserbtn${responseArray.shared_list[i].id}"></a>`
-						newdata.querySelector(`#dnsdomainsmenu_delshareduserbtn${responseArray.shared_list[i].id}`).textContent = responseArray.shared_list[i].mailaddress
+for (let i = 0; i < responseArray.shared_list.length; i++) {
+    // Create a new <li> element
+    let newdata = document.createElement('li');
+    
+    // Create a new <a> element
+    let link = document.createElement('a');
+    link.classList.add('head1');  // Add the 'head1' class
+    link.id = `dnsdomainsmenu_delshareduserbtn${responseArray.shared_list[i].id}`;  // Dynamically set ID
 
-						// Add click event listener
-						newdata.querySelector(`#dnsdomainsmenu_delshareduserbtn${responseArray.shared_list[i].id}`).addEventListener('click', (event) => {
-							event.preventDefault();
-							usersharedelete(responseArray.shared_list[i].id, responseArray.id)
-						});
-						ulElement.appendChild(newdata);
-					}
+    // Set the text content (safe) for the mail address
+    link.textContent = responseArray.shared_list[i].mailaddress; // Use textContent to insert mailaddress securely
+
+    // Add click event listener to the link
+    link.addEventListener('click', (event) => {
+        event.preventDefault();
+        usersharedelete(responseArray.shared_list[i].id, responseArray.id); // Call the usersharedelete function
+    });
+
+    // Append the link to the <li> element
+    newdata.appendChild(link);
+
+    // Append the <li> element to the parent <ul> element
+    ulElement.appendChild(newdata);
+}
 					return ulElement;
 				}
 

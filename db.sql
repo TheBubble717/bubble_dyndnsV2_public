@@ -14,7 +14,7 @@ create table domains
 	id INT NOT NULL,
 	builtin boolean NOT NULL CHECK (builtin IN (0, 1)),
 	ownerid INT NOT NULL,
-	domainname VARCHAR(100) NOT NULL,
+	domainname VARCHAR(50) NOT NULL,
 	verified boolean NOT NULL CHECK (verified IN (0, 1)),
 	verificationdate varchar(25),
 	lastverificationresult1 varchar(25),
@@ -35,8 +35,8 @@ create table dns_entries
 	domainid INT NOT NULL,
 	lastchangedtime varchar(25),
 	entryname VARCHAR(100) NOT NULL,
-	entryvalue varchar(100) NOT NULL,
-	entrytype varchar(100) NOT NULL
+	entryvalue varchar(500) NOT NULL,
+	entrytype varchar(20) NOT NULL
 );
 
 
@@ -44,7 +44,7 @@ create table users(
 	id int NOT NULL,
 	mailaddress VARCHAR(60) NOT NULL,
 	passwordhash VARCHAR(100) NOT NULL,
-	passwordsalt VARCHAR(100) NOT NULL,
+	passwordsalt VARCHAR(50) NOT NULL,
 	api varchar(100) NOT NULL,
 	isadmin boolean NOT NULL CHECK (isadmin IN (0, 1)),
 	isactive boolean NOT NULL CHECK (isactive IN (0, 1)),
@@ -77,8 +77,8 @@ create table users_sessions(
 create table dns_upstreamservers(
 	id int NOT NULL,
 	enabled boolean NOT NULL CHECK (enabled IN (0, 1)),
-	address varchar(100) NOT NULL,
-	lasttimebanned varchar(100),
+	address varchar(50) NOT NULL,
+	lasttimebanned varchar(50),
 	amountbanned int NOT NULL
 );
 

@@ -24,9 +24,6 @@ classdata.classes = {
 }
 
 
-
-
-
 async function bubbledns() {
 
     //Loading PackageJson

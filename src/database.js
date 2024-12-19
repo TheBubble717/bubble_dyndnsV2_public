@@ -92,23 +92,10 @@ class mysqlclass {
     async databasequerryhandler_secure(query, values, callback) {
         const that = this;
 
-        // Sanitize inputs
-        const sanitizedInputs = objectsanitizer(values);
-
-        if (JSON.stringify(values) !== JSON.stringify(sanitizedInputs)) {
-            const error = `Tried to use special characters inside the databasequerryhandler`;
-            that.log.addlog(`Someone tried to use special characters inside the databasequerryhandler, was blocked successfully`, { color: "red", warn: "ExpressEscape-Error", level: 3 });
-
-            if (callback && typeof callback === 'function') {
-                await callback(error, null);
-            }
-            throw new Error(error);
-        }
-
         try {
             // Execute the query using the connection pool
             const result = await new Promise((resolve, reject) => {
-                that.pool.query(query, sanitizedInputs, (err, res) => {
+                that.pool.query(query, values, (err, res) => {
                     if (err) {
                         return reject(err);
                     }
@@ -116,13 +103,10 @@ class mysqlclass {
                 });
             });
 
-            // Sanitize outputs
-            var sanitizedOutputs = objectsanitizer(result);
-
             if (callback && typeof callback == 'function') {
-                await callback("", sanitizedOutputs);
+                await callback("", result);
             }
-            return (sanitizedOutputs);
+            return (result);
 
         } catch (err) {
             const error = `Error in databasequerryhandler: ${err}`;
