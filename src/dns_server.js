@@ -98,9 +98,8 @@ class dnsclass extends EventEmitter {
             }
             var requested_domain = extractDomain(question.name)
 
-
             //SYNCTEST
-            if (question.name == "synctest" && question.type == "TXT") {
+            if (question.name.toLowerCase() == "synctest" && question.type == "TXT") {
 
                 let synctestdata = await classdata.db.databasequerryhandler_secure("select * from bubbledns_servers_testvalues", [])
                 response = { "type": question.type, "data": synctestdata.map(function (r) { return r.testvalue }), "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER }
@@ -155,7 +154,7 @@ class dnsclass extends EventEmitter {
                             response = { "type": question.type, "data": dnsserverdata, "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER }
                         }
                         else {
-                            response = { "type": question.type, "data": [], "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER | 3 } //NameServer not found
+                            response = { "type": question.type, "data": [], "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER } //NameServer not found
                         }
                     }
                     //Main @.bubbledns.com A & AAAA request
@@ -168,11 +167,6 @@ class dnsclass extends EventEmitter {
                             var dataresponse = bubblednsserversweb.filter(item => item != null && item.public_ipv6 != null).map(item => item.public_ipv6);
                         }
                         response = { "type": question.type, "data": dataresponse, "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER }
-                    }
-
-                    //Want the SOA or CAA entry - always send back the SOA
-                    else if ((question.type == "SOA" || question.type == "CAA")) {
-                        response = { "type": "SOA", "data": [{ mname: `${classdata.db.routinedata.bubbledns_servers[0].subdomainname}.${classdata.db.routinedata.bubbledns_settings.maindomain}`, rname: `hostmaster.${classdata.db.routinedata.bubbledns_settings.maindomain}`, serial: addfunctions.unixtime_to_local().replace("-", "").slice(0, 10), refresh: 10800, retry: 3600, expire: 1209600, minimum: 3600 }], "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER }
                     }
 
                     //Rest of the dns_entries fetched by the database
@@ -189,7 +183,7 @@ class dnsclass extends EventEmitter {
                                 response = { "type": res[0].entrytype, "data": data, "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER }
                             })
                             .catch(function (err) {
-                                response = { "type": question.type, "data": [], "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER | 3 } //DNSentry not found
+                                response = { "type": question.type, "data": [], "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER } //DNSentry not found
                             })
                     }
                 }
@@ -199,7 +193,7 @@ class dnsclass extends EventEmitter {
                     //Fetch DNS-Entry from Upstream_Servers if allowed
                     if (classdata.db.routinedata.bubbledns_settings.allowuseageasrealproxy) {
 
-                        await that.askrealdns(question.name, question.type, function (err, answer) {
+                        await that.askrealdns(question.name.toLowerCase(), question.type, function (err, answer) {
                             if (err) {
                                 that.log.addlog(`Error requesting DNS-Entry for ${err.err.hostname} on server ${err.server} with code: ${err.err.code}`, { color: "yellow", warn: "DNS-Warning", level: 2 })
 
@@ -218,7 +212,18 @@ class dnsclass extends EventEmitter {
 
 
             else {
-                response = { "type": question.type, "data": [], "server": "SELFANSWER", "dnsflags": 5 } //Query refused
+
+                var domain_verified = classdata.db.routinedata.domains.filter(function (r) { if (r.domainname == requested_domain.domain && (r.verified == 1 || r.builtin == 1)) { return true } });
+                //If unallowed Question, but domain is verified, send authority back!
+                if(domain_verified.length)
+                {
+                    response = { "type": "SOA", "data": [{ mname: `${classdata.db.routinedata.bubbledns_servers[0].subdomainname}.${classdata.db.routinedata.bubbledns_settings.maindomain}`, rname: `hostmaster.${classdata.db.routinedata.bubbledns_settings.maindomain}`, serial: addfunctions.unixtime_to_local().replace("-", "").slice(0, 10), refresh: 10800, retry: 3600, expire: 1209600, minimum: 3600 }], "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER }
+                }
+                else
+                {
+                    response = { "type": question.type, "data": [], "server": "SELFANSWER", "dnsflags": 5 } //Query refused
+                }
+                
             }
 
             var replyvariable = []

@@ -1,6 +1,6 @@
 {
   "name": "bubble_dyndnsv2",
-  "version": "1.8.5",
+  "version": "1.8.6",
   "description": "",
   "main": "server.js",
   "scripts": {
@@ -20,7 +20,7 @@
   "type": "module",
   "dependencies": {
     "body-parser": "^1.20.2",
-    "bubble_ezdns_server_library": "^1.0.10",
+    "bubble_ezdns_server_library": "^1.0.11",
     "bubble_log_library": "^1.3.6",
     "cookie-parser": "^1.4.6",
     "dompurify": "^3.2.3",
