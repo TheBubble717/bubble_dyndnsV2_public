@@ -48,7 +48,7 @@ class apiclass_dns {
 
         //Check if there is already a CNAME Entry for the same dnsentry with a different id
         try {
-            let testvalue = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where entryname = ? and entrytype=? and domainid = ? and id != ?`, [dnsentry.entryname,"CNAME", dnsentry.domainid, dnsentry.id]);
+            let testvalue = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where entryname = ? and entrytype=? and domainid = ? and id != ?`, [dnsentry.entryname, "CNAME", dnsentry.domainid, dnsentry.id]);
             if (testvalue.length) {
                 return ({ "success": false, "msg": "A DNS-Entry already exists for this subdomain with a CNAME record!" })
             }
@@ -57,20 +57,22 @@ class apiclass_dns {
             throw err;
         }
 
-
         //Check if DNS-Entry is in banned
         try {
             let domaindata = await classdata.db.databasequerryhandler_secure(`select * from domains where id = ?`, [dnsentry.domainid]);
             let banlist = []
             let banlist1 = await classdata.db.databasequerryhandler_secure(`select * from subdomains_banned_all`, []);
             let banlist2 = []
+            //No Recursive Subdomains (like bubbledns.com.bubbledns.com)
+            let banlist3 = [{"subdomainname":domaindata[0].domainname}]
 
             if (domaindata[0].builtin) {
                 banlist2 = await classdata.db.databasequerryhandler_secure(`select * from subdomains_banned_builtin`, [])
             }
-            banlist = [...banlist1, ...banlist2]
-            let testvalue = banlist.filter(r => r.subdomainname == dnsentry.entryname)
-            if (testvalue.length) {
+            banlist = [...banlist1, ...banlist2,...banlist3]
+            //True=ban, false=OK
+            let testvalue = banlist.some(banned => dnsentry.entryname.includes(banned.subdomainname))
+            if (testvalue) {
                 return ({ "success": false, "msg": "DNS-Entry-Name in banned list" })
             }
 
@@ -235,7 +237,7 @@ class apiclass_dns {
 
         //Check if there is already a CNAME Entry for the same dnsentry
         try {
-            let testvalue = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where entryname = ? and entrytype=? and domainid = ?`, [dnsentry.entryname,"CNAME", dnsentry.domainid]);
+            let testvalue = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where entryname = ? and entrytype=? and domainid = ?`, [dnsentry.entryname, "CNAME", dnsentry.domainid]);
             if (testvalue.length) {
                 return ({ "success": false, "msg": "A DNS-Entry already exists for this subdomain with a CNAME record!" })
             }
@@ -243,7 +245,6 @@ class apiclass_dns {
         catch (err) {
             throw err;
         }
-
 
         //Check if DNS-Entry-limit isn't reached already
         try {
@@ -262,13 +263,16 @@ class apiclass_dns {
             let banlist = []
             let banlist1 = await classdata.db.databasequerryhandler_secure(`select * from subdomains_banned_all`, []);
             let banlist2 = []
+            //No Recursive Subdomains (like bubbledns.com.bubbledns.com)
+            let banlist3 = [{"subdomainname":domaindata[0].domainname}]
 
             if (domaindata[0].builtin) {
                 banlist2 = await classdata.db.databasequerryhandler_secure(`select * from subdomains_banned_builtin`, [])
             }
-            banlist = [...banlist1, ...banlist2]
-            let testvalue = banlist.filter(r => r.subdomainname == dnsentry.entryname)
-            if (testvalue.length) {
+            banlist = [...banlist1, ...banlist2,...banlist3]
+            //True=ban, false=OK
+            let testvalue = banlist.some(banned => dnsentry.entryname.includes(banned.subdomainname))
+            if (testvalue) {
                 return ({ "success": false, "msg": "DNS-Entry-Name in banned list" })
             }
 

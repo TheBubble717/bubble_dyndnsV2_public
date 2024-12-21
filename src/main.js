@@ -48,7 +48,7 @@ async function bubbledns() {
     await classdata.db.connect(async function (err, res) {
         if (err) {
             log.addlog(err, { color: "red", warn: "Startup-Error", level: 3 });
-            process.exit(2)
+            process.exit(1011)
         }
         log.addlog(res, { color: "green", warn: "Startup-Info", level: 3 })
 
@@ -84,9 +84,10 @@ async function bubbledns() {
         await classdata.dnsserver.createserver(async function (err, res) {
             if (err) {
                 log.addlog(err, { color: "red", warn: "Startup-Error", level: 3 });
-                process.exit(2)
+                process.exit(1012)
             }
-            log.addlog(res, { color: "green", warn: "Startup-Info", level: 3 })
+            log.addlog(res[0], { color: "green", warn: "Startup-Info", level: 3 })
+            log.addlog(res[1], { color: "green", warn: "Startup-Info", level: 3 })
         });
 
     }
@@ -105,7 +106,7 @@ async function bubbledns() {
         await classdata.webserver.createserver(async function (err, res) {
             if (err) {
                 log.addlog(err, { color: "red", warn: "Startup-Error", level: 3 });
-                process.exit(2)
+                process.exit(1013)
             }
             log.addlog(res, { color: "green", warn: "Startup-Info", level: 3 })
         });
@@ -120,20 +121,20 @@ async function bubbledns() {
         if (!newuser.success) {
             let err = `Error creating User: ${newuser.msg}`
             log.addlog(err, { color: "red", warn: "FirstStartup", level: 3 })
-            process.exit(2)
+            process.exit(1014)
         }
         let newuserdata = new classdata.classes.userclass(newuser.data)
         let downloaduserdatastatus = await newuserdata.get_user_from_id()
         if (!downloaduserdatastatus.success) {
             let err = `Error downloading Userdata: ${downloaduserdatastatus.msg}`
             log.addlog(err, { color: "red", warn: "FirstStartup", level: 3 })
-            process.exit(2)
+            process.exit(1015)
         }
         let updateusertoadmin = await classdata.api.account.update_user({ "id": newuserdata.get_user_public().id, "isactive": true, "confirmedmail": true, "isadmin": true, "maxdomains": 10, "maxentries": 100, "newpassword": false, "mailaddress": newuserdata.get_user_public().mailaddress, "password": null })
         if (!updateusertoadmin.success) {
             let err = `Error making User to Admin: ${updateusertoadmin.msg}`
             log.addlog(err, { color: "red", warn: "FirstStartup", level: 3 })
-            process.exit(2)
+            process.exit(1016)
         }
         log.addlog(`Admin "${newuserdata.get_user_public().mailaddress}" created with password "${randompassword}"`, { color: "green", warn: "FirstStartup", level: 3 })
 
@@ -147,13 +148,13 @@ async function bubbledns() {
         if (!addingbubblednsserver.success) {
             let err = `Error creating BubbleDNS_Server: ${addingbubblednsserver.msg}`
             log.addlog(err, { color: "red", warn: "FirstStartup", level: 3 })
-            process.exit(2)
+            process.exit(1017)
         }
         await classdata.db.databasequerryhandler_secure(`update bubbledns_servers set synctest=?`, [true], function (error, res) {
             if (error) {
                 let err = `Error updating BubbleDNS_Server to synctest=1: ${error}`
                 log.addlog(err, { color: "red", warn: "FirstStartup", level: 3 })
-                process.exit(2)
+                process.exit(1018)
             }
         });
         log.addlog(`Bubbledns-Server ns1.${classdata.db.routinedata.bubbledns_settings.maindomain} created and set to Main-Server`, { color: "green", warn: "FirstStartup", level: 3 })
@@ -165,13 +166,13 @@ async function bubbledns() {
         if (!domaincreation.success) {
             let err = `Error creating Main-Domain: ${domaincreation.msg}`
             log.addlog(err, { color: "red", warn: "FirstStartup", level: 3 })
-            process.exit(2)
+            process.exit(1019)
         }
         await classdata.db.databasequerryhandler_secure(`update domains set builtin=1, verified=1 where domainname=?`, [classdata.db.routinedata.bubbledns_settings.maindomain], function (error, res) {
             if (error) {
                 let err = `Error creating Main-Domain: ${error}`
                 log.addlog(err, { color: "red", warn: "FirstStartup", level: 3 })
-                process.exit(2)
+                process.exit(1020)
             }
         });
         log.addlog(`Domain ${classdata.db.routinedata.bubbledns_settings.maindomain} created as builtin and owner set to ${newuserdata.get_user_public().mailaddress}`, { color: "green", warn: "FirstStartup", level: 3 })
@@ -183,12 +184,12 @@ async function bubbledns() {
             if (error) {
                 let err = `Error creating Main-Domain: ${error}`
                 log.addlog(err, { color: "red", warn: "FirstStartup", level: 3 })
-                process.exit(2)
+                process.exit(1021)
             }
         });
         log.addlog(`Disabling First Time Installer`, { color: "green", warn: "FirstStartup", level: 3 })
         log.addlog(`Killing Process`, { color: "green", warn: "FirstStartup", level: 3 })
-        process.exit(2)
+        process.exit(1022)
     }
 
 

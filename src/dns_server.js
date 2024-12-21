@@ -11,55 +11,116 @@ class dnsclass extends EventEmitter {
         super();
         this.em = null;
         this.config = config;
-        this.server = null;
+        this.server = {
+            "tcp4": null,
+            "udp4": null,
+        };
         this.log = log
     }
 
-    createserver(callback) {
+    async createserver(callback) {
         var that = this;
-        return new Promise(async (resolve, reject) => {
-            that.server = new dnsserverclass({
-                "type": "udp4",
-                "port": that.config.port,
-                "address": "0.0.0.0",
-                "handle": (request, responseclass) =>
-                    that.dnshandler(request, responseclass)
-            })
-            that.server.createserver()
 
-            that.server.server.on('listening', async function () {
-                var answer = "Dns-Server was started successfull and is listening on Port: " + that.config.port
-                if (callback && typeof callback == 'function') {
-                    await callback("", answer);
-                    resolve();
-                }
-                else {
-                    resolve(answer);
-                }
-                return;
-            });
 
-            that.server.server.on('close', async function () {
-                var error = "DNS-Server closed, killing program"
-                if (callback && typeof callback == 'function') {
-                    await callback(error, "");
-                    resolve();
-                }
-                else {
-                    reject(error);
-                }
+        //UDP SERVER
+        var udp4serverpromise = new Promise(async (startupresolve, startupreject) => {
+            try
+            {
+                that.server.udp4 = new dnsserverclass({
+                    "type": "udp4",
+                    "port": that.config.port,
+                    "address": "0.0.0.0",
+                    "handle": (request, responseclass) =>
+                        that.dnshandler(request, responseclass)
+                })
+                that.server.udp4.createserver()
+    
+                that.server.udp4.server.on('listening', async function () {
+                    const answer = `Dns-Server-UDP4 was started successfully and is listening on Port: ${that.config.port}/udp`;
+                    startupresolve(answer);
+                });
+        
+                that.server.udp4.server.on('close', function () {
+                    const error = "Dns-Server-UDP4 closed";
+                    that.log.addlog(error, { color: "red", warn: "DNS-Error", level: 3 })
+                    startupreject(error);
+                    process.exit(1007);
+                });
+        
+                that.server.udp4.server.on('error', function (err) {
+                    const error = `Dns-Server-UDP4 Error: ${err.message}`
+                    that.log.addlog(error, { color: "red", warn: "DNS-Error", level: 3 })
+                    startupreject(error);
+                    process.exit(1008);
+                });
 
-                process.exit(2)
-            });
-
-            that.server.server.on('request', (request) => {
-                //console.log(request)
-            });
-
-            that.server.listen()
+    
+                that.server.udp4.listen()
+            }
+            catch(err)
+            {
+                startupreject(err)
+            }
 
 
         });
+
+        var tcp4serverpromise = new Promise(async (startupresolve, startupreject) => {
+            try
+            {
+                that.server.tcp4 = new dnsserverclass({
+                    "type": "tcp4",
+                    "maxtime":5,
+                    "port": that.config.port,
+                    "address": "0.0.0.0",
+                    "handle": (request, responseclass) =>
+                        that.dnshandler(request, responseclass)
+                })
+                that.server.tcp4.createserver()
+    
+                that.server.tcp4.server.on('listening', async function () {
+                    const answer = `Dns-Server-UDP4 was started successfully and is listening on Port: ${that.config.port}/tcp`;
+                    startupresolve(answer);
+                });
+    
+                that.server.tcp4.server.on('close', async function () {
+                    const error = "Dns-Server-TCP4 closed"
+                    that.log.addlog(error, { color: "red", warn: "DNS-Error", level: 3 })
+                    startupreject(error);
+                    process.exit(1009)
+                });
+
+                that.server.tcp4.server.on('error', function (err) {
+                    const error = `Dns-Server-TCP4 Error: ${err.message}`
+                    that.log.addlog(error, { color: "red", warn: "DNS-Error", level: 3 })
+                    startupreject(error);
+                    process.exit(1010);
+                });
+    
+    
+                that.server.tcp4.listen()
+            }
+            catch(err)
+            {
+                startupreject(err)
+            }
+
+        });
+
+        
+        Promise.all([udp4serverpromise,tcp4serverpromise])
+        .then(async function(response){
+            if (callback && typeof callback == 'function') {
+                await callback("", response);
+            }
+        })
+        .catch(async function(err){
+            if (callback && typeof callback == 'function') {
+                await callback(err, "");
+            }
+            throw(err)
+
+        })
 
 
     }
@@ -105,10 +166,10 @@ class dnsclass extends EventEmitter {
                 response = { "type": question.type, "data": synctestdata.map(function (r) { return r.testvalue }), "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER }
             }
 
-            
+
 
             //No Answer if synctest=0
-            else if (!classdata.db.routinedata.this_server?.synctest==1) {
+            else if (!classdata.db.routinedata.this_server?.synctest == 1) {
                 response = { "type": question.type, "data": [], "server": "SELFANSWER", "dnsflags": 5 } //Query refused
             }
 
@@ -158,7 +219,7 @@ class dnsclass extends EventEmitter {
                         }
                     }
                     //Main @.bubbledns.com A & AAAA request
-                    else if (requested_domain.subdomain == "@" && requested_domain.domain == classdata.db.routinedata.bubbledns_settings.maindomain && (question.type == "A" || question.type == "AAAA")) {
+                    else if ((requested_domain.subdomain == "@" || requested_domain.subdomain == "www") && requested_domain.domain == classdata.db.routinedata.bubbledns_settings.maindomain && (question.type == "A" || question.type == "AAAA")) {
                         var bubblednsserversweb = classdata.db.routinedata.bubbledns_servers.filter(r => r.enabled_web == 1 && r.synctest === 1 && r.virtual === 0)
                         if (question.type == "A") {
                             var dataresponse = bubblednsserversweb.filter(item => item != null && item.public_ipv4 != null).map(item => item.public_ipv4);
@@ -215,15 +276,13 @@ class dnsclass extends EventEmitter {
 
                 var domain_verified = classdata.db.routinedata.domains.filter(function (r) { if (r.domainname == requested_domain.domain && (r.verified == 1 || r.builtin == 1)) { return true } });
                 //If unallowed Question, but domain is verified, send authority back!
-                if(domain_verified.length)
-                {
+                if (domain_verified.length) {
                     response = { "type": "SOA", "data": [{ mname: `${classdata.db.routinedata.bubbledns_servers[0].subdomainname}.${classdata.db.routinedata.bubbledns_settings.maindomain}`, rname: `hostmaster.${classdata.db.routinedata.bubbledns_settings.maindomain}`, serial: addfunctions.unixtime_to_local().replace("-", "").slice(0, 10), refresh: 10800, retry: 3600, expire: 1209600, minimum: 3600 }], "server": "SELFANSWER", "dnsflags": dnsPacket.AUTHORITATIVE_ANSWER }
                 }
-                else
-                {
+                else {
                     response = { "type": question.type, "data": [], "server": "SELFANSWER", "dnsflags": 5 } //Query refused
                 }
-                
+
             }
 
             var replyvariable = []

@@ -116,8 +116,16 @@ create table subdomains_banned_all
 	subdomainname VARCHAR(100)
 );
 
+#DNS Server
 insert into subdomains_banned_all values("dns1");
 insert into subdomains_banned_all values("dns2");
+insert into subdomains_banned_all values("dns3");
+insert into subdomains_banned_all values("dns4");
+insert into subdomains_banned_all values("dns5");
+insert into subdomains_banned_all values("dns6");
+insert into subdomains_banned_all values("dns7");
+insert into subdomains_banned_all values("dns8");
+insert into subdomains_banned_all values("dns9");
 insert into subdomains_banned_all values("ns1");
 insert into subdomains_banned_all values("ns2");
 insert into subdomains_banned_all values("ns3");
@@ -127,11 +135,36 @@ insert into subdomains_banned_all values("ns6");
 insert into subdomains_banned_all values("ns7");
 insert into subdomains_banned_all values("ns8");
 insert into subdomains_banned_all values("ns9");
+
+#Mail Server
 insert into subdomains_banned_builtin values("mail");
+insert into subdomains_banned_builtin values("email");
+insert into subdomains_banned_builtin values("webmail");
+insert into subdomains_banned_builtin values("smtp");
+insert into subdomains_banned_builtin values("pop");
+insert into subdomains_banned_builtin values("pop3");
+insert into subdomains_banned_builtin values("imap");
+insert into subdomains_banned_builtin values("autoconfig");
+insert into subdomains_banned_builtin values("autodiscover");
+insert into subdomains_banned_builtin values("mta-sts");
+
+#Web Server
+insert into subdomains_banned_builtin values("www");
+
+#Abusable
 insert into subdomains_banned_builtin values("admin");
-insert into subdomains_banned_builtin values("web");
-insert into subdomains_banned_builtin values("mailhost");
-insert into subdomains_banned_builtin values("host");
+insert into subdomains_banned_builtin values("ftp");
+insert into subdomains_banned_builtin values("cpanel");
+insert into subdomains_banned_builtin values("_acme-challenge");
+insert into subdomains_banned_builtin values("_dmarc");
+insert into subdomains_banned_builtin values("_spf");
+insert into subdomains_banned_builtin values("_domainkey");
+insert into subdomains_banned_builtin values("localhost");
+insert into subdomains_banned_builtin values("staging");
+insert into subdomains_banned_builtin values("dev");
+insert into subdomains_banned_builtin values("help");
+insert into subdomains_banned_builtin values("api");
+
 insert into subdomains_banned_builtin values("@");
 insert into subdomains_banned_builtin values("*");
 
