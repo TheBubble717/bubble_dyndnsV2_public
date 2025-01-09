@@ -299,7 +299,7 @@ class dnsclass extends EventEmitter {
             }
 
             await responseclass.send(replyvariable, response.dnsflags).catch(function (err) { that.log.addlog(err, { color: "red", warn: "DNS-Error", level: 3 }) });
-            if ((question.type == "SOA") || (question.type == "CAA") || (question.type == "MX")) {
+            if ((response.type == "SOA") || (response.type == "CAA") || (response.type == "MX")) {
                 var formattingofresponse = JSON.stringify(response.data)
             } else {
                 var formattingofresponse = response.data.toString()

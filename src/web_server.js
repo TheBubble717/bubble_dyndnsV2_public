@@ -39,7 +39,7 @@ class webclass extends EventEmitter {
                 that.http_s_server = https.createServer(ssloptions, that.expressserver);
 
                 that.http_s_server.listen(that.config.port, that.config.hostname, async function () {
-                    var answer = "WEB-SSL-Server was started successfully and is listening on Port: " + that.config.port
+                    var answer = "WEB-SSL-Server was started successfully and is listening on Port: " + that.config.port + "/tcp"
                     if (callback && typeof callback == 'function') {
                         await callback("", answer);
                         resolve();

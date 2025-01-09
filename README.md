@@ -15,7 +15,7 @@ BubbleDNS is a self-hosted Dynamic DNS (DDNS) service similar to DynDNS or NO-IP
 * A domain where the Registrar allows setting the NS Records (Like Namcheap).
 * A server with (Nodejs, Mariadb and Apache) OR (~Docker~ coming soon). The following installation refers to Debian / Ubuntu.
 * Open the following ports:
-    * 53/udp
+    * 53/udp & tcp
     * 80/tcp
     * 443/tcp
 

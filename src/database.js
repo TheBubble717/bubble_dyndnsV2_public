@@ -1,6 +1,5 @@
 "use strict";
 import { addfunctions } from "./addfunctions.js";
-import { objectsanitizer } from "./bubble_expressescape_library.js"
 import { classdata } from './main.js';
 import https from 'node:https'
 import * as mysql from "mysql"

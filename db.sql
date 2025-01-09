@@ -192,7 +192,7 @@ insert into bubbledns_settings values("enable_register",true);
 insert into bubbledns_settings values("maindomain","<Main_Domain>");
 insert into bubbledns_settings values("allowuseageasrealproxy","false");
 insert into bubbledns_settings values("realdns_bantime","43200");
-insert into bubbledns_settings values("allowed_dnstype_questions","[`A`,`AAAA`,`CNAME`,`MX`,`NS`,`PTR`,`SRV`,`TXT`]");
+insert into bubbledns_settings values("allowed_dnstype_questions","[`A`,`AAAA`,`CNAME`,`MX`,`NS`,`TXT`]");
 insert into bubbledns_settings values("allowed_dnstype_entries_builtin","[`A`,`AAAA`]");
 insert into bubbledns_settings values("allowed_dnstype_entries_custom","[`A`,`AAAA`,`CNAME`,`MX`,`TXT`]");
 insert into bubbledns_settings values("newServer","true");
