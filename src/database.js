@@ -400,6 +400,7 @@ class mysqlclass {
                                 resolve()
                             }
                             else {
+                                that.log.addlog(`BubbleDNS is at the newest version available.`, { color: "green", warn: "Updatecheck-Info", level: 2 })
                                 resolve()
                             }
                             return;

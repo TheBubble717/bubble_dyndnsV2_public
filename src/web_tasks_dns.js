@@ -4,7 +4,7 @@ import { classdata } from './main.js';
 
 var tasks =
 {
-    //Rewritten+
+    
     "dnsentry_update":
     {
         description: "Update a DNS Entry of the Domain",
@@ -33,7 +33,7 @@ var tasks =
 
     },
 
-    //Rewritten+
+    
     "dnsentry_delete":
     {
         description: "Delete a DNS Entry of the Domain",
@@ -61,7 +61,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "dnsentry_create":
     {
         description: "Create a DNS Entry of the Domain",
@@ -90,7 +90,7 @@ var tasks =
 
     },
 
-    //Rewritten+
+    
     "domain_list_owner":
     {
         description: "Get all Domains the user ownes (also the dnsentries and sharelist)",
@@ -112,7 +112,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "domain_list_shared":
     {
         description: "Get all Domains the user got shared (also the dnsentries and empty sharelist)",
@@ -134,7 +134,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "domain_create":
     {
         description: "Create a new Domain",
@@ -171,7 +171,7 @@ var tasks =
 
     },
 
-    //Rewritten+
+    
     "domain_delete":
     {
         description: "Delete a Domain",
@@ -200,7 +200,7 @@ var tasks =
 
     },
 
-    //Rewritten+
+    
     "domain_verify":
     {
         description: "Verify a Domain",
@@ -236,7 +236,7 @@ var tasks =
 
     },
 
-    //Rewritten+
+    
     "domain_share_adduser":
     {
         description: "Share a Domain with a User",
@@ -281,7 +281,7 @@ var tasks =
 
     },
 
-    //Rewritten+
+    
     "domain_share_deleteuser":
     {
         description: "Delete your Domain share of a specific user (deleting all of his dnsentries too)",
@@ -325,7 +325,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "dns_get_bubblednsservers":
     {
         description: "Get the BubbleDNS-Servers",
@@ -347,7 +347,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "dns_get_allowed_dnstype_entries":
     {
         description: "dns_get_allowed_dnstype_entries",
@@ -374,7 +374,7 @@ var tasks =
 
 export { tasks, pretask }
 
-//Rewritten+
+
 async function pretask(req, res, callback) {
 
     //Get ipv4-Address of the user.

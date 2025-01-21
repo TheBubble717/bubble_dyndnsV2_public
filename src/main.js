@@ -208,6 +208,7 @@ async function errorhandling(){
             logstoshutdown.forEach(element => {
                 element.em.emit("exit")
             });
+            await addfunctions.waittime(1);
         } catch (err) {
             console.error("Error during shutdown:", err);
         }

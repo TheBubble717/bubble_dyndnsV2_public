@@ -5,7 +5,7 @@ import { classdata } from './main.js';
 
 var tasks =
 {
-    //Rewritten+
+    
     "auth_register":
     {
         description: "Register an Account on the site",
@@ -36,7 +36,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "auth_login":
     {
         description: "Login on the site",
@@ -70,7 +70,7 @@ var tasks =
 
     },
 
-    //Rewritten+
+    
     "req_passwordreset":
     {
         description: "Request a Password Reset via Mailaddress",

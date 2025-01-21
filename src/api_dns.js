@@ -9,15 +9,19 @@ class apiclass_dns {
         this.log = log
     }
 
-    //Rewritten+
+    
     async dnsentry_update(user, dnsentry) {
         var that = this;
         //Check if everything that's needed in dnsentry is set
-        let requiredFields = { "entryname": "string", "entryvalue": ["string", "number"], "entrytype": "string", "domainid": "number", "id": "number" };
-        dnsentry = addfunctions.objectconverter(dnsentry)
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsentry)
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+        {
+
+
+            let requiredFields = { "entryname": "string", "entryvalue": ["string", "number"], "entrytype": "string", "domainid": "number", "id": "number" };
+            dnsentry = addfunctions.objectconverter(dnsentry)
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsentry)
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
         }
 
         //Entryname is always lowercase
@@ -25,60 +29,48 @@ class apiclass_dns {
 
 
         //Check if the dns_entry exists and user is it's owner
-        try {
+        {
             let dnsentryfromdb = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where ownerid = ? and id = ?`, [user.get_user_public().id, dnsentry.id]);
             if (!dnsentryfromdb.length) {
                 return ({ "success": false, "msg": "Error updating DNS-Entry, Entry not found" })
             }
         }
-        catch (err) {
-            throw err;
-        }
 
         //Check if DNS-Entry is free
-        try {
+        {
             let testvalue = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where entryname = ? and domainid = ? and ownerid != ?`, [dnsentry.entryname, dnsentry.domainid, user.get_user_public().id]);
             if (testvalue.length) {
                 return ({ "success": false, "msg": "DNS-Entry is already in use by a user" })
             }
         }
-        catch (err) {
-            throw err;
-        }
 
         //Check if there is already a CNAME Entry for the same dnsentry with a different id
-        try {
+        {
             let testvalue = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where entryname = ? and entrytype=? and domainid = ? and id != ?`, [dnsentry.entryname, "CNAME", dnsentry.domainid, dnsentry.id]);
             if (testvalue.length) {
                 return ({ "success": false, "msg": "A DNS-Entry already exists for this subdomain with a CNAME record!" })
             }
         }
-        catch (err) {
-            throw err;
-        }
 
         //Check if DNS-Entry is in banned
-        try {
+        {
             let domaindata = await classdata.db.databasequerryhandler_secure(`select * from domains where id = ?`, [dnsentry.domainid]);
             let banlist = []
             let banlist1 = await classdata.db.databasequerryhandler_secure(`select * from subdomains_banned_all`, []);
             let banlist2 = []
             //No Recursive Subdomains (like bubbledns.com.bubbledns.com)
-            let banlist3 = [{"subdomainname":domaindata[0].domainname}]
+            let banlist3 = [{ "subdomainname": domaindata[0].domainname }]
 
             if (domaindata[0].builtin) {
                 banlist2 = await classdata.db.databasequerryhandler_secure(`select * from subdomains_banned_builtin`, [])
             }
-            banlist = [...banlist1, ...banlist2,...banlist3]
+            banlist = [...banlist1, ...banlist2, ...banlist3]
             //True=ban, false=OK
             let testvalue = banlist.some(banned => dnsentry.entryname.includes(banned.subdomainname))
             if (testvalue) {
                 return ({ "success": false, "msg": "DNS-Entry-Name in banned list" })
             }
 
-        }
-        catch (err) {
-            throw err;
         }
 
         //Check if dnsentry.entryname is at least 4 characters long
@@ -105,7 +97,7 @@ class apiclass_dns {
         }
 
         //Check if entrytype is allowed to save
-        try {
+        {
             let domain = await classdata.db.databasequerryhandler_secure(`select * from domains where id=?`, [dnsentry.domainid]);
             if (domain[0].builtin && !classdata.db.routinedata.bubbledns_settings.allowed_dnstype_entries_builtin.includes(dnsentry.entrytype)) {
                 return ({ "success": false, "msg": "DNS-Type not allowed" });
@@ -114,96 +106,81 @@ class apiclass_dns {
                 return ({ "success": false, "msg": "DNS-Type not allowed" });
             }
         }
-        catch (err) {
-            throw err;
-        }
+
 
         let time = addfunctions.current_time()
         let currenttime = `${time.year}-${time.month}-${time.day} ${time.hour}:${time.min}:${time.sec}`
 
-        try {
-            const databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE dns_entries SET entryname = ?,entryvalue = ? ,entrytype = ? , lastchangedtime = ? where id = ? and ownerid = ?`, [dnsentry.entryname, dnsentry.entryvalue, dnsentry.entrytype, currenttime, dnsentry.id, user.get_user_public().id]);
-            if (databaseupdate.affectedRows === 1) {
-                return ({ "success": true, "data": "Done" })
-            }
-            else {
-                return ({ "success": false, "msg": "Databaseupdate failed" })
-            }
+        const databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE dns_entries SET entryname = ?,entryvalue = ? ,entrytype = ? , lastchangedtime = ? where id = ? and ownerid = ?`, [dnsentry.entryname, dnsentry.entryvalue, dnsentry.entrytype, currenttime, dnsentry.id, user.get_user_public().id]);
+        if (databaseupdate.affectedRows === 1) {
+            return ({ "success": true, "data": "Done" })
         }
-        catch (err) {
-            throw err;
+        else {
+            return ({ "success": false, "msg": "Databaseupdate failed" })
         }
     }
 
-    //Rewritten+
+    
     async dnsentry_delete(user, dnsentry) {
         var that = this;
 
         //Check if everything that's needed in dnsentry is set
-        let requiredFields = { "id": "number" };
-        dnsentry = addfunctions.objectconverter(dnsentry)
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsentry)
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
-        }
 
-        try {
-            const databaseupdate = await classdata.db.databasequerryhandler_secure(`DELETE FROM dns_entries where ownerid = ? and id = ?`, [user.get_user_public().id, dnsentry.id]);
-            if (databaseupdate.affectedRows === 1) {
-                return ({ "success": true, "data": "Done" })
-            }
-            else {
-                return ({ "success": false, "msg": "Databaseupdate failed" })
-            }
-        }
-        catch (err) {
-            throw err;
-        }
-    }
-
-    //Rewritten+
-    async dnsentry_list(user, dnsentry = null) {
-        var that = this;
-
-        if (dnsentry == null) {
-            try {
-                const databaseupdate = await classdata.db.databasequerryhandler_secure(`SELECT * FROM dns_entries where ownerid = ?`, [user.get_user_public().id]);
-                return { "success": true, "data": databaseupdate }
-            }
-            catch (err) {
-                throw err;
-            }
-        }
-        else {
-
-            //Check if everything that's needed in dnsentry is set
+        {
             let requiredFields = { "id": "number" };
             dnsentry = addfunctions.objectconverter(dnsentry)
             let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsentry)
             if (!check_for_correct_datatype.success) {
                 return ({ "success": false, "msg": check_for_correct_datatype.msg })
             }
+        }
 
-            try {
-                const databaseupdate = await classdata.db.databasequerryhandler_secure(`SELECT * FROM dns_entries where ownerid = ? and id = ?`, [user.get_user_public().id, dnsentry.id]);
-                return { "success": true, "data": databaseupdate }
-            }
-            catch (err) {
-                throw err;
-            }
+        const databaseupdate = await classdata.db.databasequerryhandler_secure(`DELETE FROM dns_entries where ownerid = ? and id = ?`, [user.get_user_public().id, dnsentry.id]);
+        if (databaseupdate.affectedRows === 1) {
+            return ({ "success": true, "data": "Done" })
+        }
+        else {
+            return ({ "success": false, "msg": "Databaseupdate failed" })
         }
     }
 
-    //Rewritten+
+    
+    async dnsentry_list(user, dnsentry = null) {
+        var that = this;
+
+        if (dnsentry == null) {
+            const databaseupdate = await classdata.db.databasequerryhandler_secure(`SELECT * FROM dns_entries where ownerid = ?`, [user.get_user_public().id]);
+            return { "success": true, "data": databaseupdate }
+        }
+        else {
+
+            //Check if everything that's needed in dnsentry is set
+            {
+                let requiredFields = { "id": "number" };
+                dnsentry = addfunctions.objectconverter(dnsentry)
+                let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsentry)
+                if (!check_for_correct_datatype.success) {
+                    return ({ "success": false, "msg": check_for_correct_datatype.msg })
+                }
+            }
+
+            const databaseupdate = await classdata.db.databasequerryhandler_secure(`SELECT * FROM dns_entries where ownerid = ? and id = ?`, [user.get_user_public().id, dnsentry.id]);
+            return { "success": true, "data": databaseupdate }
+        }
+    }
+
+    
     async dnsentry_create(user, dnsentry) {
         var that = this;
 
         //Check if everything that's needed in dnsentry is set
-        let requiredFields = { "entryname": "string", "entryvalue": ["string", "number"], "entrytype": "string", "domainid": "number" };
-        dnsentry = addfunctions.objectconverter(dnsentry)
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsentry)
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+        {
+            let requiredFields = { "entryname": "string", "entryvalue": ["string", "number"], "entrytype": "string", "domainid": "number" };
+            dnsentry = addfunctions.objectconverter(dnsentry)
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsentry)
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
         }
 
         //Entryname is always lowercase
@@ -211,7 +188,7 @@ class apiclass_dns {
 
 
         //Check if user is allowed to use the domainname or is the owner
-        try {
+        {
             let testvalue1 = await classdata.db.databasequerryhandler_secure(`select * from domains where id = ? AND (ownerid = ? OR builtin = ?) AND isregistered = ?;`, [dnsentry.domainid, user.get_user_public().id, true, true]);
             let testvalue2 = await classdata.db.databasequerryhandler_secure(`select * from domains_share where domainid = ? AND userid = ?`, [dnsentry.domainid, user.get_user_public().id]);
             let isallowedtouse = testvalue1.concat(testvalue2)
@@ -219,66 +196,51 @@ class apiclass_dns {
                 return ({ "success": false, "msg": "Domain doesn't exist or user is not the owner / not shared with you" })
             }
         }
-        catch (err) {
-            throw err;
-        }
 
 
         //Check if DNS-Entry is free
-        try {
+        {
             let testvalue = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where entryname = ? and domainid = ? and ownerid != ?`, [dnsentry.entryname, dnsentry.domainid, user.get_user_public().id]);
             if (testvalue.length) {
                 return ({ "success": false, "msg": "DNS-Entry is already in use by a user" })
             }
         }
-        catch (err) {
-            throw err;
-        }
 
         //Check if there is already a CNAME Entry for the same dnsentry
-        try {
+        {
             let testvalue = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where entryname = ? and entrytype=? and domainid = ?`, [dnsentry.entryname, "CNAME", dnsentry.domainid]);
             if (testvalue.length) {
                 return ({ "success": false, "msg": "A DNS-Entry already exists for this subdomain with a CNAME record!" })
             }
         }
-        catch (err) {
-            throw err;
-        }
 
         //Check if DNS-Entry-limit isn't reached already
-        try {
+        {
             let testvalue = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where ownerid = ?`, [user.get_user_public().id]);
             if (testvalue.length >= user.get_user_public().maxentries) {
                 return ({ "success": false, "msg": "DNS-Entry-Limit reached" })
             }
         }
-        catch (err) {
-            throw err;
-        }
 
         //Check if DNS-Entry is in banned
-        try {
+        {
             let domaindata = await classdata.db.databasequerryhandler_secure(`select * from domains where id = ?`, [dnsentry.domainid]);
             let banlist = []
             let banlist1 = await classdata.db.databasequerryhandler_secure(`select * from subdomains_banned_all`, []);
             let banlist2 = []
             //No Recursive Subdomains (like bubbledns.com.bubbledns.com)
-            let banlist3 = [{"subdomainname":domaindata[0].domainname}]
+            let banlist3 = [{ "subdomainname": domaindata[0].domainname }]
 
             if (domaindata[0].builtin) {
                 banlist2 = await classdata.db.databasequerryhandler_secure(`select * from subdomains_banned_builtin`, [])
             }
-            banlist = [...banlist1, ...banlist2,...banlist3]
+            banlist = [...banlist1, ...banlist2, ...banlist3]
             //True=ban, false=OK
             let testvalue = banlist.some(banned => dnsentry.entryname.includes(banned.subdomainname))
             if (testvalue) {
                 return ({ "success": false, "msg": "DNS-Entry-Name in banned list" })
             }
 
-        }
-        catch (err) {
-            throw err;
         }
 
         //Check if dnsentry.entryname is at least 4 characters long
@@ -306,7 +268,7 @@ class apiclass_dns {
 
 
         //Check if entrytype is allowed to save
-        try {
+        {
             let domain = await classdata.db.databasequerryhandler_secure(`select * from domains where id=?`, [dnsentry.domainid]);
             if (domain[0].builtin && !classdata.db.routinedata.bubbledns_settings.allowed_dnstype_entries_builtin.includes(dnsentry.entrytype)) {
                 return ({ "success": false, "msg": "DNS-Type not allowed" });
@@ -315,40 +277,27 @@ class apiclass_dns {
                 return ({ "success": false, "msg": "DNS-Type not allowed" });
             }
         }
-        catch (err) {
-            throw err;
-        }
 
 
         //Find free id for the subdomain
-        try {
-            do {
-                var randomid = addfunctions.randomidf()
-                var answer = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where id = ?`, [randomid]);
-            }
-            while (answer && answer.length)
+        do {
+            var randomid = addfunctions.randomidf()
+            var answer = await classdata.db.databasequerryhandler_secure(`select * from dns_entries where id = ?`, [randomid]);
+        }
+        while (answer && answer.length)
 
-        }
-        catch (err) {
-            throw err;
-        }
 
         //Add
         //Get current time
         let time = addfunctions.current_time()
         let currenttime = `${time.year}-${time.month}-${time.day} ${time.hour}:${time.min}:${time.sec}`
 
-        try {
-            await classdata.db.databasequerryhandler_secure(`INSERT INTO dns_entries VALUES (?,?,?,?,?,?,?)`, [randomid, user.get_user_public().id, dnsentry.domainid, currenttime, dnsentry.entryname, dnsentry.entryvalue, dnsentry.entrytype]);
-            return ({ "success": true, "data": "Done" })
-        }
-        catch (err) {
-            throw err;
-        }
+        await classdata.db.databasequerryhandler_secure(`INSERT INTO dns_entries VALUES (?,?,?,?,?,?,?)`, [randomid, user.get_user_public().id, dnsentry.domainid, currenttime, dnsentry.entryname, dnsentry.entryvalue, dnsentry.entrytype]);
+        return ({ "success": true, "data": "Done" })
 
     }
 
-    //Rewritten+
+    
     async domain_list_owner(user, domain = null) //Domainnames the user is the owner of //If domainid is set, only query this specific domainid
     {
         var that = this;
@@ -370,11 +319,13 @@ class apiclass_dns {
         else {
 
             //Check if everything that's needed in dnsentry is set
-            let requiredFields = { "id": "number" };
-            domain = addfunctions.objectconverter(domain)
-            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, domain)
-            if (!check_for_correct_datatype.success) {
-                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            {
+                let requiredFields = { "id": "number" };
+                domain = addfunctions.objectconverter(domain)
+                let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, domain)
+                if (!check_for_correct_datatype.success) {
+                    return ({ "success": false, "msg": check_for_correct_datatype.msg })
+                }
             }
 
             var databeentryofdomains = await classdata.db.databasequerryhandler_secure(`select * from domains where ownerid=? AND id=? AND isregistered=?`, [user.get_user_public().id, domain.id, true])
@@ -389,7 +340,7 @@ class apiclass_dns {
 
     }
 
-    //Rewritten+
+    
     async domain_list_shared(user, domain = null) //Domainnames the user got share of
     {
         var that = this;
@@ -412,11 +363,13 @@ class apiclass_dns {
         else {
 
             //Check if everything that's needed in dnsentry is set
-            let requiredFields = { "id": "number" };
-            domain = addfunctions.objectconverter(domain)
-            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, domain)
-            if (!check_for_correct_datatype.success) {
-                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            {
+                let requiredFields = { "id": "number" };
+                domain = addfunctions.objectconverter(domain)
+                let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, domain)
+                if (!check_for_correct_datatype.success) {
+                    return ({ "success": false, "msg": check_for_correct_datatype.msg })
+                }
             }
 
             var promise1 = classdata.db.databasequerryhandler_secure(`select domains.* from domains INNER JOIN domains_share on domains_share.domainid = domains.id where domains_share.userid=? AND domains.isregistered=?`, [user.get_user_public().id, domain.id, true])
@@ -430,14 +383,16 @@ class apiclass_dns {
         }
     }
 
-    //Rewritten+
+    
     async domain_create(user, domain) {
         var that = this;
-        let requiredFields = { "domainname": "string" };
-        domain = addfunctions.objectconverter(domain)
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, domain)
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+        {
+            let requiredFields = { "domainname": "string" };
+            domain = addfunctions.objectconverter(domain)
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, domain)
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
         }
 
         //Domainname is always lowercase
@@ -451,7 +406,7 @@ class apiclass_dns {
         var reregistering = false //if the domain already exists in the database and gets reactivated!
 
         //Check if domain is free
-        try {
+        {
             let testvalue = await classdata.db.databasequerryhandler_secure(`select * from domains where domainname = ?`, [domain.domainname]);
             if (testvalue.length) {
                 if (!testvalue[0].isregistered && (testvalue[0].ownerid == user.get_user_public().id)) {
@@ -463,50 +418,32 @@ class apiclass_dns {
 
             }
         }
-        catch (err) {
-            throw err;
-        }
-
         if (!reregistering) {
 
             //Check if domain-limit isn't reached already
-            try {
+            {
                 let testvalue = await classdata.db.databasequerryhandler_secure(`select * from domains where ownerid = ?`, [user.get_user_public().id]);
                 if (testvalue.length >= user.get_user_public().maxdomains) {
                     return ({ "success": false, "msg": "Domain-Limit reached" })
                 }
             }
-            catch (err) {
-                throw err;
-            }
 
             //Find free id for the domain
-            try {
-                do {
-                    var randomid = addfunctions.randomidf()
-                    var answer = await classdata.db.databasequerryhandler_secure(`select * from domains where id = ?`, [randomid]);
-                }
-                while (answer && answer.length)
-
+            do {
+                var randomid = addfunctions.randomidf()
+                var answer = await classdata.db.databasequerryhandler_secure(`select * from domains where id = ?`, [randomid]);
             }
-            catch (err) {
-                throw err;
-            }
+            while (answer && answer.length)
 
             //Add
-            try {
-                let domaindata = { "id": randomid, "ownerid": user.get_user_public().id, "name": domain.domainname, "verified": 0, verificationdate: null }
-                var databaseupdate = await classdata.db.databasequerryhandler_secure(`INSERT INTO domains VALUES (?,?,?,?,?,?,?,?,?)`, [domaindata.id, false, domaindata.ownerid, domaindata.name, domaindata.verified, domaindata.verificationdate, null, null, true]);
-                return ({ "success": true, "data": domaindata })
-            }
-            catch (err) {
-                throw err;
-            }
+            let domaindata = { "id": randomid, "ownerid": user.get_user_public().id, "name": domain.domainname, "verified": 0, verificationdate: null }
+            var databaseupdate = await classdata.db.databasequerryhandler_secure(`INSERT INTO domains VALUES (?,?,?,?,?,?,?,?,?)`, [domaindata.id, false, domaindata.ownerid, domaindata.name, domaindata.verified, domaindata.verificationdate, null, null, true]);
+            return ({ "success": true, "data": domaindata })
         }
         else {
 
             //Get old Data from Database and update the entry
-            try {
+            {
                 var olddomaindata = await classdata.db.databasequerryhandler_secure(`select * from domains where domainname = ?`, [domain.domainname]);
                 let domaindata = { "id": olddomaindata[0].id, "ownerid": olddomaindata[0].ownerid, "name": olddomaindata[0].domainname, "verified": olddomaindata[0].verified, verificationdate: olddomaindata[0].verified }
                 var databaseupdate = await classdata.db.databasequerryhandler_secure(`update domains set isregistered =? where id= ?`, [true, olddomaindata[0].id]);
@@ -517,22 +454,21 @@ class apiclass_dns {
                     return ({ "success": false, "msg": "Databaseupdate failed" })
                 }
             }
-            catch (err) {
-                throw err;
-            }
         }
 
     }
 
-    //Rewritten+
+    
     async domain_delete(user, domaintodelete) {
         var that = this;
 
-        let requiredFields = { "id": "number" };
-        domaintodelete = addfunctions.objectconverter(domaintodelete)
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, domaintodelete)
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+        {
+            let requiredFields = { "id": "number" };
+            domaintodelete = addfunctions.objectconverter(domaintodelete)
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, domaintodelete)
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
         }
 
         var domainfromdbtodelete = await classdata.db.databasequerryhandler_secure(`select * from domains where ownerid = ? and id = ?`, [user.get_user_public().id, domaintodelete.id]);
@@ -545,16 +481,18 @@ class apiclass_dns {
         }
     }
 
-    //Rewritten+
+    
     async domain_verify(user, domaintoverify)  //Verify
     {
         var that = this;
 
-        let requiredFields = { "id": "number" };
-        domaintoverify = addfunctions.objectconverter(domaintoverify)
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, domaintoverify)
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+        {
+            let requiredFields = { "id": "number" };
+            domaintoverify = addfunctions.objectconverter(domaintoverify)
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, domaintoverify)
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
         }
 
         //Check if specific domain exists, user is the owner and the domain is currently registered -> Get the data of it.
@@ -629,65 +567,53 @@ class apiclass_dns {
         var currenttime = `${time.year}-${time.month}-${time.day} ${time.hour}:${time.min}:${time.sec}`
 
         //Get old Data from Database and update the entry
-        try {
-            var databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE domains set verified = ?, verificationdate= ?, lastverificationresult1= ?, lastverificationresult2= ? where id = ? and ownerid = ?`, [verified, currenttime, `${verificationresult[0].ip} - ${verificationresult[0].status}`, `${verificationresult[1].ip} - ${verificationresult[1].status}`, domaintoverify.id, user.get_user_public().id]);
-            if (databaseupdate.affectedRows > 0) {
-                return ({ "success": true, "data": { "ns1": `${verificationresult[0].ip} - ${verificationresult[0].status}`, "ns2": `${verificationresult[1].ip} - ${verificationresult[0].status}`, "verificationsuccess": verified, "verificationdate": currenttime } })
-            }
-            else {
-                return ({ "success": false, "msg": "Unable to update the verification updates" })
-            }
+        var databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE domains set verified = ?, verificationdate= ?, lastverificationresult1= ?, lastverificationresult2= ? where id = ? and ownerid = ?`, [verified, currenttime, `${verificationresult[0].ip} - ${verificationresult[0].status}`, `${verificationresult[1].ip} - ${verificationresult[1].status}`, domaintoverify.id, user.get_user_public().id]);
+        if (databaseupdate.affectedRows > 0) {
+            return ({ "success": true, "data": { "ns1": `${verificationresult[0].ip} - ${verificationresult[0].status}`, "ns2": `${verificationresult[1].ip} - ${verificationresult[0].status}`, "verificationsuccess": verified, "verificationdate": currenttime } })
         }
-        catch (err) {
-            throw err;
+        else {
+            return ({ "success": false, "msg": "Unable to update the verification updates" })
         }
 
     }
 
-    //Rewritten+
+    
     async domain_share_adduser(user, domainid, mailaddress) { //Add the mailaddress to the allowed list of the domain
         var that = this;
 
-        let requiredFields = { "domainid": "number", "mailaddress": "string" };
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, { "domainid": domainid, "mailaddress": mailaddress })
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+        {
+            let requiredFields = { "domainid": "number", "mailaddress": "string" };
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, { "domainid": domainid, "mailaddress": mailaddress })
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
         }
 
         //Check if user is the owner of the domain
-        try {
+        {
             let testvalue = await classdata.db.databasequerryhandler_secure(`select * from domains where ownerid = ? AND id = ? AND isregistered=?`, [user.get_user_public().id, domainid, true]);
             if (!testvalue.length) {
                 return ({ "success": false, "msg": "Domain was not found!" })
             }
         }
-        catch (err) {
-            throw err;
-        }
 
 
 
         //Fetch the userdata from the userid
-        try {
+        {
             var toadduser = await classdata.db.databasequerryhandler_secure(`select * from users where mailaddress=?`, [mailaddress]);
             if (!toadduser.length) {
                 return ({ "success": false, "msg": "User not found!" })
             }
         }
-        catch (err) {
-            throw err;
-        }
 
 
         //Check if user is already in the shared list
-        try {
+        {
             let testvalue = await classdata.db.databasequerryhandler_secure(`select * from domains_share where domainid = ? and userid = ?`, [domainid, toadduser[0].id]);
             if (testvalue.length) {
                 return ({ "success": false, "msg": "User already in Share List" })
             }
-        }
-        catch (err) {
-            throw err;
         }
 
         //Check if toadduser is the owner of the domain
@@ -695,23 +621,20 @@ class apiclass_dns {
             return ({ "success": false, "msg": "You can't add yourself" })
         }
 
-        try {
-            await classdata.db.databasequerryhandler_secure(`INSERT INTO domains_share VALUES (?,?)`, [domainid, toadduser[0].id]);
-            return { "success": true, "data": "Done" }
-        }
-        catch (err) {
-            throw err;
-        }
+        await classdata.db.databasequerryhandler_secure(`INSERT INTO domains_share VALUES (?,?)`, [domainid, toadduser[0].id]);
+        return { "success": true, "data": "Done" }
     }
 
-    //Rewritten+
+    
     async domain_share_deleteuser(user, domainid, useridtodelete) {
         var that = this;
 
-        let requiredFields = { "domainid": "number", "useridtodelete": "number" };
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, { "domainid": domainid, "useridtodelete": useridtodelete })
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+        {
+            let requiredFields = { "domainid": "number", "useridtodelete": "number" };
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, { "domainid": domainid, "useridtodelete": useridtodelete })
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
         }
 
         //Check if User is the owner
@@ -738,7 +661,7 @@ class apiclass_dns {
         }
     }
 
-    //Rewritten+
+    
     async dns_get_bubblednsservers() {
         var that = this;
         var dnsservers = {
@@ -758,7 +681,7 @@ class apiclass_dns {
         return ({ "success": true, "data": dnsservers })
     }
 
-    //Rewritten+
+    
     async dns_get_allowed_dnstype_entries() {
         return ({ "success": true, "data": { "bulitin": classdata.db.routinedata.bubbledns_settings.allowed_dnstype_entries_builtin, "custom": classdata.db.routinedata.bubbledns_settings.allowed_dnstype_entries_custom } })
 

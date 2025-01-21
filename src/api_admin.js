@@ -9,80 +9,76 @@ class apiclass_admin {
         this.log = log
     }
 
-    //Rewritten+
+    
     async dns_upstream_servers_list() {
-        try {
-            var result = await classdata.db.databasequerryhandler_secure(`select * from dns_upstreamservers`, [])
-            return { success: true, data: result };
-        }
-        catch (err) {
-            throw err;
-        }
+        var result = await classdata.db.databasequerryhandler_secure(`select * from dns_upstreamservers`, [])
+        return { success: true, data: result };
+
 
     }
 
-    //Rewritten+
+    
     async dns_upstream_servers_enabledisable(dnsupstreamserver) {
         var that = this;
 
-        let requiredFields = { "id": "number" };
-        dnsupstreamserver = addfunctions.objectconverter(dnsupstreamserver)
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsupstreamserver)
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+        //Check if everything that's needed in dnsupstreamserver is set
+        {
+            let requiredFields = { "id": "number" };
+            dnsupstreamserver = addfunctions.objectconverter(dnsupstreamserver)
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsupstreamserver)
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
         }
 
-        try {
-            const databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE dns_upstreamservers SET enabled = NOT enabled where id=?`, [dnsupstreamserver.id]);
-            if (databaseupdate.affectedRows === 1) {
-                return ({ "success": true, "data": "Done" })
-            }
-            else {
-                return ({ "success": false, "msg": "Databaseupdate failed" })
-            }
+        const databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE dns_upstreamservers SET enabled = NOT enabled where id=?`, [dnsupstreamserver.id]);
+        if (databaseupdate.affectedRows === 1) {
+            return ({ "success": true, "data": "Done" })
         }
-        catch (err) {
-            throw err;
+        else {
+            return ({ "success": false, "msg": "Databaseupdate failed" })
         }
 
 
     }
 
-    //Rewritten+
+    
     async dns_upstream_servers_delete(dnsupstreamserver) {
         var that = this;
 
-        let requiredFields = { "id": "number" };
-        dnsupstreamserver = addfunctions.objectconverter(dnsupstreamserver)
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsupstreamserver)
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+        //Check if everything that's needed in dnsupstreamserver is set
+        {
+            let requiredFields = { "id": "number" };
+            dnsupstreamserver = addfunctions.objectconverter(dnsupstreamserver)
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsupstreamserver)
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
         }
 
-        try {
-            const databaseupdate = await classdata.db.databasequerryhandler_secure(`DELETE FROM dns_upstreamservers where id=?`, [dnsupstreamserver.id]);
-            if (databaseupdate.affectedRows === 1) {
-                return ({ "success": true, "data": "Done" })
-            }
-            else {
-                return ({ "success": false, "msg": "Databaseupdate failed" })
-            }
+        const databaseupdate = await classdata.db.databasequerryhandler_secure(`DELETE FROM dns_upstreamservers where id=?`, [dnsupstreamserver.id]);
+        if (databaseupdate.affectedRows === 1) {
+            return ({ "success": true, "data": "Done" })
         }
-        catch (err) {
-            throw err;
+        else {
+            return ({ "success": false, "msg": "Databaseupdate failed" })
         }
+
 
     }
 
-    //Rewritten+
+    
     async dns_upstream_servers_create(dnsupstreamserver) {
         var that = this;
 
-        let requiredFields = { "address": "string" };
-        dnsupstreamserver = addfunctions.objectconverter(dnsupstreamserver)
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsupstreamserver)
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+        //Check if everything that's needed in dnsupstreamserver is set
+        {
+            let requiredFields = { "address": "string" };
+            dnsupstreamserver = addfunctions.objectconverter(dnsupstreamserver)
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, dnsupstreamserver)
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
         }
 
         if (!addfunctions.isIPv4(dnsupstreamserver.address)) {
@@ -90,64 +86,47 @@ class apiclass_admin {
         }
 
         //Find free id for the server
-        try {
-            do {
-                var randomid = addfunctions.randomidf()
-                var answer = await classdata.db.databasequerryhandler_secure(`select * from dns_upstreamservers where id=?`, [randomid]);
-            }
-            while (answer && answer.length)
-
+        do {
+            var randomid = addfunctions.randomidf()
+            var answer = await classdata.db.databasequerryhandler_secure(`select * from dns_upstreamservers where id=?`, [randomid]);
         }
-        catch (err) {
-            throw err;
-        }
+        while (answer && answer.length)
 
         //Check if Upstreamserver with that IP allready exists
-        try {
-            let results = await classdata.db.databasequerryhandler_secure(`select * from dns_upstreamservers where address = ?`, [dnsupstreamserver.address]);
-            if (results.length !== 0) {
-                return ({ "success": false, "msg": "IP-Address already exists" })
-            }
-        }
-        catch (err) {
-            throw err;
+        let results = await classdata.db.databasequerryhandler_secure(`select * from dns_upstreamservers where address = ?`, [dnsupstreamserver.address]);
+        if (results.length !== 0) {
+            return ({ "success": false, "msg": "IP-Address already exists" })
         }
 
-        try {
-            const databaseupdate = await classdata.db.databasequerryhandler_secure(`INSERT into dns_upstreamservers values (?,true,?,NULL,0)`, [randomid, dnsupstreamserver.address]);
-            if (databaseupdate.affectedRows === 1) {
-                return ({ "success": true, "data": "Done" })
-            }
-            else {
-                return ({ "success": false, "msg": "Databaseupdate failed" })
-            }
+        const databaseupdate = await classdata.db.databasequerryhandler_secure(`INSERT into dns_upstreamservers values (?,true,?,NULL,0)`, [randomid, dnsupstreamserver.address]);
+        if (databaseupdate.affectedRows === 1) {
+            return ({ "success": true, "data": "Done" })
         }
-        catch (err) {
-            throw err;
+        else {
+            return ({ "success": false, "msg": "Databaseupdate failed" })
         }
 
     }
 
-    //Rewritten+
+    
     async bubbledns_servers_list() {
-        try {
-            var bubbledns_servers_from_db = await classdata.db.databasequerryhandler_secure("select * from bubbledns_servers", []);
-            var bubbledns_servers_from_db_virtual = await classdata.db.databasequerryhandler_secure("select * from bubbledns_servers_virtual", []);
-            return { success: true, data: [bubbledns_servers_from_db, bubbledns_servers_from_db_virtual] };
-        }
-        catch (err) {
-            throw err;
-        }
+        var bubbledns_servers_from_db = await classdata.db.databasequerryhandler_secure("select * from bubbledns_servers", []);
+        var bubbledns_servers_from_db_virtual = await classdata.db.databasequerryhandler_secure("select * from bubbledns_servers_virtual", []);
+        return { success: true, data: [bubbledns_servers_from_db, bubbledns_servers_from_db_virtual] };
     }
 
-    //Rewritten+
+    
     async bubbledns_servers_synctest(bubblednsservertotest) {
         var that = this;
-        let requiredFields = { "id": "number" };
-        bubblednsservertotest = addfunctions.objectconverter(bubblednsservertotest)
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsservertotest)
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+
+        //Check if everything that's needed in bubblednsservertotest is set
+        {
+            let requiredFields = { "id": "number" };
+            bubblednsservertotest = addfunctions.objectconverter(bubblednsservertotest)
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsservertotest)
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
         }
 
 
@@ -166,19 +145,16 @@ class apiclass_admin {
         if (bubblednsserver == classdata.db.routinedata.this_server) {
 
             //Should be looked in the future with multiple Masternodes
-            try {
-                let forcesynctesttruequery = await classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers set synctest=1 where id=?`, [bubblednsservertotest.id])
-                return ({ "success": false, "msg": "Server can't check itself, forcing Synctest=1" })
-            }
-            catch (err) {
-                throw err;
-            }
+            let forcesynctesttruequery = await classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers set synctest=1 where id=?`, [bubblednsservertotest.id])
+            return ({ "success": false, "msg": "Server can't check itself, forcing Synctest=1" })
         }
 
         var testdata = addfunctions.randomapif()
         var synctestresult = false;
         requesteddnsentry = {}
-        try {
+
+        //Create a random bubbledns_testvalue and check if the other bubbledns server returns it
+        {
             await classdata.db.databasequerryhandler_secure("insert into bubbledns_servers_testvalues values (?);", [testdata])
             await addfunctions.waittime(3);
             var requesteddnsentry = await classdata.dnsserver.askrealdns_customserver("synctest", "TXT", function () { if (bubblednsserver.public_ipv4 != null) { return bubblednsserver.public_ipv4 } else { return bubblednsserver.public_ipv6 } }())
@@ -191,32 +167,24 @@ class apiclass_admin {
                 })
 
         }
-        catch (err) {
-            throw err;
-        }
 
         if (requesteddnsentry.success == true) {
             synctestresult = requesteddnsentry.data.data.includes(testdata);
         }
 
 
-        try {
-            var promise1 = classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers set synctest =? where id = ? `, [synctestresult, bubblednsservertotest.id]);
-            var promise2 = classdata.db.databasequerryhandler_secure(`DELETE from bubbledns_servers_testvalues where testvalue = ?`, [testdata]);
-            const databaseupdate = await Promise.all([promise1, promise2])
-            if (synctestresult) {
-                return ({ "success": true, "data": "Done" })
-            }
-            else {
-                return ({ "success": false, "msg": "Synctest failed! Testvalue not returned!" })
-            }
+        var promise1 = classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers set synctest =? where id = ? `, [synctestresult, bubblednsservertotest.id]);
+        var promise2 = classdata.db.databasequerryhandler_secure(`DELETE from bubbledns_servers_testvalues where testvalue = ?`, [testdata]);
+        const databaseupdate = await Promise.all([promise1, promise2])
+        if (synctestresult) {
+            return ({ "success": true, "data": "Done" })
         }
-        catch (err) {
-            throw err;
+        else {
+            return ({ "success": false, "msg": "Synctest failed! Testvalue not returned!" })
         }
     }
 
-    //Rewritten+
+    
     async bubbledns_servers_create(bubblednsserver) {
         var that = this;
 
@@ -228,31 +196,34 @@ class apiclass_admin {
         }
 
         if (virtual) {
-            let requiredFields = { "subdomainname": "string", "bubblednsserverid": ["string", "number"] };
-            bubblednsserver = addfunctions.objectconverter(bubblednsserver)
-            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
-            if (!check_for_correct_datatype.success) {
-                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            {
+                //Check if everything that's needed in bubblednsserver is set
+                let requiredFields = { "subdomainname": "string", "bubblednsserverid": ["string", "number"] };
+                bubblednsserver = addfunctions.objectconverter(bubblednsserver)
+                let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
+                if (!check_for_correct_datatype.success) {
+                    return ({ "success": false, "msg": check_for_correct_datatype.msg })
+                }
             }
 
             //Check if the Bubbledns Server exists stated in bubblednsserverid
-            try {
+            {
                 let doesbubblednsserverexists = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers where id = ?`, [bubblednsserver.bubblednsserverid])
                 if (!doesbubblednsserverexists.length) {
                     return ({ "success": false, "msg": `BubbleDNS-Server with ID: ${bubblednsserver.bubblednsserverid} doesnt exist` })
                 }
             }
-            catch (err) {
-                throw err;
-            }
 
         }
         else {
-            let requiredFields = { "subdomainname": "string", "enabled_dns": ["boolean", "number"], "enabled_web": ["boolean", "number"], "public_ipv4": ["string", "null"], "public_ipv6": ["string", "null"], "internal_ipv4": ["string", "null"], "internal_ipv6": ["string", "null"], "masternode": ["boolean", "number"] };
-            bubblednsserver = addfunctions.objectconverter(bubblednsserver)
-            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
-            if (!check_for_correct_datatype.success) {
-                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            //Check if everything that's needed in bubblednsserver is set
+            {
+                let requiredFields = { "subdomainname": "string", "enabled_dns": ["boolean", "number"], "enabled_web": ["boolean", "number"], "public_ipv4": ["string", "null"], "public_ipv6": ["string", "null"], "internal_ipv4": ["string", "null"], "internal_ipv6": ["string", "null"], "masternode": ["boolean", "number"] };
+                bubblednsserver = addfunctions.objectconverter(bubblednsserver)
+                let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
+                if (!check_for_correct_datatype.success) {
+                    return ({ "success": false, "msg": check_for_correct_datatype.msg })
+                }
             }
 
             //Public: IPV4 & IPV6 check
@@ -290,51 +261,37 @@ class apiclass_admin {
         bubblednsserver.subdomainname = bubblednsserver.subdomainname.toLowerCase()
 
         //Find free id for the server
-        try {
-            do {
-                var randomid = addfunctions.randomidf()
-                var answer1 = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers where id=?`, [randomid]);
-                var answer2 = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers_virtual where id=?`, [randomid]);
-            }
-            while ((answer1 && answer1.length) || (answer2 && answer2.length))
-
+        do {
+            var randomid = addfunctions.randomidf()
+            var answer1 = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers where id=?`, [randomid]);
+            var answer2 = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers_virtual where id=?`, [randomid]);
         }
-        catch (err) {
-            throw err;
-        }
+        while ((answer1 && answer1.length) || (answer2 && answer2.length))
 
         //Check if subdomainname is still free
-        try {
+        {
             let preventdouble = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers where subdomainname = ?`, [bubblednsserver.subdomainname])
             let preventdouble2 = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers_virtual where subdomainname = ?`, [bubblednsserver.subdomainname])
             if (preventdouble.length || preventdouble2.length) {
                 return ({ "success": false, "msg": "Subdomainname already in use" })
             }
         }
-        catch (err) {
-            throw err;
-        }
 
-        try {
-            if (!virtual) {
-                var databaseupdate = await classdata.db.databasequerryhandler_secure(`INSERT into bubbledns_servers values (?,?,?,?,?,?,?,?,0,?)`, [randomid, bubblednsserver.subdomainname, bubblednsserver.enabled_dns, bubblednsserver.enabled_web, bubblednsserver.public_ipv4, bubblednsserver.public_ipv6, bubblednsserver.internal_ipv4, bubblednsserver.internal_ipv6, bubblednsserver.masternode]);
-            }
-            else {
-                var databaseupdate = await classdata.db.databasequerryhandler_secure(`INSERT into bubbledns_servers_virtual values (?,?,?)`, [randomid, bubblednsserver.subdomainname, bubblednsserver.bubblednsserverid]);
-            }
-            if (databaseupdate.affectedRows === 1) {
-                return ({ "success": true, "data": "Done" })
-            }
-            else {
-                return ({ "success": false, "msg": "Databaseupdate failed" })
-            }
+        if (!virtual) {
+            var databaseupdate = await classdata.db.databasequerryhandler_secure(`INSERT into bubbledns_servers values (?,?,?,?,?,?,?,?,0,?)`, [randomid, bubblednsserver.subdomainname, bubblednsserver.enabled_dns, bubblednsserver.enabled_web, bubblednsserver.public_ipv4, bubblednsserver.public_ipv6, bubblednsserver.internal_ipv4, bubblednsserver.internal_ipv6, bubblednsserver.masternode]);
         }
-        catch (err) {
-            throw err;
+        else {
+            var databaseupdate = await classdata.db.databasequerryhandler_secure(`INSERT into bubbledns_servers_virtual values (?,?,?)`, [randomid, bubblednsserver.subdomainname, bubblednsserver.bubblednsserverid]);
+        }
+        if (databaseupdate.affectedRows === 1) {
+            return ({ "success": true, "data": "Done" })
+        }
+        else {
+            return ({ "success": false, "msg": "Databaseupdate failed" })
         }
     }
 
-    //Rewritten+
+    
     async bubbledns_servers_update(bubblednsserver) {
         var that = this;
 
@@ -347,32 +304,35 @@ class apiclass_admin {
         }
 
         if (virtual) {
-            let requiredFields = { "id": "number", "subdomainname": "string", "bubblednsserverid": ["string", "number"] };
-            bubblednsserver = addfunctions.objectconverter(bubblednsserver)
-            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
-            if (!check_for_correct_datatype.success) {
-                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            //Check if everything that's needed in bubblednsserver is set
+            {
+                let requiredFields = { "id": "number", "subdomainname": "string", "bubblednsserverid": ["string", "number"] };
+                bubblednsserver = addfunctions.objectconverter(bubblednsserver)
+                let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
+                if (!check_for_correct_datatype.success) {
+                    return ({ "success": false, "msg": check_for_correct_datatype.msg })
+                }
             }
 
             //Check if the Bubbledns Server exists stated in bubblednsserverid
-            try {
+            {
                 let doesbubblednsserverexists = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers where id = ?`, [bubblednsserver.bubblednsserverid])
                 if (!doesbubblednsserverexists.length) {
                     return ({ "success": false, "msg": `BubbleDNS-Server with ID: ${bubblednsserver.bubblednsserverid} doesnt exist` })
                 }
             }
-            catch (err) {
-                throw err;
-            }
 
         }
         else {
 
-            let requiredFields = { "id": "number", "subdomainname": "string", "enabled_dns": ["boolean", "number"], "enabled_web": ["boolean", "number"], "public_ipv4": ["string", "null"], "public_ipv6": ["string", "null"], "internal_ipv4": ["string", "null"], "internal_ipv6": ["string", "null"], "masternode": ["boolean", "number"] };
-            bubblednsserver = addfunctions.objectconverter(bubblednsserver)
-            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
-            if (!check_for_correct_datatype.success) {
-                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            //Check if everything that's needed in bubblednsserver is set
+            {
+                let requiredFields = { "id": "number", "subdomainname": "string", "enabled_dns": ["boolean", "number"], "enabled_web": ["boolean", "number"], "public_ipv4": ["string", "null"], "public_ipv6": ["string", "null"], "internal_ipv4": ["string", "null"], "internal_ipv6": ["string", "null"], "masternode": ["boolean", "number"] };
+                bubblednsserver = addfunctions.objectconverter(bubblednsserver)
+                let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
+                if (!check_for_correct_datatype.success) {
+                    return ({ "success": false, "msg": check_for_correct_datatype.msg })
+                }
             }
 
 
@@ -411,61 +371,51 @@ class apiclass_admin {
         bubblednsserver.subdomainname = bubblednsserver.subdomainname.toLowerCase()
 
         //Check if subdomainname is still free
-        try {
+        {
             let preventdouble = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers where subdomainname = ? AND id != ?`, [bubblednsserver.subdomainname, bubblednsserver.id])
             let preventdouble2 = await classdata.db.databasequerryhandler_secure(`select * from bubbledns_servers_virtual where subdomainname = ? AND id != ?`, [bubblednsserver.subdomainname, bubblednsserver.id])
             if (preventdouble.length || preventdouble2.length) {
                 return ({ "success": false, "msg": "Subdomainname already in use" })
             }
         }
-        catch (err) {
-            throw err;
-        }
 
 
-        try {
-            if (!virtual) {
-                var databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers set subdomainname=?,enabled_dns=?,enabled_web=?,public_ipv4=?,public_ipv6=?,internal_ipv4=?,internal_ipv6=?,masternode=? where id =? `, [bubblednsserver.subdomainname, bubblednsserver.enabled_dns, bubblednsserver.enabled_web, bubblednsserver.public_ipv4, bubblednsserver.public_ipv6, bubblednsserver.internal_ipv4, bubblednsserver.internal_ipv6, bubblednsserver.masternode, bubblednsserver.id]);
-            }
-            else {
-                var databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers_virtual set subdomainname=?,bubblednsserverid=? where id=?`, [bubblednsserver.subdomainname, bubblednsserver.bubblednsserverid, bubblednsserver.id]);
-            }
-            if (databaseupdate.affectedRows === 1) {
-                return ({ "success": true, "data": "Done" });
-            }
-            else {
-                return ({ "success": false, "msg": "Databaseupdate failed" })
-            }
+        if (!virtual) {
+            var databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers set subdomainname=?,enabled_dns=?,enabled_web=?,public_ipv4=?,public_ipv6=?,internal_ipv4=?,internal_ipv6=?,masternode=? where id =? `, [bubblednsserver.subdomainname, bubblednsserver.enabled_dns, bubblednsserver.enabled_web, bubblednsserver.public_ipv4, bubblednsserver.public_ipv6, bubblednsserver.internal_ipv4, bubblednsserver.internal_ipv6, bubblednsserver.masternode, bubblednsserver.id]);
         }
-        catch (err) {
-            throw err;
+        else {
+            var databaseupdate = await classdata.db.databasequerryhandler_secure(`UPDATE bubbledns_servers_virtual set subdomainname=?,bubblednsserverid=? where id=?`, [bubblednsserver.subdomainname, bubblednsserver.bubblednsserverid, bubblednsserver.id]);
+        }
+        if (databaseupdate.affectedRows === 1) {
+            return ({ "success": true, "data": "Done" });
+        }
+        else {
+            return ({ "success": false, "msg": "Databaseupdate failed" })
         }
     }
 
-    //Rewritten+
+    
     async bubbledns_servers_delete(bubblednsserver) {
         var that = this;
 
-        let requiredFields = { "id": "number" };
-        bubblednsserver = addfunctions.objectconverter(bubblednsserver)
-        let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
-        if (!check_for_correct_datatype.success) {
-            return ({ "success": false, "msg": check_for_correct_datatype.msg })
+        //Check if everything that's needed in bubblednsserver is set
+        {
+            let requiredFields = { "id": "number" };
+            bubblednsserver = addfunctions.objectconverter(bubblednsserver)
+            let check_for_correct_datatype = addfunctions.check_for_correct_datatype(requiredFields, bubblednsserver)
+            if (!check_for_correct_datatype.success) {
+                return ({ "success": false, "msg": check_for_correct_datatype.msg })
+            }
         }
 
 
-        try {
-            const databaseupdate1 = await classdata.db.databasequerryhandler_secure(`DELETE FROM bubbledns_servers where id =?`, [bubblednsserver.id]);
-            const databaseupdate2 = await classdata.db.databasequerryhandler_secure(`DELETE FROM bubbledns_servers_virtual where id =?`, [bubblednsserver.id]);
-            if (databaseupdate1.affectedRows === 1 || databaseupdate2.affectedRows === 1) {
-                return ({ "success": true, "data": "Done" });
-            }
-            else {
-                return ({ "success": false, "msg": "Databaseupdate failed" })
-            }
+        const databaseupdate1 = await classdata.db.databasequerryhandler_secure(`DELETE FROM bubbledns_servers where id =?`, [bubblednsserver.id]);
+        const databaseupdate2 = await classdata.db.databasequerryhandler_secure(`DELETE FROM bubbledns_servers_virtual where id =?`, [bubblednsserver.id]);
+        if (databaseupdate1.affectedRows === 1 || databaseupdate2.affectedRows === 1) {
+            return ({ "success": true, "data": "Done" });
         }
-        catch (err) {
-            throw err;
+        else {
+            return ({ "success": false, "msg": "Databaseupdate failed" })
         }
     }
 

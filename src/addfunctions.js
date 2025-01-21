@@ -5,7 +5,7 @@ import fs from "fs"
 
 var addfunctions = {
 
-    //Rewritten+
+    
     randomidf: function () {
         var length = 7
         var result = '';
@@ -18,7 +18,7 @@ var addfunctions = {
         return result;
     },
 
-    //Rewritten+
+    
     randomapif: function () {
         var length = 95
         var result = '';
@@ -31,7 +31,7 @@ var addfunctions = {
         return result;
     },
 
-    //Rewritten+
+    
     randomcookief: function () {
         var length = 180
         var result = '';
@@ -44,7 +44,7 @@ var addfunctions = {
         return result;
     },
 
-    //Rewritten+
+    
     unixtime_to_local: function (unixtimestamp) {
         if (unixtimestamp === undefined) {
             var date = new Date();
@@ -73,7 +73,7 @@ var addfunctions = {
         return year + month + day + "-" + hour + min + sec;
     },
 
-    //Rewritten+
+    
     current_time: function () {
         var date = new Date();
         var hour = date.getHours();
@@ -106,23 +106,23 @@ var addfunctions = {
 
     },
 
-    //Rewritten+
+    
     isIPv4: function (str) {
         return net.isIPv4(str);
     },
 
-    //Rewritten+
+    
     isIPv6: function (str) {
         return net.isIPv6(str);
     },
 
-    //Rewritten+
+    
     isDomain: function (str) {
         const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/;
         return domainRegex.test(str);
     },
 
-    //Rewritten+
+    
     isTLDomain: function (domain) {
         const mainDomainRegex = /^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.[A-Za-z]{2,}$/;
         return mainDomainRegex.test(domain);
@@ -142,12 +142,12 @@ var addfunctions = {
 
     },
 
-    //Rewritten+
+    
     waittime: async function (s) {
         return new Promise(resolve => setTimeout(resolve, s * 1000));
     },
 
-    //Rewritten+
+    
     waittime_random: function (min, max) {
         return new Promise(resolve => {
             const delay = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -182,7 +182,7 @@ var addfunctions = {
         });
     },
 
-    //Rewritten+
+    
     check_for_correct_datatype(requiredFields, data, deleterest = true) {
         if (typeof data !== "object" || data === null) {
             return { "success": false, "msg": `Function received data not as object.` };
@@ -222,7 +222,7 @@ var addfunctions = {
         }
     },
 
-    //Rewritten+
+    
     check_dns_entry_validation: function(dnstype, dnsvalue) {
         switch (dnstype.toUpperCase()) {
             case 'A':
@@ -246,12 +246,12 @@ var addfunctions = {
         }
     },
 
-    //Rewritten+
+    
     objectconverter: function(obj) {
         return objectconverter_bubble_expressescape_library(obj)
     },
 
-    //Rewritten+
+    
     check_for_valid_user_entries: async function ({ mailaddress = null, password1 = null, password2 = null } = {}) {
 
             if (mailaddress !== null) {

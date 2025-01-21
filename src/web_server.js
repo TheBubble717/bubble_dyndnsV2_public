@@ -94,13 +94,22 @@ class webclass extends EventEmitter {
             that.expressserver.use(expressescape)
 
             that.expressserver.use('/website/admin', apilimiter, async function (req, res, next) {
-                let isadmin = await classdata.api.account.auth_isadmin_cookie(req.cookies.cookie)
-                if (isadmin) {
-                    next();
-                } else {
+                try
+                {
+                    let isadmin = await classdata.api.account.auth_isadmin_cookie(req.cookies.cookie)
+                    if (isadmin) {
+                        next();
+                    } else {
+                        res.status(403).send('Forbidden: You do not have access to this resource.');
+                        res.end();
+                    }
+                }
+                catch(err)
+                {
                     res.status(403).send('Forbidden: You do not have access to this resource.');
                     res.end();
                 }
+
             }, express.static(path.resolve('website/admin/')));
             that.expressserver.use('/website', express.static(path.resolve('website')))
             that.expressserver.use(function (err, req, res, next) { console.error(err.stack); res.status(500).send('Something broke!'); });
@@ -108,7 +117,7 @@ class webclass extends EventEmitter {
 
 
 
-            //Rewritten+
+            
             that.expressserver.post('/accapi*', apilimiter, async function (req, res) {
                 var responseclass = new api_responseclass(req, res)
 
@@ -134,7 +143,7 @@ class webclass extends EventEmitter {
 
             });
 
-            //Rewritten+
+            
             that.expressserver.post('/dnsapi*', apilimiter, async function (req, res) {
                 const responseclass = new api_responseclass(req, res);
 
@@ -159,7 +168,7 @@ class webclass extends EventEmitter {
 
             });
 
-            //Rewritten+
+            
             that.expressserver.post('/adminapi*', apilimiter, async function (req, res) {
                 var responseclass = new api_responseclass(req, res)
 
@@ -182,7 +191,7 @@ class webclass extends EventEmitter {
                 that.processWithLock(lockKey, taskProcessor, res, req, responseclass)
             });
 
-            //Rewritten+
+            
             that.expressserver.post('/autologin/', apilimiter, async function (req, res) {
                 var responseclass = new api_responseclass(req, res)
 
@@ -194,14 +203,20 @@ class webclass extends EventEmitter {
 
                 //Actual Auto-login
                 var cookie = req.body.cookie;
-                let user = await classdata.api.account.auth_cookie(cookie)
-                if (user.success) {
-                    user.data = user.data.get_user_personal()
-                }
-                responseclass.send(user)
+
+                await classdata.api.account.auth_cookie(cookie)
+                .then(function(user){
+                    if (user.success) {
+                        user.data = user.data.get_user_personal()
+                    }
+                    responseclass.send(user)
+                })
+                .catch(function (err) {responseclass.send({ success: false, msg: "Error Autologin, 500 Error" }, { statuscode: 500, err: err })})
+                return;
+
             });
 
-            //Rewritten+
+            
             that.expressserver.get('/update*', apilimiter, async function (req, res) //Only works with IPV4 to be set automatically
             {
 
@@ -244,7 +259,7 @@ class webclass extends EventEmitter {
                 }
             });
 
-            //Rewritten+
+            
             that.expressserver.get('/confirm*', apilimiter, async function (req, res) {
                 var responseclass = new api_responseclass(req, res)
 
@@ -284,7 +299,7 @@ class webclass extends EventEmitter {
 
             });
 
-            //Rewritten+
+            
             that.expressserver.get(['*'], apilimiter, async function (req, res) {
                 let content = await addfunctions.read_file("./website/index.html")
                 res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -295,7 +310,7 @@ class webclass extends EventEmitter {
         });
     }
 
-    //Rewritten+
+    
     async processWithLock(lockKey, taskProcessor, res, req, responseclass) {
         var that = this;
         const createLock = async () => {

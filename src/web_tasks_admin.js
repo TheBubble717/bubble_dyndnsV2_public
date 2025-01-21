@@ -4,7 +4,7 @@ import { classdata } from './main.js';
 
 var tasks =
 {
-    //Rewritten+
+    
     "dns_upstream_servers_list":
     {
         description: "Get Upstream DNS Servers that get used for requesting dnsentries that for e.g. domain check",
@@ -26,7 +26,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "dns_upstream_servers_enabledisable":
     {
         description: "Enable/Disable a certain DNS Upstream Server",
@@ -54,7 +54,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "dns_upstream_servers_delete":
     {
         description: "Delete a DNS Upstream Server",
@@ -82,7 +82,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "dns_upstream_servers_create":
     {
         ddescription: "Create a new DNS Upstream Server",
@@ -110,7 +110,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "user_management_list_all":
     {
         description: "List all Users",
@@ -135,7 +135,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "user_management_list_id":
     {
         description: "Get everything of a specific User",
@@ -169,7 +169,7 @@ var tasks =
 
     },
 
-    //Rewritten+
+    
     "user_management_update_user":
     {
         description: "Update settings of a user",
@@ -199,7 +199,7 @@ var tasks =
 
     },
 
-    //Rewritten+
+    
     "bubbledns_servers_list":
     {
         description: "Get the Bubble DNS Servers",
@@ -221,7 +221,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "bubbledns_servers_synctest":
     {
         description: "Synctest a BubbleDNS Server",
@@ -249,7 +249,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "bubbledns_servers_create":
     {
         description: "Create a new BubbleDNS Server",
@@ -277,7 +277,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "bubbledns_servers_update":
     {
         description: "Update a BubbleDNS Server",
@@ -306,7 +306,7 @@ var tasks =
         }
     },
 
-    //Rewritten+
+    
     "bubbledns_servers_delete":
     {
         description: "Delete a BubbleDNS Server",
@@ -336,7 +336,7 @@ var tasks =
 
 }
 
-//Rewritten+
+
 async function pretask(req, res, callback) {
 
     //Get ipv4-Address of the user.
